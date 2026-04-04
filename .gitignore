@@ -1,0 +1,8 @@
+.gocache/
+.gocache_verify/
+.gotmp/
+.idea/
+.DS_Store
+web_app.log
+bin/
+conf/config.yaml

@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="icon" href="/static/favicon.ico">
+  <title>bluebell_frontend</title>
+  <link href="/static/css/app.50fb5caf.css" rel="preload" as="style">
+  <link href="/static/js/app.7fce8887.js" rel="preload" as="script">
+  <link href="/static/js/chunk-vendors.57f9e9d6.js" rel="preload" as="script">
+  <link href="/static/css/app.50fb5caf.css" rel="stylesheet">
+  <style>
+    .rag-panel {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(820px, calc(100vw - 32px));
+      max-height: 70vh;
+      overflow: auto;
+      z-index: 9999;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
+      padding: 12px 0;
+      display: none;
+    }
+
+    .rag-panel.show {
+      display: block;
+    }
+
+    .rag-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .rag-close {
+      border: 0;
+      background: transparent;
+      font-size: 18px;
+      cursor: pointer;
+      color: #999;
+    }
+
+    .rag-list {
+      padding: 8px 16px 0;
+    }
+
+    .rag-item {
+      display: block;
+      padding: 12px 0;
+      border-bottom: 1px solid #f5f5f5;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .rag-item:last-child {
+      border-bottom: 0;
+    }
+
+    .rag-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #222;
+      margin-bottom: 6px;
+    }
+
+    .rag-content {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+      word-break: break-word;
+    }
+
+    .rag-empty {
+      padding: 20px 16px;
+      color: #888;
+      font-size: 14px;
+    }
+
+    .dynamic-sidebar-card {
+      background: #fff;
+      color: #1a1a1b;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      overflow: hidden;
+      word-wrap: break-word;
+      margin-bottom: 16px;
+    }
+
+    .dynamic-sidebar-header {
+      background: linear-gradient(180deg, #0f5fa8, #0079d3);
+      color: #fff;
+      font-size: 16px;
+      font-weight: 600;
+      padding: 14px 16px;
+    }
+
+    .dynamic-sidebar-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dynamic-sidebar-item {
+      display: block;
+      padding: 12px 16px;
+      border-bottom: 1px solid #edeff1;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .dynamic-sidebar-item:last-child {
+      border-bottom: 0;
+    }
+
+    .dynamic-sidebar-item:hover {
+      background: #f8f9fa;
+    }
+
+    .dynamic-sidebar-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.5;
+      color: #1a1a1b;
+      margin-bottom: 6px;
+    }
+
+    .dynamic-sidebar-item-desc {
+      font-size: 12px;
+      line-height: 1.5;
+      color: #6b7280;
+    }
+
+    .dynamic-sidebar-empty {
+      padding: 16px;
+      font-size: 13px;
+      color: #878a8c;
+    }
+
+    .comment-panel {
+      margin: 24px 0 0;
+      padding: 20px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .comment-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .comment-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .comment-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .comment-input {
+      width: 100%;
+      min-height: 96px;
+      padding: 12px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      resize: vertical;
+      font: inherit;
+      box-sizing: border-box;
+    }
+
+    .comment-actions {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .comment-submit {
+      border: 0;
+      border-radius: 999px;
+      background: #0079d3;
+      color: #fff;
+      padding: 10px 18px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .comment-submit:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .comment-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .comment-item {
+      padding: 14px 16px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #f9fafb;
+    }
+
+    .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .comment-author {
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .comment-content {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #111827;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .comment-empty {
+      padding: 18px 0;
+      color: #6b7280;
+      font-size: 14px;
+    }
+
+  </style>
+</head>
+<body>
+  <noscript>
+    <strong>We're sorry but bluebell_frontend doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+  </noscript>
+  <div id="app"></div>
+
+  <div id="rag-panel" class="rag-panel">
+    <div class="rag-header">
+      <span id="rag-title">RAG 搜索结果</span>
+      <button id="rag-close" class="rag-close" type="button">×</button>
+    </div>
+    <div id="rag-list" class="rag-list"></div>
+  </div>
+
+  <script src="/static/js/chunk-vendors.57f9e9d6.js"></script>
+  <script src="/static/js/app.7fce8887.js"></script>
+  <script>
+    (function () {
+      var voteStateByPost = Object.create(null);
+      var votePendingByPost = Object.create(null);
+
+      function ready(fn) {
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", fn);
+          return;
+        }
+        fn();
+      }
+
+      function truncate(text, size) {
+        if (!text) return "";
+        if (text.length <= size) return text;
+        return text.slice(0, size) + "...";
+      }
+
+      function escapeHTML(text) {
+        return String(text || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function getLoginResult() {
+        try {
+          return JSON.parse(localStorage.getItem("loginResult") || "null");
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function getAuthHeaders() {
+        var loginResult = getLoginResult();
+        var headers = { "Accept": "application/json" };
+        if (loginResult && loginResult.token) {
+          headers.Authorization = "Bearer " + loginResult.token;
+        }
+        return headers;
+      }
+
+      function requestJSON(url) {
+        return fetch(url, {
+          method: "GET",
+          headers: getAuthHeaders()
+        }).then(function (resp) {
+          return resp.json();
+        });
+      }
+
+      function postJSON(url, payload) {
+        return fetch(url, {
+          method: "POST",
+          headers: Object.assign({
+            "Content-Type": "application/json"
+          }, getAuthHeaders()),
+          body: JSON.stringify(payload)
+        }).then(function (resp) {
+          return resp.json();
+        });
+      }
+
+      function buildSidebarCard(title, items, emptyText) {
+        if (!items || !items.length) {
+          return [
+            '<section class="dynamic-sidebar-card">',
+            '<div class="dynamic-sidebar-header">' + escapeHTML(title) + '</div>',
+            '<div class="dynamic-sidebar-empty">' + escapeHTML(emptyText) + '</div>',
+            '</section>'
+          ].join("");
+        }
+        return [
+          '<section class="dynamic-sidebar-card">',
+          '<div class="dynamic-sidebar-header">' + escapeHTML(title) + '</div>',
+          '<div class="dynamic-sidebar-list">',
+          items.map(function (item) {
+            return [
+              '<a class="dynamic-sidebar-item" href="/post/' + item.id + '">',
+              '<div class="dynamic-sidebar-item-title">' + escapeHTML(item.title || "无标题") + '</div>',
+              '<div class="dynamic-sidebar-item-desc">' + escapeHTML(truncate(item.content || "", 56)) + '</div>',
+              '</a>'
+            ].join("");
+          }).join(""),
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderGlobalSidebar(right, latestPosts, hotPosts) {
+        right.innerHTML = [
+          buildSidebarCard("全站最近发布", latestPosts, "暂无最近发布的帖子"),
+          buildSidebarCard("全站最热门", hotPosts, "暂无热门帖子")
+        ].join("");
+      }
+
+      function bindDynamicSidebar(force) {
+        var right = document.querySelector('.content .right[data-v-2baf73fc]');
+        if (!right) {
+          return;
+        }
+
+        if (!force && (right.dataset.dynamicSidebarState === "loading" || right.dataset.dynamicSidebarState === "ready")) {
+          return;
+        }
+
+        right.dataset.dynamicSidebarState = "loading";
+        right.innerHTML = [
+          '<section class="dynamic-sidebar-card">',
+          '<div class="dynamic-sidebar-header">全站帖子</div>',
+          '<div class="dynamic-sidebar-empty">正在加载...</div>',
+          '</section>'
+        ].join("");
+
+        Promise.all([
+          requestJSON("/api/v1/posts2?page=1&size=100&order=time"),
+          requestJSON("/api/v1/posts2?page=1&size=100&order=score")
+        ]).then(function (results) {
+          var latestResp = results[0];
+          var hotResp = results[1];
+          var latestData = latestResp && latestResp.code === 1000 && latestResp.data ? latestResp.data : [];
+          var hotData = hotResp && hotResp.code === 1000 && hotResp.data ? hotResp.data : [];
+
+          var latestPosts = latestData.slice(0, 5);
+          var hotPosts = hotData.slice(0, 5);
+
+          renderGlobalSidebar(right, latestPosts, hotPosts);
+          right.dataset.dynamicSidebarState = "ready";
+        }).catch(function () {
+          right.innerHTML = [
+            '<section class="dynamic-sidebar-card">',
+            '<div class="dynamic-sidebar-header">全站帖子</div>',
+            '<div class="dynamic-sidebar-empty">加载失败，请稍后重试</div>',
+            '</section>'
+          ].join("");
+          right.dataset.dynamicSidebarState = "error";
+        });
+      }
+
+      function renderResults(query, hits) {
+        var panel = document.getElementById("rag-panel");
+        var list = document.getElementById("rag-list");
+        var title = document.getElementById("rag-title");
+        title.textContent = 'RAG 搜索结果: "' + query + '"';
+        if (!hits || !hits.length) {
+          list.innerHTML = '<div class="rag-empty">没有找到相关帖子</div>';
+          panel.classList.add("show");
+          return;
+        }
+        list.innerHTML = hits.map(function (item) {
+          var preview = item.chunk_text || item.content || "";
+          return [
+            '<a class="rag-item" href="/post/' + item.post_id + '">',
+            '<div class="rag-title">' + (item.title || "无标题") + '</div>',
+            '<div class="rag-content">' + truncate(preview, 180) + '</div>',
+            '</a>'
+          ].join("");
+        }).join("");
+        panel.classList.add("show");
+      }
+
+      function hidePanel() {
+        var panel = document.getElementById("rag-panel");
+        if (panel) {
+          panel.classList.remove("show");
+        }
+      }
+
+      function executeSearch(input) {
+        var query = (input.value || "").trim();
+        if (!query) {
+          hidePanel();
+          return;
+        }
+        fetch("/api/v1/rag/search?query=" + encodeURIComponent(query) + "&top_k=5", {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function (resp) {
+            if (!resp || resp.code !== 1000 || !resp.data) {
+              renderResults(query, []);
+              return;
+            }
+            renderResults(query, resp.data.hits || []);
+          })
+          .catch(function () {
+            renderResults(query, []);
+          });
+      }
+
+      function bindSearch() {
+        var search = document.querySelector(".search");
+        var logo = document.querySelector(".s-logo");
+        var input = document.querySelector(".s-input");
+        if (!search || !input || input.dataset.ragBound === "1") {
+          return;
+        }
+
+        input.dataset.ragBound = "1";
+        input.setAttribute("placeholder", "输入关键词后回车或点击搜索");
+
+        search.style.cursor = "text";
+        search.addEventListener("click", function (event) {
+          if (event.target === input) {
+            return;
+          }
+          executeSearch(input);
+        });
+
+        if (logo) {
+          logo.style.cursor = "pointer";
+          logo.addEventListener("click", function (event) {
+            event.preventDefault();
+            event.stopPropagation();
+            executeSearch(input);
+          });
+        }
+
+        input.addEventListener("keydown", function (event) {
+          if (event.key !== "Enter") {
+            return;
+          }
+          executeSearch(input);
+        });
+      }
+
+      function getCurrentPostOrder() {
+        var scoreButton = document.querySelector(".c-l-header .top.active");
+        return scoreButton ? "score" : "time";
+      }
+
+      function getHomePostItems() {
+        return Array.prototype.slice.call(document.querySelectorAll(".c-l-list .c-l-item"));
+      }
+
+      function syncHomePostList(posts) {
+        var items = getHomePostItems();
+        if (!items.length || !posts || !posts.length) {
+          return;
+        }
+        items.forEach(function (item, index) {
+          var post = posts[index];
+          if (!post) {
+            return;
+          }
+          item.dataset.postId = String(post.id);
+          var voteNum = item.querySelector(".post .text");
+          if (voteNum) {
+            voteNum.textContent = post.vote_num;
+          }
+          var title = item.querySelector(".con-title");
+          if (title && post.title) {
+            title.textContent = post.title;
+          }
+          var content = item.querySelector(".con-memo p");
+          if (content && typeof post.content === "string") {
+            content.textContent = post.content;
+          }
+        });
+      }
+
+      function refreshHomePostList() {
+        var list = document.querySelector(".c-l-list");
+        if (!list) {
+          return Promise.resolve([]);
+        }
+        var order = getCurrentPostOrder();
+        return requestJSON("/api/v1/posts2?page=1&order=" + encodeURIComponent(order))
+          .then(function (resp) {
+            var data = resp && resp.code === 1000 && resp.data ? resp.data : [];
+            syncHomePostList(data);
+            return data;
+          })
+          .catch(function () {
+            return [];
+          });
+      }
+
+      function formatDetailDate(value) {
+        if (!value) {
+          return "";
+        }
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return String(value);
+        }
+        return date.toLocaleDateString("zh-CN", {
+          year: "numeric",
+          month: "short",
+          day: "numeric"
+        });
+      }
+
+      function ensureCommentPanel() {
+        if (document.getElementById("comment-panel")) {
+          return document.getElementById("comment-panel");
+        }
+        var container = document.querySelector(".content .left .container");
+        if (!container) {
+          return null;
+        }
+        var panel = document.createElement("section");
+        panel.id = "comment-panel";
+        panel.className = "comment-panel";
+        panel.innerHTML = [
+          '<div class="comment-header">',
+          '<div class="comment-title">评论</div>',
+          '</div>',
+          '<div class="comment-form">',
+          '<textarea id="comment-input" class="comment-input" placeholder="写下你的评论..."></textarea>',
+          '<div class="comment-actions">',
+          '<button id="comment-submit" class="comment-submit" type="button">发表评论</button>',
+          '</div>',
+          '</div>',
+          '<div id="comment-list" class="comment-list"></div>'
+        ].join("");
+        container.appendChild(panel);
+        return panel;
+      }
+
+      function formatCommentTime(value) {
+        if (!value) {
+          return "";
+        }
+        var date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return String(value);
+        }
+        return date.toLocaleString("zh-CN", {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      }
+
+      function renderCommentList(comments) {
+        var list = document.getElementById("comment-list");
+        if (!list) {
+          return;
+        }
+        if (!comments || !comments.length) {
+          list.innerHTML = '<div class="comment-empty">还没有评论，来发第一条。</div>';
+          return;
+        }
+        list.innerHTML = comments.map(function (comment) {
+          return [
+            '<article class="comment-item">',
+            '<div class="comment-meta">',
+            '<span class="comment-author">' + escapeHTML(comment.author_name || "匿名") + '</span>',
+            '<span>' + escapeHTML(formatCommentTime(comment.create_time)) + '</span>',
+            '</div>',
+            '<div class="comment-content">' + escapeHTML(comment.content || "") + '</div>',
+            '</article>'
+          ].join("");
+        }).join("");
+      }
+
+      function loadComments(postId) {
+        requestJSON("/api/v1/post/" + encodeURIComponent(postId) + "/comments")
+          .then(function (resp) {
+            if (!resp || resp.code !== 1000) {
+              renderCommentList([]);
+              return;
+            }
+            renderCommentList(resp.data || []);
+          })
+          .catch(function () {
+            renderCommentList([]);
+          });
+      }
+
+      function bindCommentSubmit(postId) {
+        var button = document.getElementById("comment-submit");
+        var input = document.getElementById("comment-input");
+        if (!button || !input || button.dataset.boundPostId === String(postId)) {
+          return;
+        }
+
+        button.dataset.boundPostId = String(postId);
+        button.onclick = function () {
+          var loginResult = getLoginResult();
+          if (!loginResult || !loginResult.token) {
+            showVoteMessage("请先登录后再评论");
+            return;
+          }
+
+          var content = (input.value || "").trim();
+          if (!content) {
+            showVoteMessage("评论内容不能为空");
+            return;
+          }
+
+          button.disabled = true;
+          postJSON("/api/v1/comment", {
+            post_id: String(postId),
+            content: content
+          }).then(function (resp) {
+            if (!resp || resp.code !== 1000) {
+              showVoteMessage(resp && resp.msg ? resp.msg : "发表评论失败，请稍后重试");
+              return;
+            }
+            input.value = "";
+            loadComments(postId);
+          }).catch(function () {
+            showVoteMessage("发表评论失败，请稍后重试");
+          }).finally(function () {
+            button.disabled = false;
+          });
+        };
+      }
+
+      function syncPostDetail() {
+        var match = window.location.pathname.match(/^\/post\/([^/]+)$/);
+        if (!match) {
+          return;
+        }
+
+        requestJSON("/api/v1/post/" + encodeURIComponent(match[1]))
+          .then(function (resp) {
+            if (!resp || resp.code !== 1000 || !resp.data) {
+              return;
+            }
+
+            var post = resp.data;
+            var voteNum = document.querySelector(".content .left .post .text");
+            if (voteNum) {
+              voteNum.textContent = post.vote_num != null ? post.vote_num : 0;
+            }
+
+            var title = document.querySelector(".content .left .con-title");
+            if (title && post.title) {
+              title.textContent = post.title;
+            }
+
+            var content = document.querySelector(".content .left .con-info");
+            if (content && typeof post.content === "string") {
+              content.textContent = post.content;
+            }
+
+            var topicName = document.querySelector(".content .right .topic-name");
+            if (topicName) {
+              topicName.textContent = post.author_name || "";
+            }
+
+            var topicDesc = document.querySelector(".content .right .t-desc");
+            if (topicDesc) {
+              if (post.community && post.community.name) {
+                topicDesc.textContent = "社区: " + post.community.name;
+              } else {
+                topicDesc.textContent = "";
+              }
+            }
+
+            var statNumbers = document.querySelectorAll(".content .right .t-num .number");
+            var statUnits = document.querySelectorAll(".content .right .t-num .unit");
+            if (statNumbers.length > 0) {
+              statNumbers[0].textContent = post.vote_num != null ? String(post.vote_num) : "0";
+            }
+            if (statUnits.length > 0) {
+              statUnits[0].textContent = "点赞";
+            }
+            if (statNumbers.length > 1) {
+              statNumbers[1].textContent = post.community && post.community.id != null ? String(post.community.id) : "-";
+            }
+            if (statUnits.length > 1) {
+              statUnits[1].textContent = "社区ID";
+            }
+
+            var date = document.querySelector(".content .right .date");
+            if (date) {
+              var formatted = formatDetailDate(post.create_time);
+              date.textContent = formatted ? "创建于 " + formatted : "";
+            }
+
+            if (ensureCommentPanel()) {
+              loadComments(match[1]);
+              bindCommentSubmit(match[1]);
+            }
+          })
+          .catch(function () {
+            return null;
+          });
+      }
+
+      function showVoteMessage(message) {
+        if (!message) {
+          return;
+        }
+        window.alert(message);
+      }
+
+      function handleVoteClick(icon, direction) {
+        var listItem = icon.closest(".c-l-item");
+        if (!listItem) {
+          return;
+        }
+        var postId = listItem.dataset.postId;
+        if (!postId) {
+          refreshHomePostList().then(function (posts) {
+            var items = getHomePostItems();
+            var index = items.indexOf(listItem);
+            if (index === -1 || !posts[index]) {
+              showVoteMessage("未找到帖子，刷新后重试");
+              return;
+            }
+            submitVote(String(posts[index].id), direction);
+          });
+          return;
+        }
+        submitVote(postId, direction);
+      }
+
+      function submitVote(postId, direction) {
+        var loginResult = getLoginResult();
+        if (!loginResult || !loginResult.token) {
+          showVoteMessage("请先登录后再点赞");
+          return;
+        }
+        postJSON("/api/v1/vote", {
+          post_id: postId,
+          direction: String(direction)
+        }).then(function (resp) {
+          if (!resp || resp.code !== 1000) {
+            showVoteMessage(resp && resp.msg ? resp.msg : "投票失败，请稍后重试");
+            return;
+          }
+          refreshHomePostList();
+          bindDynamicSidebar(true);
+        }).catch(function () {
+          showVoteMessage("投票失败，请稍后重试");
+        });
+      }
+
+      function getKnownVoteDirection(postId) {
+        postId = String(postId);
+        if (!Object.prototype.hasOwnProperty.call(voteStateByPost, postId)) {
+          return null;
+        }
+        return voteStateByPost[postId];
+      }
+
+      function setKnownVoteDirection(postId, direction) {
+        voteStateByPost[String(postId)] = direction;
+      }
+
+      function isRepeatedVoteResponse(resp) {
+        if (!resp || resp.code === 1000 || !resp.msg) {
+          return false;
+        }
+        var msg = String(resp.msg).toLowerCase();
+        return msg.indexOf("repeat") !== -1 || msg.indexOf("重复") !== -1;
+      }
+
+      function sendVoteRequest(postId, direction) {
+        return postJSON("/api/v1/vote", {
+          post_id: String(postId),
+          direction: String(direction)
+        });
+      }
+
+      function showVoteMessage(message) {
+        if (!message) {
+          return;
+        }
+        window.alert(message);
+      }
+
+      function handleVoteClick(icon, direction) {
+        var listItem = icon.closest(".c-l-item");
+        if (!listItem) {
+          return;
+        }
+        var postId = listItem.dataset.postId;
+        if (!postId) {
+          refreshHomePostList().then(function (posts) {
+            var items = getHomePostItems();
+            var index = items.indexOf(listItem);
+            if (index === -1 || !posts[index]) {
+              showVoteMessage("未找到帖子，请刷新后重试");
+              return;
+            }
+            submitVote(String(posts[index].id), direction);
+          });
+          return;
+        }
+        submitVote(postId, direction);
+      }
+
+      function submitVote(postId, direction, options) {
+        options = options || {};
+        postId = String(postId);
+        var loginResult = getLoginResult();
+        if (!loginResult || !loginResult.token) {
+          showVoteMessage("请先登录后再点赞");
+          return;
+        }
+        if (votePendingByPost[postId]) {
+          return;
+        }
+
+        var knownDirection = getKnownVoteDirection(postId);
+        var submitDirection = options.overrideDirection;
+        if (typeof submitDirection !== "number") {
+          submitDirection = knownDirection === direction ? 0 : direction;
+        }
+
+        votePendingByPost[postId] = true;
+
+        sendVoteRequest(postId, submitDirection)
+          .then(function (resp) {
+            if (resp && resp.code === 1000) {
+              setKnownVoteDirection(postId, submitDirection);
+              refreshHomePostList();
+              bindDynamicSidebar(true);
+              return;
+            }
+
+            if (!options.isRetry && submitDirection !== 0 && isRepeatedVoteResponse(resp)) {
+              votePendingByPost[postId] = false;
+              submitVote(postId, direction, {
+                overrideDirection: 0,
+                isRetry: true
+              });
+              return;
+            }
+
+            showVoteMessage(resp && resp.msg ? resp.msg : "投票失败，请稍后重试");
+          })
+          .catch(function () {
+            showVoteMessage("投票失败，请稍后重试");
+          })
+          .finally(function () {
+            votePendingByPost[postId] = false;
+          });
+      }
+
+      function bindVoteActions() {
+        if (document.body.dataset.voteBound === "1") {
+          return;
+        }
+        document.body.dataset.voteBound = "1";
+        document.addEventListener("click", function (event) {
+          var upIcon = event.target.closest(".c-l-list .icon-up");
+          if (upIcon) {
+            event.preventDefault();
+            event.stopPropagation();
+            handleVoteClick(upIcon, 1);
+            return;
+          }
+
+          var downIcon = event.target.closest(".c-l-list .icon-down");
+          if (downIcon) {
+            event.preventDefault();
+            event.stopPropagation();
+            handleVoteClick(downIcon, -1);
+          }
+        }, true);
+      }
+
+      ready(function () {
+        var close = document.getElementById("rag-close");
+        if (close) {
+          close.addEventListener("click", hidePanel);
+        }
+
+        document.addEventListener("click", function (event) {
+          var panel = document.getElementById("rag-panel");
+          var input = document.querySelector(".s-input");
+          var search = document.querySelector(".search");
+          if (!panel || !panel.classList.contains("show")) {
+            return;
+          }
+          if (panel.contains(event.target) || (input && input.contains(event.target)) || (search && search.contains(event.target))) {
+            return;
+          }
+          hidePanel();
+        });
+
+        bindSearch();
+        bindDynamicSidebar();
+        bindVoteActions();
+        syncPostDetail();
+        var timer = setInterval(function () {
+          bindSearch();
+          bindDynamicSidebar();
+          syncPostDetail();
+        }, 800);
+        window.addEventListener("beforeunload", function () {
+          clearInterval(timer);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

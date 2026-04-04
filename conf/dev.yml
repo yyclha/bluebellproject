@@ -1,0 +1,49 @@
+name: "bluebell"
+mode: "dev"
+port: 8084
+version: "v0.0.1"
+start_time: "2020-07-01"
+machine_id: 1
+
+auth:
+  jwt_expire: 8760
+
+log:
+  level: "info"
+  filename: "web_app.log"
+  max_size: 200
+  max_age: 30
+  max_backups: 7
+mysql:
+  host: 127.0.0.1
+  port: 23306
+  user: "root"
+  password: "1234"
+  dbname: "gotest"
+  max_open_conns: 200
+  max_idle_conns: 50
+redis:
+  host: 127.0.0.1
+  port: 6379
+  password: ""
+  db: 6
+  pool_size: 100
+milvus:
+  enabled: true
+  address: "192.168.237.132:19530"
+  collection: "post_rag_chunk_1024"
+  dimension: 1024
+  chunk_size: 300
+  chunk_overlap: 60
+  top_k: 5
+  metric_type: "COSINE"
+  index_type: "HNSW"
+  hnsw_m: 16
+  hnsw_ef_construction: 200
+  search_ef: 64
+embedding:
+  enabled: true
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  api_key: ""
+  model: "text-embedding-v4"
+  timeout_seconds: 30
