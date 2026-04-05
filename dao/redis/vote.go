@@ -62,6 +62,17 @@ func CreatePost(postID, communityID int64) error {
 	return err
 }
 
+func DeletePost(postID, communityID int64) error {
+	pid := strconv.FormatInt(postID, 10)
+	pipeline := client.TxPipeline()
+	pipeline.ZRem(getRedisKey(KeyPostTimeZSet), pid)
+	pipeline.ZRem(getRedisKey(KeyPostScoreZSet), pid)
+	pipeline.Del(getRedisKey(KeyPostVotedZSetPF + pid))
+	pipeline.SRem(getRedisKey(KeyCommunitySetPF+strconv.FormatInt(communityID, 10)), postID)
+	_, err := pipeline.Exec()
+	return err
+}
+
 func VoteForPost(userID, postID string, value float64) error {
 	// 1. 判断投票限制
 	// 去redis取帖子发布时间

@@ -34,3 +34,9 @@ func GetCommentListByPostID(postID int64) (comments []*models.Comment, err error
 	err = db.Select(&comments, sqlStr, postID)
 	return
 }
+
+func DeleteCommentsByPostID(postID int64) error {
+	sqlStr := `delete from comment where post_id = ?`
+	_, err := db.Exec(sqlStr, postID)
+	return err
+}

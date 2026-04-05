@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # 将我们的代码编译成二进制可执行文件 bluebell_app
-RUN go build -o bluebell_app .
+RUN go build -buildvcs=false -o bluebell_app .
 
 ###################
 # 接下来创建一个小镜像

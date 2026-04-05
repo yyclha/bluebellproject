@@ -131,6 +131,47 @@ func ReplacePostChunks(ctx context.Context, postID int64, docs []ChunkDocument) 
 	return err
 }
 
+func DeletePostChunks(ctx context.Context, postID int64) error {
+	if !Enabled() {
+		return nil
+	}
+	return deletePostChunks(ctx, postID)
+}
+
+// RebuildCollection drops and recreates the configured collection and index,
+// then loads it back into memory.
+func RebuildCollection(ctx context.Context) error {
+	if cfg == nil || !cfg.Enabled {
+		return errors.New("milvus is disabled")
+	}
+	if cli == nil {
+		return errors.New("milvus client is not initialized")
+	}
+
+	loaded = false
+
+	has, err := cli.HasCollection(ctx, cfg.Collection)
+	if err != nil {
+		return err
+	}
+	if has {
+		_ = cli.ReleaseCollection(ctx, cfg.Collection)
+		if err := cli.DropCollection(ctx, cfg.Collection); err != nil {
+			return err
+		}
+	}
+
+	if err := ensureCollection(ctx); err != nil {
+		return err
+	}
+	if err := cli.LoadCollection(ctx, cfg.Collection, false); err != nil {
+		return err
+	}
+
+	loaded = true
+	return nil
+}
+
 // SearchByVector 在 Milvus 中召回 chunk 级结果，并把结果字段一起带回业务层。
 func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHit, error) {
 	if !Enabled() {

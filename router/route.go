@@ -48,6 +48,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{
 		v1.POST("/post", controller.CreatePostHandler)
+		v1.DELETE("/post/:id", controller.DeletePostHandler)
 		v1.POST("/comment", controller.CreateCommentHandler)
 		v1.POST("/vote", controller.PostVoteController)
 		v1.POST("/rag/reindex", controller.RAGReindexHandler)

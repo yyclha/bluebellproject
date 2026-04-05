@@ -73,3 +73,9 @@ func GetPostListForRAG(limit int) (posts []*models.Post, err error) {
 	err = db.Select(&posts, sqlStr, limit)
 	return
 }
+
+func DeletePostByID(pid int64) error {
+	sqlStr := `delete from post where post_id = ?`
+	_, err := db.Exec(sqlStr, pid)
+	return err
+}

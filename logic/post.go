@@ -1,64 +1,57 @@
 package logic
 
 import (
+	"bluebell/dao/milvus"
 	"bluebell/dao/mysql"
 	"bluebell/dao/redis"
 	"bluebell/models"
 	"bluebell/pkg/snowflake"
+	"context"
+	"errors"
 	"strconv"
+	"time"
 
 	"go.uber.org/zap"
 )
 
+var ErrPostNotFound = errors.New("post not found")
+var ErrDeletePostNoPermission = errors.New("delete post no permission")
+
 func CreatePost(p *models.Post) (err error) {
-	// 1. 生成post id
 	p.ID = snowflake.GenID()
-	// 2. 保存到数据库
-	err = mysql.CreatePost(p)
-	if err != nil {
+	if err = mysql.CreatePost(p); err != nil {
 		return err
 	}
-	err = redis.CreatePost(p.ID, p.CommunityID)
-	return
-	// 3. 返回
+	return redis.CreatePost(p.ID, p.CommunityID)
 }
 
-// GetPostById 根据帖子id查询帖子详情数据
 func GetPostById(pid int64) (data *models.ApiPostDetail, err error) {
-	// 查询并组合我们接口想用的数据
 	post, err := mysql.GetPostById(pid)
 	if err != nil {
-		zap.L().Error("mysql.GetPostById(pid) failed",
-			zap.Int64("pid", pid),
-			zap.Error(err))
+		zap.L().Error("mysql.GetPostById(pid) failed", zap.Int64("pid", pid), zap.Error(err))
 		return
 	}
-	// 根据作者id查询作者信息
+
 	user, err := mysql.GetUserById(post.AuthorID)
 	if err != nil {
-		zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-			zap.Int64("author_id", post.AuthorID),
-			zap.Error(err))
+		zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(err))
 		return
 	}
-	// 根据社区id查询社区详细信息
+
 	community, err := mysql.GetCommunityDetailByID(post.CommunityID)
 	if err != nil {
-		zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-			zap.Int64("community_id", post.CommunityID),
-			zap.Error(err))
+		zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(err))
 		return
 	}
-	// 接口数据拼接
+
 	voteNum := int64(0)
 	voteData, voteErr := redis.GetPostVoteData([]string{strconv.FormatInt(pid, 10)})
 	if voteErr != nil {
-		zap.L().Warn("redis.GetPostVoteData failed",
-			zap.Int64("pid", pid),
-			zap.Error(voteErr))
+		zap.L().Warn("redis.GetPostVoteData failed", zap.Int64("pid", pid), zap.Error(voteErr))
 	} else if len(voteData) > 0 {
 		voteNum = voteData[0]
 	}
+
 	data = &models.ApiPostDetail{
 		AuthorName:      user.Username,
 		VoteNum:         voteNum,
@@ -68,43 +61,36 @@ func GetPostById(pid int64) (data *models.ApiPostDetail, err error) {
 	return
 }
 
-// GetPostList 获取帖子列表
 func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 	posts, err := mysql.GetPostList(page, size)
 	if err != nil {
 		return nil, err
 	}
-	data = make([]*models.ApiPostDetail, 0, len(posts))
 
+	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for _, post := range posts {
-		// 根据作者id查询作者信息
-		user, err := mysql.GetUserById(post.AuthorID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("author_id", post.AuthorID),
-				zap.Error(err))
+		user, userErr := mysql.GetUserById(post.AuthorID)
+		if userErr != nil {
+			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
 			continue
 		}
-		// 根据社区id查询社区详细信息
-		community, err := mysql.GetCommunityDetailByID(post.CommunityID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("community_id", post.CommunityID),
-				zap.Error(err))
+
+		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
+		if communityErr != nil {
+			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
 			continue
 		}
-		postDetail := &models.ApiPostDetail{
+
+		data = append(data, &models.ApiPostDetail{
 			AuthorName:      user.Username,
 			Post:            post,
 			CommunityDetail: community,
-		}
-		data = append(data, postDetail)
+		})
 	}
 	return
 }
 
 func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
-	// 2. 去redis查询id列表
 	ids, err := redis.GetPostIDsInOrder(p)
 	if err != nil {
 		return
@@ -113,111 +99,89 @@ func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err er
 		zap.L().Warn("redis.GetPostIDsInOrder(p) return 0 data")
 		return
 	}
-	zap.L().Debug("GetPostList2", zap.Any("ids", ids))
-	// 3. 根据id去MySQL数据库查询帖子详细信息
-	// 返回的数据还要按照我给定的id的顺序返回
+
 	posts, err := mysql.GetPostListByIDs(ids)
 	if err != nil {
 		return
 	}
-	zap.L().Debug("GetPostList2", zap.Any("posts", posts))
-	// 提前查询好每篇帖子的投票数
+
 	voteData, err := redis.GetPostVoteData(ids)
 	if err != nil {
 		return
 	}
 
-	// 将帖子的作者及分区信息查询出来填充到帖子中
+	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for idx, post := range posts {
-		// 根据作者id查询作者信息
-		user, err := mysql.GetUserById(post.AuthorID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("author_id", post.AuthorID),
-				zap.Error(err))
+		user, userErr := mysql.GetUserById(post.AuthorID)
+		if userErr != nil {
+			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
 			continue
 		}
-		// 根据社区id查询社区详细信息
-		community, err := mysql.GetCommunityDetailByID(post.CommunityID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("community_id", post.CommunityID),
-				zap.Error(err))
+
+		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
+		if communityErr != nil {
+			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
 			continue
 		}
-		postDetail := &models.ApiPostDetail{
+
+		data = append(data, &models.ApiPostDetail{
 			AuthorName:      user.Username,
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
-		}
-		data = append(data, postDetail)
+		})
 	}
 	return
-
 }
 
 func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
-	// 2. 去redis查询id列表
 	ids, err := redis.GetCommunityPostIDsInOrder(p)
 	if err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		zap.L().Warn("redis.GetPostIDsInOrder(p) return 0 data")
+		zap.L().Warn("redis.GetCommunityPostIDsInOrder(p) return 0 data")
 		return
 	}
-	zap.L().Debug("GetCommunityPostIDsInOrder", zap.Any("ids", ids))
-	// 3. 根据id去MySQL数据库查询帖子详细信息
-	// 返回的数据还要按照我给定的id的顺序返回
+
 	posts, err := mysql.GetPostListByIDs(ids)
 	if err != nil {
 		return
 	}
-	zap.L().Debug("GetPostList2", zap.Any("posts", posts))
-	// 提前查询好每篇帖子的投票数
+
 	voteData, err := redis.GetPostVoteData(ids)
 	if err != nil {
 		return
 	}
 
-	// 将帖子的作者及分区信息查询出来填充到帖子中
+	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for idx, post := range posts {
-		// 根据作者id查询作者信息
-		user, err := mysql.GetUserById(post.AuthorID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("author_id", post.AuthorID),
-				zap.Error(err))
+		user, userErr := mysql.GetUserById(post.AuthorID)
+		if userErr != nil {
+			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
 			continue
 		}
-		// 根据社区id查询社区详细信息
-		community, err := mysql.GetCommunityDetailByID(post.CommunityID)
-		if err != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed",
-				zap.Int64("community_id", post.CommunityID),
-				zap.Error(err))
+
+		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
+		if communityErr != nil {
+			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
 			continue
 		}
-		postDetail := &models.ApiPostDetail{
+
+		data = append(data, &models.ApiPostDetail{
 			AuthorName:      user.Username,
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
-		}
-		data = append(data, postDetail)
+		})
 	}
 	return
 }
 
-// GetPostListNew  将两个查询帖子列表逻辑合二为一的函数
 func GetPostListNew(p *models.ParamPostList) (data []*models.ApiPostDetail, err error) {
-	// 根据请求参数的不同，执行不同的逻辑。
 	if p.CommunityID == 0 {
-		// 查所有
 		data, err = GetPostList2(p)
 	} else {
-		// 根据社区id查询
 		data, err = GetCommunityPostList(p)
 	}
 	if err != nil {
@@ -225,4 +189,31 @@ func GetPostListNew(p *models.ParamPostList) (data []*models.ApiPostDetail, err 
 		return nil, err
 	}
 	return
+}
+
+func DeletePostByID(pid, userID int64) error {
+	post, err := mysql.GetPostById(pid)
+	if err != nil {
+		return ErrPostNotFound
+	}
+	if post.AuthorID != userID {
+		return ErrDeletePostNoPermission
+	}
+
+	if err := mysql.DeleteCommentsByPostID(pid); err != nil {
+		return err
+	}
+	if err := mysql.DeletePostByID(pid); err != nil {
+		return err
+	}
+	if err := redis.DeletePost(pid, post.CommunityID); err != nil {
+		zap.L().Warn("redis.DeletePost failed", zap.Int64("post_id", pid), zap.Error(err))
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := milvus.DeletePostChunks(ctx, pid); err != nil {
+		zap.L().Warn("milvus.DeletePostChunks failed", zap.Int64("post_id", pid), zap.Error(err))
+	}
+	return nil
 }

@@ -187,7 +187,7 @@ docker compose up -d mysql8019 redis507 etcd minio milvus-standalone
 安装依赖并启动：
 
 ```bash
-go run ./main.go ./conf/config.yaml
+go run -buildvcs=false ./main.go ./conf/config.yaml
 ```
 
 或使用 Makefile：
@@ -360,7 +360,7 @@ go test ./...
 只编译不运行：
 
 ```bash
-go build ./...
+go build -buildvcs=false ./...
 ```
 
 查看 Git 状态：
