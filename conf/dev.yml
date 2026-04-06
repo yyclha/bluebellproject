@@ -44,6 +44,13 @@ milvus:
 embedding:
   enabled: true
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-  api_key: ""
+  api_key: "sk-d4d662cd3b9f4d7e9c7d1ba2aec95491"
   model: "text-embedding-v4"
   timeout_seconds: 30
+post_score:
+  enabled: true
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  api_key: "sk-b831f42e70024ae9a2b5a7f64be9bc99"
+  model: "qvq-max-2025-03-25"
+  timeout_seconds: 30
+  score_weight: 20

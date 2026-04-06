@@ -42,6 +42,10 @@ func main() {
 		fmt.Printf("init mysql failed, err:%v\n", err)
 		os.Exit(1)
 	}
+	if err := mysql.InitPostAIScoreTable(); err != nil {
+		fmt.Printf("init post ai score table failed, err:%v\n", err)
+		os.Exit(1)
+	}
 	defer mysql.Close()
 
 	if err := embedder.Init(setting.Conf.EmbeddingConfig); err != nil {

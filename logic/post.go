@@ -69,20 +69,23 @@ func GetPostList(page, size int64) (data []*models.ApiPostDetail, err error) {
 
 	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for _, post := range posts {
+		authorName := ""
 		user, userErr := mysql.GetUserById(post.AuthorID)
 		if userErr != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
-			continue
+			zap.L().Warn("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
+		} else {
+			authorName = user.Username
 		}
 
+		community := &models.CommunityDetail{}
 		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
 		if communityErr != nil {
-			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
-			continue
+			zap.L().Warn("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
+			community = &models.CommunityDetail{ID: post.CommunityID}
 		}
 
 		data = append(data, &models.ApiPostDetail{
-			AuthorName:      user.Username,
+			AuthorName:      authorName,
 			Post:            post,
 			CommunityDetail: community,
 		})
@@ -112,20 +115,23 @@ func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err er
 
 	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for idx, post := range posts {
+		authorName := ""
 		user, userErr := mysql.GetUserById(post.AuthorID)
 		if userErr != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
-			continue
+			zap.L().Warn("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
+		} else {
+			authorName = user.Username
 		}
 
+		community := &models.CommunityDetail{}
 		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
 		if communityErr != nil {
-			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
-			continue
+			zap.L().Warn("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
+			community = &models.CommunityDetail{ID: post.CommunityID}
 		}
 
 		data = append(data, &models.ApiPostDetail{
-			AuthorName:      user.Username,
+			AuthorName:      authorName,
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
@@ -156,20 +162,23 @@ func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail
 
 	data = make([]*models.ApiPostDetail, 0, len(posts))
 	for idx, post := range posts {
+		authorName := ""
 		user, userErr := mysql.GetUserById(post.AuthorID)
 		if userErr != nil {
-			zap.L().Error("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
-			continue
+			zap.L().Warn("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
+		} else {
+			authorName = user.Username
 		}
 
+		community := &models.CommunityDetail{}
 		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
 		if communityErr != nil {
-			zap.L().Error("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
-			continue
+			zap.L().Warn("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
+			community = &models.CommunityDetail{ID: post.CommunityID}
 		}
 
 		data = append(data, &models.ApiPostDetail{
-			AuthorName:      user.Username,
+			AuthorName:      authorName,
 			VoteNum:         voteData[idx],
 			Post:            post,
 			CommunityDetail: community,
@@ -201,6 +210,9 @@ func DeletePostByID(pid, userID int64) error {
 	}
 
 	if err := mysql.DeleteCommentsByPostID(pid); err != nil {
+		return err
+	}
+	if err := mysql.DeletePostAIScoreByPostID(pid); err != nil {
 		return err
 	}
 	if err := mysql.DeletePostByID(pid); err != nil {

@@ -225,6 +225,7 @@
       padding: 32px 28px 72px;
       margin-top: var(--header-height);
       align-items: flex-start;
+      overflow: visible;
     }
 
     .content .left[data-v-2baf73fc],
@@ -495,8 +496,9 @@
 
     .content .right[data-v-2baf73fc] {
       width: 320px !important;
-      position: sticky;
-      top: 96px;
+      position: static;
+      top: auto;
+      align-self: flex-start;
     }
 
     .content .right[data-v-2baf73fc] .communities[data-v-2baf73fc],
@@ -907,6 +909,9 @@
       padding: 28px;
       max-width: 840px;
       background: linear-gradient(180deg, rgba(255, 251, 245, 0.94), rgba(255, 255, 255, 0.88));
+      max-height: none;
+      overflow: visible;
+      align-self: stretch;
     }
 
     .content .left .post-name[data-v-6236a644] {
@@ -948,6 +953,7 @@
       border-radius: var(--radius-lg);
       background: rgba(255, 255, 255, 0.66);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      overflow: visible;
     }
 
     .content .left .post-content .cat .cat-item[data-v-6236a644] {
@@ -981,12 +987,16 @@
       border: 0;
       margin-top: 18px;
       height: auto;
+      overflow: visible;
     }
 
     .content .left .post-content .post-sub-container .post-text-con .post-content-t[data-v-6236a644] {
       min-height: 280px;
-      height: 280px;
+      height: min(56vh, 520px);
+      max-height: 60vh;
       line-height: 1.8;
+      overflow-y: auto;
+      resize: vertical;
     }
 
     .content .left .post-content .post-footer .btns .btn[data-v-6236a644] {
@@ -1563,8 +1573,31 @@
       }
 
       function getCurrentPostOrder() {
+        if (homeFeedState.order === "score" || homeFeedState.order === "time") {
+          return homeFeedState.order;
+        }
         var scoreButton = document.querySelector(".c-l-header .top.active");
         return scoreButton ? "score" : "time";
+      }
+
+      function syncHomeFeedOrderUI(order) {
+        var header = document.querySelector(".c-l-header");
+        if (!header) {
+          return;
+        }
+
+        var newButton = header.querySelector(".new");
+        var scoreButton = header.querySelector(".top");
+        var normalizedOrder = order === "score" ? "score" : "time";
+
+        header.dataset.currentOrder = normalizedOrder;
+
+        if (newButton) {
+          newButton.classList.toggle("active", normalizedOrder === "time");
+        }
+        if (scoreButton) {
+          scoreButton.classList.toggle("active", normalizedOrder === "score");
+        }
       }
 
       function getHomePostItems() {
@@ -1671,6 +1704,31 @@
           });
       }
 
+      function refetchLoadedHomePages() {
+        var order = homeFeedState.order || getCurrentPostOrder();
+        var pageCount = homeFeedState.page > 0 ? homeFeedState.page : 1;
+        var requests = [];
+        var pageIndex;
+
+        for (pageIndex = 1; pageIndex <= pageCount; pageIndex++) {
+          requests.push(fetchHomePosts(pageIndex, order));
+        }
+
+        return Promise.all(requests).then(function (pages) {
+          var merged = [];
+          pages.forEach(function (items) {
+            merged = merged.concat(items || []);
+          });
+          homeFeedState.order = order;
+          homeFeedState.items = merged;
+          homeFeedState.initialized = true;
+          homeFeedState.reachedEnd = pages.length > 0 ? (pages[pages.length - 1] || []).length < homeFeedState.size : true;
+          syncHomeFeedOrderUI(order);
+          renderHomeFeedState();
+          return merged.slice();
+        });
+      }
+
       function refreshHomePostList(options) {
         options = options || {};
         var list = getHomeListNode();
@@ -1679,6 +1737,17 @@
         }
 
         var requestedOrder = options.order || getCurrentPostOrder();
+        if (options.preserveLoaded && homeFeedState.initialized && homeFeedState.page > 0 && homeFeedState.order === requestedOrder) {
+          homeFeedState.loading = true;
+          syncHomeFeedOrderUI(requestedOrder);
+          renderHomeFeedState();
+          return refetchLoadedHomePages()
+            .finally(function () {
+              homeFeedState.loading = false;
+              renderHomeFeedState();
+            });
+        }
+
         var reset = !!options.reset || !homeFeedState.initialized || homeFeedState.order !== requestedOrder;
 
         if (reset) {
@@ -1689,6 +1758,7 @@
         }
 
         homeFeedState.loading = true;
+        syncHomeFeedOrderUI(requestedOrder);
         renderHomeFeedState();
 
         var nextPage = reset ? 1 : homeFeedState.page + 1;
@@ -1703,6 +1773,7 @@
             homeFeedState.order = requestedOrder;
             homeFeedState.initialized = true;
             homeFeedState.reachedEnd = data.length < homeFeedState.size;
+            syncHomeFeedOrderUI(requestedOrder);
             renderHomeFeedState();
             return homeFeedState.items.slice();
           })
@@ -1755,9 +1826,18 @@
             if (!orderButton) {
               return;
             }
-            window.setTimeout(function () {
-              refreshHomePostList({ reset: true });
-            }, 0);
+            event.preventDefault();
+            var requestedOrder = orderButton.classList.contains("top") ? "score" : "time";
+            if (homeFeedState.loading && homeFeedState.order === requestedOrder) {
+              syncHomeFeedOrderUI(requestedOrder);
+              return;
+            }
+            homeFeedState.order = requestedOrder;
+            syncHomeFeedOrderUI(requestedOrder);
+            refreshHomePostList({
+              reset: true,
+              order: requestedOrder
+            });
           });
         }
       }
@@ -2156,7 +2236,7 @@
           .then(function (resp) {
             if (resp && resp.code === 1000) {
               setKnownVoteDirection(postId, submitDirection);
-              refreshHomePostList({ reset: true });
+              refreshHomePostList({ preserveLoaded: true });
               bindDynamicSidebar(true);
               return;
             }

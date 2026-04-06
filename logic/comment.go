@@ -2,6 +2,7 @@ package logic
 
 import (
 	"bluebell/dao/mysql"
+	"bluebell/dao/redis"
 	"bluebell/models"
 	"bluebell/pkg/snowflake"
 )
@@ -13,7 +14,10 @@ func CreateComment(p *models.ParamCreateComment, authorID int64) error {
 		AuthorID: authorID,
 		Content:  p.Content,
 	}
-	return mysql.CreateComment(comment)
+	if err := mysql.CreateComment(comment); err != nil {
+		return err
+	}
+	return redis.AddCommentScore(comment.PostID)
 }
 
 func GetCommentListByPostID(postID int64) ([]*models.ApiCommentDetail, error) {

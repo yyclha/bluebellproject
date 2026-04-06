@@ -7,6 +7,7 @@ import (
 	"bluebell/dao/redis"
 	"bluebell/logger"
 	"bluebell/pkg/embedder"
+	"bluebell/pkg/postscore"
 	"bluebell/pkg/snowflake"
 	"bluebell/router"
 	"bluebell/setting"
@@ -36,6 +37,10 @@ func main() {
 		fmt.Printf("init comment table failed, err:%v\n", err)
 		return
 	}
+	if err := mysql.InitPostAIScoreTable(); err != nil {
+		fmt.Printf("init post ai score table failed, err:%v\n", err)
+		return
+	}
 	defer mysql.Close()
 
 	if err := redis.Init(setting.Conf.RedisConfig); err != nil {
@@ -55,6 +60,10 @@ func main() {
 
 	if err := embedder.Init(setting.Conf.EmbeddingConfig); err != nil {
 		fmt.Printf("init embedding failed, err:%v\n", err)
+		return
+	}
+	if err := postscore.Init(setting.Conf.PostScoreConfig); err != nil {
+		fmt.Printf("init post score failed, err:%v\n", err)
 		return
 	}
 	if err := milvus.Init(setting.Conf.MilvusConfig); err != nil {

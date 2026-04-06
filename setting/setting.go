@@ -22,6 +22,7 @@ type AppConfig struct {
 	*RedisConfig     `mapstructure:"redis"`
 	*MilvusConfig    `mapstructure:"milvus"`
 	*EmbeddingConfig `mapstructure:"embedding"`
+	*PostScoreConfig `mapstructure:"post_score"`
 }
 
 type MySQLConfig struct {
@@ -72,6 +73,15 @@ type EmbeddingConfig struct {
 	APIKey         string `mapstructure:"api_key"`
 	Model          string `mapstructure:"model"`
 	TimeoutSeconds int    `mapstructure:"timeout_seconds"`
+}
+
+type PostScoreConfig struct {
+	Enabled        bool    `mapstructure:"enabled"`
+	BaseURL        string  `mapstructure:"base_url"`
+	APIKey         string  `mapstructure:"api_key"`
+	Model          string  `mapstructure:"model"`
+	TimeoutSeconds int     `mapstructure:"timeout_seconds"`
+	ScoreWeight    float64 `mapstructure:"score_weight"`
 }
 
 func Init(filePath string) (err error) {

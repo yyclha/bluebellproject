@@ -107,7 +107,26 @@ embedding:
   api_key: "你的 DashScope Key"
   model: "text-embedding-v4"
   timeout_seconds: 30
+
+post_score:
+  enabled: true
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  api_key: "你的 DashScope Key"
+  model: "qvq-max-2025-03-25"
+  timeout_seconds: 30
+  score_weight: 20
 ```
+
+`post_score` 用于在发帖后调用大模型给帖子打一个 0-100 的质量分，并把分数按 `score_weight` 折算后叠加到 Redis 的帖子排序分里。  
+例如 `score_weight: 20` 时，模型打 `82` 分，会额外给帖子增加约 `1640` 的排序分。
+
+服务启动时会自动创建 `post_ai_score` 表，用来记录：
+- 帖子 ID
+- 使用的模型
+- 大模型原始评分
+- 当前权重
+- 最终叠加到排序分里的增量
+- 模型原始返回文本
 
 ## 数据库初始化
 
