@@ -87,43 +87,6 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 	}, nil
 }
 
-func AskRAGAssistant(ctx context.Context, p *models.ParamRAGChat) (*models.RAGChatResult, error) {
-	if p == nil {
-		return nil, errors.New("rag chat param is nil")
-	}
-	if !ragchat.Enabled() {
-		return nil, errors.New("rag chat is disabled")
-	}
-
-	topK := p.TopK
-	if topK <= 0 {
-		topK = ragchat.TopK()
-	}
-
-	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
-		Query: p.Question,
-		TopK:  topK,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("rag retrieval failed: %w", err)
-	}
-
-	answer, err := ragchat.AnswerQuestion(ctx, p.Question, searchResult.Hits)
-	if err != nil {
-		if errors.Is(err, context.DeadlineExceeded) {
-			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
-		}
-		return nil, fmt.Errorf("llm answer stage failed: %w", err)
-	}
-
-	return &models.RAGChatResult{
-		Question: p.Question,
-		Answer:   answer,
-		Model:    ragchat.ModelName(),
-		Hits:     searchResult.Hits,
-	}, nil
-}
-
 func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk func(string) error) (*models.RAGChatResult, error) {
 	if p == nil {
 		return nil, errors.New("rag chat param is nil")

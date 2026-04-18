@@ -31,25 +31,6 @@ func RAGSearchHandler(c *gin.Context) {
 	ResponseSuccess(c, data)
 }
 
-func RAGChatHandler(c *gin.Context) {
-	p := new(models.ParamRAGChat)
-	if err := c.ShouldBindQuery(p); err != nil {
-		if err := c.ShouldBindJSON(p); err != nil {
-			ResponseError(c, CodeInvalidParam)
-			return
-		}
-	}
-	ctx, cancel := context.WithTimeout(c.Request.Context(), ragChatRequestTimeout())
-	defer cancel()
-	data, err := logic.AskRAGAssistant(ctx, p)
-	if err != nil {
-		zap.L().Error("AskRAGAssistant failed", zap.Error(err))
-		ResponseErrorWithMsg(c, CodeServerBusy, err.Error())
-		return
-	}
-	ResponseSuccess(c, data)
-}
-
 func RAGChatStreamHandler(c *gin.Context) {
 	p := new(models.ParamRAGChat)
 	if err := c.ShouldBindQuery(p); err != nil {

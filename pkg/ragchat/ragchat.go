@@ -78,10 +78,6 @@ func MaxContextChars() int {
 	return cfg.MaxContextChars
 }
 
-func AnswerQuestion(ctx context.Context, question string, hits []models.RAGHit) (string, error) {
-	return StreamAnswerQuestion(ctx, question, hits, nil)
-}
-
 func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RAGHit, onChunk func(string) error) (string, error) {
 	if !Enabled() {
 		return "", errors.New("rag chat is disabled")

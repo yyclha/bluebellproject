@@ -1337,6 +1337,10 @@
       background: transparent;
       font-size: 20px;
       line-height: 1;
+      font-family: Arial, "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", sans-serif;
+      font-weight: 400;
+      font-style: normal;
+      text-transform: none;
       cursor: pointer;
       color: rgba(255, 255, 255, 0.82);
     }
@@ -1695,7 +1699,7 @@
     <div id="rag-body" class="rag-body">
       <div id="rag-list" class="rag-list">
         <section class="rag-answer-card">
-          <div class="rag-answer-label">Assistant</div>
+          <div class="rag-answer-label">助手</div>
           <div class="rag-answer-text">我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。</div>
         </section>
       </div>
@@ -1841,7 +1845,7 @@
         return {
           id: createAssistantId("welcome"),
           role: "assistant",
-          text: "我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。",
+          text: ASSISTANT_COPY.welcome,
           status: "done",
           sources: [],
           showSources: false
@@ -1998,75 +2002,6 @@
         var title = document.getElementById("rag-title");
         if (title) {
           title.textContent = text;
-        }
-      }
-
-      function renderAssistantSources(sources, showEmpty) {
-        if (!sources || !sources.length) {
-          if (!showEmpty) {
-            return "";
-          }
-          return [
-            '<section class="rag-sources-card">',
-            '<div class="rag-sources-title">引用知识片段</div>',
-            '<div class="rag-empty">没有检索到可引用的知识片段。</div>',
-            '</section>'
-          ].join("");
-        }
-        return [
-          '<section class="rag-sources-card">',
-          '<div class="rag-sources-title">引用知识片段</div>',
-          sources.map(function (item) {
-            var preview = item.chunk_text || item.content || "";
-            return [
-              '<a class="rag-item" href="/post/' + item.post_id + '">',
-              '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
-              '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
-              '</a>'
-            ].join("");
-          }).join(""),
-          '</section>'
-        ].join("");
-      }
-
-      function renderAssistantMessage(message) {
-        var answerText;
-        var showCaret;
-        if (message.role === "user") {
-          return [
-            '<section class="rag-question-card" data-rag-message-id="' + message.id + '">',
-            '<div class="rag-question-label">You</div>',
-            '<div class="rag-question-text">' + escapeHTML(message.text) + '</div>',
-            '</section>'
-          ].join("");
-        }
-
-        answerText = message.text || (message.status === "loading" ? "正在检索知识库并生成回答..." : "");
-        showCaret = message.status === "typing";
-
-        return [
-          '<section class="rag-message" data-rag-message-id="' + message.id + '">',
-          '<div class="rag-answer-card' + (message.status === "loading" ? ' is-loading' : '') + '">',
-          '<div class="rag-answer-label">Assistant</div>',
-          '<div class="rag-answer-text" data-rag-message-text="' + message.id + '">' + escapeHTML(answerText) + (showCaret ? '<span class="rag-answer-caret"></span>' : '') + '</div>',
-          message.status === "loading" ? '<div class="rag-loading-row"><span></span><span></span><span></span></div>' : '',
-          '</div>',
-          renderAssistantSources(message.sources, !!message.showSources),
-          '</section>'
-        ].join("");
-      }
-
-      function renderAssistantThread() {
-        var list = document.getElementById("rag-list");
-        if (!list) {
-          return;
-        }
-        ragAssistantState.view = "chat";
-        ensureAssistantHistory();
-        updateAssistantTitle(ragAssistantState.loading ? "正在回答..." : "点右下角助手提问");
-        list.innerHTML = ragAssistantState.history.map(renderAssistantMessage).join("");
-        if (ragAssistantState.open) {
-          scrollAssistantToBottom();
         }
       }
 
@@ -2465,28 +2400,6 @@
         return loadingMessage.id;
       }
 
-      function renderAssistantResult(messageId, answer, hits) {
-        ragAssistantState.loading = false;
-        updateAssistantTitle("已结合知识库回答");
-        startAssistantTypewriter(
-          messageId,
-          answer || "知识库里暂时没有足够信息回答这个问题。",
-          hits || [],
-          { showSources: true }
-        );
-      }
-
-      function renderAssistantError(messageId, message) {
-        ragAssistantState.loading = false;
-        updateAssistantTitle("问答失败");
-        startAssistantTypewriter(
-          messageId,
-          message || "问答助手暂时不可用，请稍后再试。",
-          [],
-          { status: "error", showSources: false }
-        );
-      }
-
       function scrollAssistantToBottom() {
         var body = document.getElementById("rag-body");
         if (body) {
@@ -2587,148 +2500,6 @@
         if (ragDragState.source === "fab" && !ragDragState.moved) {
           togglePanel();
         }
-      }
-
-      function executeAssistant(input) {
-        var question = (input.value || "").trim();
-        var sendButton = document.getElementById("rag-send");
-        var messageId;
-        if (!question) {
-          return;
-        }
-        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
-          return;
-        }
-
-        ragAssistantState.loading = true;
-        ragAssistantState.lastQuestion = question;
-        if (sendButton) {
-          sendButton.disabled = true;
-          sendButton.textContent = "回答中";
-        }
-        messageId = renderAssistantLoading(question);
-        input.value = "";
-
-        postJSON("/api/v1/rag/chat", {
-          question: question,
-          top_k: 4
-        })
-          .then(function (resp) {
-            ragAssistantState.loading = false;
-            if (sendButton) {
-              sendButton.disabled = false;
-              sendButton.textContent = "发送";
-            }
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : "问答失败");
-              return;
-            }
-            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
-          })
-          .catch(function () {
-            ragAssistantState.loading = false;
-            if (sendButton) {
-              sendButton.disabled = false;
-              sendButton.textContent = "发送";
-            }
-            renderAssistantError(messageId, "问答助手暂时不可用，请稍后再试。");
-          });
-      }
-
-      function executeAssistantStream(input) {
-        var question = (input.value || "").trim();
-        var sendButton = document.getElementById("rag-send");
-        var messageId;
-        var receivedChunks = false;
-
-        if (!question) {
-          return;
-        }
-        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
-          return;
-        }
-
-        ragAssistantState.loading = true;
-        ragAssistantState.lastQuestion = question;
-        if (sendButton) {
-          sendButton.disabled = true;
-          sendButton.textContent = "回答中...";
-        }
-        messageId = renderAssistantLoading(question);
-        input.value = "";
-
-        function resetSendButton() {
-          if (!sendButton) {
-            return;
-          }
-          sendButton.disabled = false;
-          sendButton.textContent = "发送";
-        }
-
-        function fallbackToJSON() {
-          return postJSON("/api/v1/rag/chat", {
-            question: question,
-            top_k: 4
-          }).then(function (resp) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : "问答失败");
-              return;
-            }
-            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
-          }).catch(function () {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            renderAssistantError(messageId, "问答助手暂时不可用，请稍后再试。");
-          });
-        }
-
-        streamAssistantQuestion(question, {
-          onChunk: function (delta) {
-            if (!receivedChunks) {
-              receivedChunks = true;
-              updateAssistantTitle("正在结合知识库流式回答...");
-              updateAssistantMessage(messageId, function (message) {
-                message.text = "";
-                message.status = "typing";
-              });
-              renderAssistantThread();
-            }
-            streamAssistantMessageChunk(messageId, delta);
-          },
-          onDone: function (payload) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            finalizeAssistantMessage(
-              messageId,
-              payload && payload.answer ? String(payload.answer) : getAssistantMessageText(messageId),
-              payload && payload.hits ? payload.hits : [],
-              { showSources: true }
-            );
-            updateAssistantTitle("已结合知识库回答");
-          },
-          onError: function (message) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            renderAssistantError(messageId, message || "问答失败");
-          }
-        }).catch(function () {
-          if (!receivedChunks) {
-            return fallbackToJSON();
-          }
-        });
-      }
-
-      function buildWelcomeAssistantMessage() {
-        return {
-          id: createAssistantId("welcome"),
-          role: "assistant",
-          text: ASSISTANT_COPY.welcome,
-          status: "done",
-          sources: [],
-          showSources: false
-        };
       }
 
       function renderAssistantSources(sources, showEmpty) {
@@ -2852,25 +2623,6 @@
           sendButton.textContent = ASSISTANT_COPY.send;
         }
 
-        function fallbackToJSON() {
-          return postJSON("/api/v1/rag/chat", {
-            question: question,
-            top_k: 4
-          }).then(function (resp) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : ASSISTANT_COPY.panelTitleError);
-              return;
-            }
-            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
-          }).catch(function () {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            renderAssistantError(messageId, ASSISTANT_COPY.answerError);
-          });
-        }
-
         streamAssistantQuestion(question, {
           onChunk: function (delta) {
             if (!receivedChunks) {
@@ -2901,9 +2653,9 @@
             renderAssistantError(messageId, message || ASSISTANT_COPY.panelTitleError);
           }
         }).catch(function () {
-          if (!receivedChunks) {
-            return fallbackToJSON();
-          }
+          ragAssistantState.loading = false;
+          resetSendButton();
+          renderAssistantError(messageId, ASSISTANT_COPY.answerError);
         });
       }
 
@@ -3056,7 +2808,7 @@
         }
 
         if (!homeFeedState.items.length) {
-          list.innerHTML = '<div class="home-feed-empty">当前还没有帖子，去发第一篇吧。</div>';
+          list.innerHTML = '<div class="home-feed-empty">暂无内容，稍后再来看看吧。</div>';
         } else {
           list.innerHTML = homeFeedState.items.map(renderHomePostItem).join("");
         }
@@ -3079,11 +2831,11 @@
         if (!homeFeedState.items.length) {
           status.textContent = "";
         } else if (homeFeedState.loading) {
-          status.textContent = "正在加载";
+          status.textContent = "正在加载内容";
         } else if (homeFeedState.reachedEnd) {
-          status.textContent = "没有更多了";
+          status.textContent = "没有更多内容了";
         } else {
-          status.textContent = "已显示 " + homeFeedState.items.length + " 条";
+          status.textContent = "已加载 " + homeFeedState.items.length + " 条内容";
         }
       }
 
@@ -3303,7 +3055,7 @@
           return;
         }
         if (!comments || !comments.length) {
-          list.innerHTML = '<div class="comment-empty">还没有评论，来发第一条。</div>';
+          list.innerHTML = '<div class="comment-empty">还没有评论，来发第一条吧。</div>';
           return;
         }
         list.innerHTML = comments.map(function (comment) {
@@ -3407,7 +3159,7 @@
 
         button.dataset.boundPostId = String(postId);
         button.onclick = function () {
-          if (!window.confirm("确认删除这篇帖子吗？删除后不可恢复。")) {
+          if (!window.confirm("确认删除这篇帖子吗？删除后无法恢复。")) {
             return;
           }
 
@@ -3415,13 +3167,13 @@
           deleteJSON("/api/v1/post/" + encodeURIComponent(postId))
             .then(function (resp) {
               if (!resp || resp.code !== 1000) {
-                showVoteMessage(resp && resp.msg ? resp.msg : "删除失败，请稍后重试");
+                showVoteMessage(resp && resp.msg ? resp.msg : "删除帖子失败，请稍后重试");
                 return;
               }
               window.location.href = "/";
             })
             .catch(function () {
-              showVoteMessage("删除失败，请稍后重试");
+              showVoteMessage("删除帖子失败，请稍后重试");
             })
             .finally(function () {
               button.disabled = false;
@@ -3477,19 +3229,19 @@
               statNumbers[0].textContent = post.vote_num != null ? String(post.vote_num) : "0";
             }
             if (statUnits.length > 0) {
-              statUnits[0].textContent = "点赞";
+              statUnits[0].textContent = "赞同";
             }
             if (statNumbers.length > 1) {
               statNumbers[1].textContent = post.community && post.community.id != null ? String(post.community.id) : "-";
             }
             if (statUnits.length > 1) {
-              statUnits[1].textContent = "社区ID";
+              statUnits[1].textContent = "社区 ID";
             }
 
             var date = document.querySelector(".content .right .date");
             if (date) {
               var formatted = formatDetailDate(post.create_time);
-              date.textContent = formatted ? "创建于 " + formatted : "";
+              date.textContent = formatted ? "发布时间: " + formatted : "";
             }
 
             bindDetailDelete(match[1], post);
@@ -3522,7 +3274,7 @@
             var items = getHomePostItems();
             var index = items.indexOf(listItem);
             if (index === -1 || !posts[index]) {
-              showVoteMessage("未找到帖子，刷新后重试");
+              showVoteMessage("未找到对应帖子，刷新后重试");
               return;
             }
             submitVote(String(posts[index].id), direction);
@@ -3535,7 +3287,7 @@
       function submitVote(postId, direction) {
         var loginResult = getLoginResult();
         if (!loginResult || !loginResult.token) {
-          showVoteMessage("请先登录后再点赞");
+          showVoteMessage("请先登录后再投票");
           return;
         }
         postJSON("/api/v1/vote", {
@@ -3598,7 +3350,7 @@
             var items = getHomePostItems();
             var index = items.indexOf(listItem);
             if (index === -1 || !posts[index]) {
-              showVoteMessage("未找到帖子，请刷新后重试");
+              showVoteMessage("未找到对应帖子，刷新后重试");
               return;
             }
             submitVote(String(posts[index].id), direction);
@@ -3613,7 +3365,7 @@
         postId = String(postId);
         var loginResult = getLoginResult();
         if (!loginResult || !loginResult.token) {
-          showVoteMessage("请先登录后再点赞");
+          showVoteMessage("请先登录后再投票");
           return;
         }
         if (votePendingByPost[postId]) {
@@ -3765,3 +3517,5 @@
   </script>
 </body>
 </html>
+
+
