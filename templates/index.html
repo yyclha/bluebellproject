@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
@@ -384,6 +384,55 @@
       box-shadow: var(--shadow-sm);
     }
 
+    .home-search-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+      padding: 16px 18px;
+      border: 1px solid rgba(115, 96, 71, 0.12);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(247, 243, 235, 0.92));
+      box-shadow: var(--shadow-sm);
+    }
+
+    .home-search-toolbar-main {
+      min-width: 0;
+    }
+
+    .home-search-title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.4;
+      color: var(--text-strong);
+      font-weight: 700;
+    }
+
+    .home-search-meta {
+      margin-top: 4px;
+      font-size: 13px;
+      color: var(--text-soft);
+      line-height: 1.6;
+    }
+
+    .home-search-reset {
+      flex: 0 0 auto;
+      height: 40px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(29, 107, 99, 0.12);
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .home-search-reset:hover {
+      background: rgba(29, 107, 99, 0.18);
+    }
+
     .home-feed-more {
       display: inline-flex;
       align-items: center;
@@ -434,6 +483,17 @@
       border-radius: var(--radius-lg);
       background: rgba(255, 253, 249, 0.72);
       list-style: none;
+    }
+
+    @media (max-width: 768px) {
+      .home-search-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .home-search-reset {
+        width: 100%;
+      }
     }
 
     .content .right .communities[data-v-2baf73fc],
@@ -1742,6 +1802,8 @@
         page: 1,
         size: 10,
         items: [],
+        searchQuery: "",
+        searchHits: [],
         loading: false,
         reachedEnd: false,
         initialized: false
@@ -2365,24 +2427,45 @@
       }
 
       function renderResults(query, hits) {
-        var list = document.getElementById("rag-list");
-        ragAssistantState.view = "search";
-        updateAssistantTitle('RAG 搜索结果: "' + query + '"');
-        if (!hits || !hits.length) {
-          list.innerHTML = '<div class="rag-empty">没有找到相关帖子</div>';
-          showPanel({ preserveView: true });
-          return;
-        }
-        list.innerHTML = hits.map(function (item) {
-          var preview = item.chunk_text || item.content || "";
-          return [
-            '<a class="rag-item" href="/post/' + item.post_id + '">',
-            '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
-            '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
-            '</a>'
-          ].join("");
-        }).join("");
-        showPanel({ preserveView: true });
+        homeFeedState.searchQuery = String(query || "");
+        homeFeedState.searchHits = Array.isArray(hits) ? hits.map(function (item) {
+          return {
+            id: item && item.post_id != null ? item.post_id : "",
+            title: item && item.title ? item.title : "无标题",
+            content: item && typeof item.chunk_text === "string" && item.chunk_text
+              ? item.chunk_text
+              : (item && typeof item.content === "string" ? item.content : ""),
+            vote_num: item && item.vote_num != null ? item.vote_num : 0
+          };
+        }) : [];
+        renderHomeFeedState();
+      }
+
+      function searchPostsByKeyword(query) {
+        return fetch("/api/v1/posts2?page=1&size=100&order=time", {
+          method: "GET",
+          headers: {
+            "Accept": "application/json"
+          }
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function (resp) {
+            var keyword;
+            var posts;
+            if (!resp || resp.code !== 1000 || !Array.isArray(resp.data)) {
+              return [];
+            }
+            keyword = String(query || "").toLowerCase();
+            posts = resp.data.slice();
+            return posts.filter(function (item) {
+              var title = item && item.title ? String(item.title).toLowerCase() : "";
+              var content = item && item.content ? String(item.content).toLowerCase() : "";
+              return title.indexOf(keyword) !== -1 || content.indexOf(keyword) !== -1;
+            });
+          })
+          .catch(function () {
+            return [];
+          });
       }
 
       function renderAssistantLoading(question) {
@@ -2662,26 +2745,13 @@
       function executeSearch(input) {
         var query = (input.value || "").trim();
         if (!query) {
-          hidePanel();
+          clearSearchResults();
+          refreshHomePostList({ reset: true });
           return;
         }
-        fetch("/api/v1/rag/search?query=" + encodeURIComponent(query) + "&top_k=5", {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
-        })
-          .then(function (resp) { return resp.json(); })
-          .then(function (resp) {
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              renderResults(query, []);
-              return;
-            }
-            renderResults(query, resp.data.hits || []);
-          })
-          .catch(function () {
-            renderResults(query, []);
-          });
+        searchPostsByKeyword(query).then(function (posts) {
+          renderResults(query, posts || []);
+        });
       }
 
       function bindSearch() {
@@ -2693,7 +2763,7 @@
         }
 
         input.dataset.ragBound = "1";
-        input.setAttribute("placeholder", "搜索帖子内容，AI 助手在右下角");
+        input.setAttribute("placeholder", "搜索帖子标题或内容");
 
         search.style.cursor = "text";
         search.addEventListener("click", function (event) {
@@ -2755,6 +2825,41 @@
       function getHomeListNode() {
         return document.querySelector(".c-l-list");
       }
+      function getHomeSearchToolbarNode() {
+        return document.querySelector(".home-search-toolbar");
+      }
+
+      function clearSearchResults() {
+        homeFeedState.searchQuery = "";
+        homeFeedState.searchHits = [];
+      }
+
+      function ensureHomeSearchToolbar() {
+        var list = getHomeListNode();
+        var toolbar;
+        if (!list) {
+          return null;
+        }
+
+        toolbar = getHomeSearchToolbarNode();
+        if (toolbar) {
+          return toolbar;
+        }
+
+        toolbar = document.createElement("div");
+        toolbar.className = "home-search-toolbar";
+        toolbar.style.display = "none";
+        toolbar.innerHTML = [
+          '<div class="home-search-toolbar-main">',
+          '<div class="home-search-title"></div>',
+          '<div class="home-search-meta"></div>',
+          '</div>',
+          '<button class="home-search-reset" type="button">返回全部帖子</button>'
+        ].join("");
+        list.insertAdjacentElement("beforebegin", toolbar);
+        return toolbar;
+      }
+
 
       function getHomeFeedActionNode() {
         return document.querySelector(".home-feed-actions");
@@ -2785,7 +2890,9 @@
         var title = escapeHTML(post && post.title ? post.title : "无标题");
         var content = escapeHTML(post && typeof post.content === "string" ? post.content : "");
         var voteNum = post && post.vote_num != null ? String(post.vote_num) : "0";
-        var postId = post && post.id != null ? String(post.id) : "";
+        var postId = post && post.id != null
+          ? String(post.id)
+          : (post && post.post_id != null ? String(post.post_id) : "");
         return [
           '<li class="c-l-item" data-v-2baf73fc data-post-id="' + escapeHTML(postId) + '">',
           '<div class="post" data-v-2baf73fc>',
@@ -2803,25 +2910,48 @@
 
       function renderHomeFeedState() {
         var list = getHomeListNode();
+        var searchToolbar;
+        var footer;
+        var button;
+        var status;
         if (!list) {
           return;
         }
+
+        searchToolbar = ensureHomeSearchToolbar();
+        footer = ensureHomeFeedFooter();
+        if (!footer || !searchToolbar) {
+          return;
+        }
+        button = footer.querySelector(".home-feed-more");
+        status = footer.querySelector(".home-feed-status");
+        if (!button || !status) {
+          return;
+        }
+
+        if (homeFeedState.searchQuery) {
+          searchToolbar.style.display = "flex";
+          searchToolbar.querySelector(".home-search-title").textContent = "搜索结果";
+          searchToolbar.querySelector(".home-search-meta").textContent = homeFeedState.searchHits.length
+            ? '关键词“' + homeFeedState.searchQuery + '”，共找到 ' + homeFeedState.searchHits.length + ' 条帖子'
+            : '关键词“' + homeFeedState.searchQuery + '”，没有找到匹配帖子';
+          if (!homeFeedState.searchHits.length) {
+            list.innerHTML = '<div class="home-feed-empty">搜索“' + escapeHTML(homeFeedState.searchQuery) + '”没有找到结果。</div>';
+          } else {
+            list.innerHTML = homeFeedState.searchHits.map(renderHomePostItem).join("");
+          }
+          button.disabled = true;
+          button.style.display = "none";
+          status.textContent = "";
+          return;
+        }
+
+        searchToolbar.style.display = "none";
 
         if (!homeFeedState.items.length) {
           list.innerHTML = '<div class="home-feed-empty">暂无内容，稍后再来看看吧。</div>';
         } else {
           list.innerHTML = homeFeedState.items.map(renderHomePostItem).join("");
-        }
-
-        var footer = ensureHomeFeedFooter();
-        if (!footer) {
-          return;
-        }
-
-        var button = footer.querySelector(".home-feed-more");
-        var status = footer.querySelector(".home-feed-status");
-        if (!button || !status) {
-          return;
         }
 
         button.disabled = homeFeedState.loading || homeFeedState.reachedEnd || !homeFeedState.items.length;
@@ -2884,6 +3014,8 @@
           return Promise.resolve(homeFeedState.items.slice());
         }
 
+        clearSearchResults();
+
         var requestedOrder = options.order || getCurrentPostOrder();
         if (options.preserveLoaded && homeFeedState.initialized && homeFeedState.page > 0 && homeFeedState.order === requestedOrder) {
           homeFeedState.loading = true;
@@ -2932,12 +3064,29 @@
       }
 
       function bindHomeFeedActions() {
+        var searchToolbar = ensureHomeSearchToolbar();
         var footer = ensureHomeFeedFooter();
-        if (!footer) {
+        var resetButton;
+        var button;
+        var list;
+        if (!footer || !searchToolbar) {
           return;
         }
 
-        var button = footer.querySelector(".home-feed-more");
+        resetButton = searchToolbar.querySelector(".home-search-reset");
+        if (resetButton && resetButton.dataset.bound !== "1") {
+          resetButton.dataset.bound = "1";
+          resetButton.addEventListener("click", function () {
+            var searchInput = document.querySelector(".s-input");
+            clearSearchResults();
+            if (searchInput) {
+              searchInput.value = "";
+            }
+            refreshHomePostList({ reset: true });
+          });
+        }
+
+        button = footer.querySelector(".home-feed-more");
         if (button && button.dataset.bound !== "1") {
           button.dataset.bound = "1";
           button.addEventListener("click", function () {
@@ -2945,7 +3094,7 @@
           });
         }
 
-        var list = getHomeListNode();
+        list = getHomeListNode();
         if (!list || list.dataset.homeOpenBound === "1") {
           return;
         }
@@ -3517,5 +3666,7 @@
   </script>
 </body>
 </html>
+
+
 
 
