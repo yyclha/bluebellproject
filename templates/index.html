@@ -688,6 +688,44 @@
       padding: 10px 18px 14px;
     }
 
+    .rag-answer-card {
+      margin: 6px 0 14px;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(235, 245, 243, 0.96), rgba(249, 251, 250, 0.94));
+      border: 1px solid rgba(29, 107, 99, 0.12);
+      box-shadow: 0 12px 28px rgba(22, 70, 65, 0.08);
+    }
+
+    .rag-answer-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1d6b63;
+    }
+
+    .rag-answer-text {
+      font-size: 15px;
+      line-height: 1.8;
+      color: #243235;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .rag-sources-title {
+      margin: 14px 6px 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #6e655d;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
     .rag-item {
       padding: 16px 6px;
       border-bottom: 1px solid rgba(115, 96, 71, 0.09);
@@ -1215,53 +1253,223 @@
       }
     }
 
+    .rag-fab {
+      position: fixed;
+      right: 22px;
+      bottom: 28px;
+      width: 66px;
+      height: 66px;
+      border: 0;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 30%, #49b2a7, #1d6b63 62%, #124a46 100%);
+      color: #fff;
+      box-shadow: 0 20px 40px rgba(18, 74, 70, 0.34);
+      cursor: pointer;
+      z-index: 10000;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .rag-fab:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 24px 46px rgba(18, 74, 70, 0.42);
+    }
+
+    .rag-fab-label {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
     .rag-panel {
       position: fixed;
-      top: 72px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: min(820px, calc(100vw - 32px));
-      max-height: 70vh;
-      overflow: auto;
-      z-index: 9999;
-      background: #fff;
-      border: 1px solid #e6e6e6;
-      border-radius: 12px;
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.16);
-      padding: 12px 0;
+      right: 22px;
+      bottom: 108px;
+      width: min(390px, calc(100vw - 28px));
+      height: min(620px, calc(100vh - 130px));
       display: none;
+      flex-direction: column;
+      z-index: 9999;
+      border: 1px solid rgba(17, 70, 66, 0.14);
+      border-radius: 26px;
+      background: rgba(255, 252, 247, 0.98);
+      box-shadow: 0 28px 60px rgba(58, 39, 22, 0.2);
+      backdrop-filter: blur(20px);
+      overflow: hidden;
     }
 
     .rag-panel.show {
-      display: block;
+      display: flex;
     }
 
     .rag-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px 10px;
-      border-bottom: 1px solid #f0f0f0;
+      padding: 18px 18px 14px;
+      background: linear-gradient(135deg, rgba(29, 107, 99, 0.96), rgba(16, 70, 66, 0.92));
+      color: #fff;
       font-size: 14px;
-      color: #666;
+    }
+
+    .rag-header-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .rag-header-title {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .rag-header-subtitle {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.72);
     }
 
     .rag-close {
       border: 0;
       background: transparent;
-      font-size: 18px;
+      font-size: 20px;
+      line-height: 1;
       cursor: pointer;
-      color: #999;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .rag-body {
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding: 16px 16px 8px;
+      background: linear-gradient(180deg, rgba(253, 251, 246, 0.98), rgba(247, 244, 238, 0.95));
     }
 
     .rag-list {
-      padding: 8px 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rag-composer {
+      display: flex;
+      align-items: flex-end;
+      gap: 10px;
+      padding: 14px 14px 16px;
+      border-top: 1px solid rgba(115, 96, 71, 0.1);
+      background: rgba(255, 252, 247, 0.96);
+    }
+
+    .rag-input {
+      flex: 1 1 auto;
+      min-height: 44px;
+      max-height: 120px;
+      resize: none;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(115, 96, 71, 0.14);
+      background: #fff;
+      color: #243235;
+      font-size: 14px;
+      line-height: 1.5;
+      outline: none;
+    }
+
+    .rag-send {
+      flex: 0 0 auto;
+      height: 44px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1d6b63, #124a46);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 12px 24px rgba(18, 74, 70, 0.18);
+    }
+
+    .rag-send:disabled {
+      opacity: 0.55;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .rag-answer-card {
+      margin: 0;
+      padding: 16px 18px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(235, 245, 243, 0.96), rgba(249, 251, 250, 0.94));
+      border: 1px solid rgba(29, 107, 99, 0.12);
+      box-shadow: 0 12px 28px rgba(22, 70, 65, 0.08);
+    }
+
+    .rag-answer-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #1d6b63;
+    }
+
+    .rag-question-card {
+      align-self: flex-end;
+      max-width: 90%;
+      padding: 14px 16px;
+      border-radius: 18px 18px 6px 18px;
+      background: linear-gradient(135deg, #1d6b63, #155853);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(18, 74, 70, 0.18);
+    }
+
+    .rag-question-label {
+      margin-bottom: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .rag-question-text,
+    .rag-answer-text {
+      font-size: 15px;
+      line-height: 1.8;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .rag-answer-text {
+      color: #243235;
+    }
+
+    .rag-sources-card {
+      padding: 14px 14px 4px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(115, 96, 71, 0.1);
+    }
+
+    .rag-sources-title {
+      margin: 0 4px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6e655d;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
     }
 
     .rag-item {
       display: block;
-      padding: 12px 0;
-      border-bottom: 1px solid #f5f5f5;
+      padding: 12px 4px;
+      border-bottom: 1px solid rgba(115, 96, 71, 0.08);
       color: inherit;
       text-decoration: none;
     }
@@ -1271,23 +1479,194 @@
     }
 
     .rag-title {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #222;
       margin-bottom: 6px;
     }
 
     .rag-content {
-      font-size: 14px;
+      font-size: 13px;
       color: #555;
       line-height: 1.6;
       word-break: break-word;
     }
 
     .rag-empty {
-      padding: 20px 16px;
+      padding: 10px 4px 6px;
       color: #888;
-      font-size: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+      .rag-fab {
+        right: 16px;
+        bottom: 18px;
+        width: 60px;
+        height: 60px;
+      }
+
+      .rag-panel {
+        right: 12px;
+        bottom: 88px;
+        width: calc(100vw - 24px);
+        height: min(70vh, 560px);
+        border-radius: 22px;
+      }
+    }
+
+    .rag-fab {
+      touch-action: none;
+    }
+
+    .rag-fab.has-unread::after {
+      content: "";
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 999px;
+      border: 2px solid rgba(255, 252, 247, 0.96);
+      background: #d94b61;
+      box-shadow: 0 8px 16px rgba(217, 75, 97, 0.28);
+      animation: rag-badge-pulse 1.8s ease-in-out infinite;
+    }
+
+    .rag-panel {
+      display: flex;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translateY(18px) scale(0.96);
+      transform-origin: bottom right;
+      transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .rag-panel.show {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(0) scale(1);
+    }
+
+    .rag-panel.dragging {
+      transition: none;
+    }
+
+    .rag-header {
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .rag-header:active {
+      cursor: grabbing;
+    }
+
+    .rag-answer-card.is-loading {
+      background: linear-gradient(180deg, rgba(244, 248, 247, 0.98), rgba(251, 251, 250, 0.96));
+      border-color: rgba(29, 107, 99, 0.08);
+    }
+
+    .rag-answer-card.is-error {
+      background: linear-gradient(180deg, rgba(255, 245, 246, 0.98), rgba(255, 251, 251, 0.96));
+      border-color: rgba(217, 75, 97, 0.16);
+    }
+
+    .rag-answer-card.is-streaming {
+      box-shadow: 0 18px 34px rgba(29, 107, 99, 0.12);
+    }
+
+    .rag-question-card,
+    .rag-answer-card {
+      transition: transform 0.2s ease, box-shadow 0.24s ease, border-color 0.24s ease;
+    }
+
+    .rag-question-card:hover,
+    .rag-answer-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .rag-answer-caret {
+      display: inline-block;
+      width: 7px;
+      height: 1.05em;
+      margin-left: 4px;
+      border-radius: 999px;
+      background: #1d6b63;
+      vertical-align: -0.12em;
+      animation: rag-caret-blink 1s steps(1) infinite;
+    }
+
+    .rag-loading-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .rag-loading-row span {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: rgba(29, 107, 99, 0.55);
+      animation: rag-dot-pulse 1.1s ease-in-out infinite;
+    }
+
+    .rag-loading-row span:nth-child(2) {
+      animation-delay: 0.14s;
+    }
+
+    .rag-loading-row span:nth-child(3) {
+      animation-delay: 0.28s;
+    }
+
+    @keyframes rag-dot-pulse {
+      0%, 80%, 100% {
+        opacity: 0.35;
+        transform: translateY(0);
+      }
+
+      40% {
+        opacity: 1;
+        transform: translateY(-2px);
+      }
+    }
+
+    @keyframes rag-caret-blink {
+      0%, 50% {
+        opacity: 1;
+      }
+
+      50.01%, 100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes rag-badge-pulse {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 8px 16px rgba(217, 75, 97, 0.28);
+      }
+
+      50% {
+        transform: scale(1.12);
+        box-shadow: 0 12px 22px rgba(217, 75, 97, 0.36);
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rag-panel,
+      .rag-fab {
+        transition: none;
+      }
+
+      .rag-answer-caret,
+      .rag-loading-row span {
+        animation: none;
+      }
     }
 
   </style>
@@ -1298,20 +1677,62 @@
   </noscript>
   <div id="app"></div>
 
-  <div id="rag-panel" class="rag-panel">
-    <div class="rag-header">
-      <span id="rag-title">RAG 搜索结果</span>
-      <button id="rag-close" class="rag-close" type="button">×</button>
+  <button id="rag-fab" class="rag-fab" type="button" aria-label="打开知识库问答助手">
+    <span class="rag-fab-label">AI</span>
+  </button>
+
+  <div id="rag-panel" class="rag-panel" aria-hidden="true">
+    <div id="rag-header" class="rag-header">
+      <div class="rag-header-main">
+        <span class="rag-header-title">知识库问答助手</span>
+        <span id="rag-title" class="rag-header-subtitle">点右下角助手提问</span>
+      </div>
+      <div style="display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:12px;">
+        <button id="rag-minimize" class="rag-close" type="button" aria-label="最小化助手" style="width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:18px;">-</button>
+        <button id="rag-close" class="rag-close" type="button" aria-label="关闭助手" style="width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:18px;">×</button>
+      </div>
     </div>
-    <div id="rag-list" class="rag-list"></div>
+    <div id="rag-body" class="rag-body">
+      <div id="rag-list" class="rag-list">
+        <section class="rag-answer-card">
+          <div class="rag-answer-label">Assistant</div>
+          <div class="rag-answer-text">我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。</div>
+        </section>
+      </div>
+    </div>
+    <div class="rag-composer">
+      <textarea id="rag-input" class="rag-input" placeholder="输入你的问题，比如：项目里 Gin 路由是怎么做的？"></textarea>
+      <button id="rag-send" class="rag-send" type="button">发送</button>
+    </div>
   </div>
 
   <script src="/static/js/chunk-vendors.57f9e9d6.js"></script>
   <script src="/static/js/app.7fce8887.js"></script>
   <script>
     (function () {
+      var RAG_ASSISTANT_STORAGE_KEY = "ragAssistantStateV2";
       var voteStateByPost = Object.create(null);
       var votePendingByPost = Object.create(null);
+      var ragAssistantState = {
+        loading: false,
+        lastQuestion: "",
+        open: false,
+        unread: false,
+        view: "chat",
+        history: [],
+        position: null,
+        typingTimer: 0
+      };
+      var ragDragState = {
+        active: false,
+        source: "",
+        pointerId: null,
+        startX: 0,
+        startY: 0,
+        originLeft: 0,
+        originTop: 0,
+        moved: false
+      };
       var homeFeedState = {
         order: "time",
         page: 1,
@@ -1321,6 +1742,69 @@
         reachedEnd: false,
         initialized: false
       };
+      var ASSISTANT_COPY = {
+        welcome: "我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。",
+        panelTitleIdle: "点右下角助手提问",
+        panelTitleLoading: "正在回答...",
+        panelTitleStreaming: "正在结合知识库流式回答...",
+        panelTitleDone: "已结合知识库回答",
+        panelTitleError: "问答失败",
+        answerLabel: "助手",
+        userLabel: "你",
+        sourcesTitle: "引用知识片段",
+        sourcesEmpty: "没有检索到可引用的知识片段。",
+        answerLoading: "正在检索知识库并生成回答...",
+        answerFallback: "知识库里暂时没有足够信息回答这个问题。",
+        answerError: "问答助手暂时不可用，请稍后再试。",
+        send: "发送",
+        sending: "回答中...",
+        fabAria: "打开知识库问答助手",
+        closeAria: "关闭助手",
+        minimizeAria: "最小化助手",
+        placeholder: "输入你的问题，比如：项目里 Gin 路由是怎么做的？",
+        headerTitle: "知识库问答助手"
+      };
+
+      function normalizeAssistantStaticCopy() {
+        var fab = document.getElementById("rag-fab");
+        var headerTitle = document.querySelector(".rag-header-title");
+        var title = document.getElementById("rag-title");
+        var minimize = document.getElementById("rag-minimize");
+        var close = document.getElementById("rag-close");
+        var input = document.getElementById("rag-input");
+        var send = document.getElementById("rag-send");
+        var firstLabel = document.querySelector(".rag-list .rag-answer-label");
+        var firstText = document.querySelector(".rag-list .rag-answer-text");
+
+        if (fab) {
+          fab.setAttribute("aria-label", ASSISTANT_COPY.fabAria);
+        }
+        if (headerTitle) {
+          headerTitle.textContent = ASSISTANT_COPY.headerTitle;
+        }
+        if (title && !ragAssistantState.loading) {
+          title.textContent = ASSISTANT_COPY.panelTitleIdle;
+        }
+        if (minimize) {
+          minimize.setAttribute("aria-label", ASSISTANT_COPY.minimizeAria);
+        }
+        if (close) {
+          close.setAttribute("aria-label", ASSISTANT_COPY.closeAria);
+          close.textContent = "×";
+        }
+        if (input) {
+          input.setAttribute("placeholder", ASSISTANT_COPY.placeholder);
+        }
+        if (send && !ragAssistantState.loading) {
+          send.textContent = ASSISTANT_COPY.send;
+        }
+        if (firstLabel) {
+          firstLabel.textContent = ASSISTANT_COPY.answerLabel;
+        }
+        if (firstText && !ragAssistantState.history.length) {
+          firstText.textContent = ASSISTANT_COPY.welcome;
+        }
+      }
 
       function ready(fn) {
         if (document.readyState === "loading") {
@@ -1343,6 +1827,359 @@
           .replace(/>/g, "&gt;")
           .replace(/"/g, "&quot;")
           .replace(/'/g, "&#39;");
+      }
+
+      function clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+      }
+
+      function createAssistantId(prefix) {
+        return [prefix || "msg", Date.now(), Math.random().toString(16).slice(2, 8)].join("-");
+      }
+
+      function buildWelcomeAssistantMessage() {
+        return {
+          id: createAssistantId("welcome"),
+          role: "assistant",
+          text: "我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。",
+          status: "done",
+          sources: [],
+          showSources: false
+        };
+      }
+
+      function normalizeAssistantMessage(message) {
+        if (!message || (message.role !== "user" && message.role !== "assistant")) {
+          return null;
+        }
+        return {
+          id: String(message.id || createAssistantId(message.role)),
+          role: message.role,
+          text: String(message.text || ""),
+          status: message.status === "error" ? "error" : (message.status === "loading" ? "loading" : "done"),
+          sources: Array.isArray(message.sources) ? message.sources.slice(0, 4) : [],
+          showSources: !!message.showSources
+        };
+      }
+
+      function ensureAssistantHistory() {
+        if (!ragAssistantState.history.length) {
+          ragAssistantState.history = [buildWelcomeAssistantMessage()];
+        }
+      }
+
+      function trimAssistantHistory() {
+        if (ragAssistantState.history.length > 24) {
+          ragAssistantState.history = ragAssistantState.history.slice(ragAssistantState.history.length - 24);
+        }
+      }
+
+      function persistAssistantState() {
+        try {
+          localStorage.setItem(RAG_ASSISTANT_STORAGE_KEY, JSON.stringify({
+            unread: !!ragAssistantState.unread,
+            history: ragAssistantState.history,
+            position: ragAssistantState.position
+          }));
+        } catch (err) {
+          return;
+        }
+      }
+
+      function loadAssistantState() {
+        try {
+          var raw = localStorage.getItem(RAG_ASSISTANT_STORAGE_KEY);
+          if (raw) {
+            var saved = JSON.parse(raw);
+            ragAssistantState.unread = !!(saved && saved.unread);
+            ragAssistantState.history = Array.isArray(saved && saved.history)
+              ? saved.history.map(normalizeAssistantMessage).filter(Boolean)
+              : [];
+            if (saved && saved.position && typeof saved.position.left === "number" && typeof saved.position.top === "number") {
+              ragAssistantState.position = {
+                left: saved.position.left,
+                top: saved.position.top
+              };
+            }
+          }
+        } catch (err) {
+          ragAssistantState.unread = false;
+          ragAssistantState.history = [];
+          ragAssistantState.position = null;
+        }
+        ensureAssistantHistory();
+        trimAssistantHistory();
+      }
+
+      function getAssistantMetrics() {
+        var mobile = window.innerWidth <= 768;
+        return {
+          mobile: mobile,
+          fabSize: mobile ? 60 : 66,
+          edge: mobile ? 12 : 16,
+          panelGap: mobile ? 12 : 14,
+          panelWidth: Math.min(390, Math.max(280, window.innerWidth - (mobile ? 24 : 28))),
+          panelHeight: Math.min(mobile ? 560 : 620, Math.max(320, window.innerHeight - 130)),
+          topSafe: mobile ? 12 : 84
+        };
+      }
+
+      function getDefaultAssistantPosition() {
+        var metrics = getAssistantMetrics();
+        return {
+          left: window.innerWidth - metrics.fabSize - metrics.edge,
+          top: window.innerHeight - metrics.fabSize - (metrics.mobile ? 18 : 28)
+        };
+      }
+
+      function normalizeAssistantPosition(position) {
+        var metrics = getAssistantMetrics();
+        var next = position && typeof position.left === "number" && typeof position.top === "number"
+          ? position
+          : getDefaultAssistantPosition();
+        return {
+          left: clamp(next.left, metrics.edge, Math.max(metrics.edge, window.innerWidth - metrics.fabSize - metrics.edge)),
+          top: clamp(next.top, metrics.topSafe, Math.max(metrics.topSafe, window.innerHeight - metrics.fabSize - metrics.edge))
+        };
+      }
+
+      function updateAssistantBadge() {
+        var fab = document.getElementById("rag-fab");
+        if (!fab) {
+          return;
+        }
+        fab.classList.toggle("has-unread", !!ragAssistantState.unread);
+      }
+
+      function setAssistantUnread(nextValue) {
+        ragAssistantState.unread = !!nextValue;
+        updateAssistantBadge();
+        persistAssistantState();
+      }
+
+      function applyAssistantLayout() {
+        var fab = document.getElementById("rag-fab");
+        var panel = document.getElementById("rag-panel");
+        var metrics;
+        var position;
+        var panelLeft;
+        var panelTop;
+        if (!fab || !panel) {
+          return;
+        }
+        metrics = getAssistantMetrics();
+        position = normalizeAssistantPosition(ragAssistantState.position);
+        panelLeft = clamp(
+          position.left + metrics.fabSize - metrics.panelWidth,
+          metrics.edge,
+          Math.max(metrics.edge, window.innerWidth - metrics.panelWidth - metrics.edge)
+        );
+        panelTop = clamp(
+          position.top - metrics.panelHeight - metrics.panelGap,
+          metrics.topSafe,
+          Math.max(metrics.topSafe, window.innerHeight - metrics.panelHeight - metrics.edge)
+        );
+
+        ragAssistantState.position = position;
+        fab.style.left = position.left + "px";
+        fab.style.top = position.top + "px";
+        fab.style.right = "auto";
+        fab.style.bottom = "auto";
+
+        panel.style.left = panelLeft + "px";
+        panel.style.top = panelTop + "px";
+        panel.style.right = "auto";
+        panel.style.bottom = "auto";
+        panel.style.width = metrics.panelWidth + "px";
+        panel.style.height = metrics.panelHeight + "px";
+      }
+
+      function updateAssistantTitle(text) {
+        var title = document.getElementById("rag-title");
+        if (title) {
+          title.textContent = text;
+        }
+      }
+
+      function renderAssistantSources(sources, showEmpty) {
+        if (!sources || !sources.length) {
+          if (!showEmpty) {
+            return "";
+          }
+          return [
+            '<section class="rag-sources-card">',
+            '<div class="rag-sources-title">引用知识片段</div>',
+            '<div class="rag-empty">没有检索到可引用的知识片段。</div>',
+            '</section>'
+          ].join("");
+        }
+        return [
+          '<section class="rag-sources-card">',
+          '<div class="rag-sources-title">引用知识片段</div>',
+          sources.map(function (item) {
+            var preview = item.chunk_text || item.content || "";
+            return [
+              '<a class="rag-item" href="/post/' + item.post_id + '">',
+              '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
+              '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
+              '</a>'
+            ].join("");
+          }).join(""),
+          '</section>'
+        ].join("");
+      }
+
+      function renderAssistantMessage(message) {
+        var answerText;
+        var showCaret;
+        if (message.role === "user") {
+          return [
+            '<section class="rag-question-card" data-rag-message-id="' + message.id + '">',
+            '<div class="rag-question-label">You</div>',
+            '<div class="rag-question-text">' + escapeHTML(message.text) + '</div>',
+            '</section>'
+          ].join("");
+        }
+
+        answerText = message.text || (message.status === "loading" ? "正在检索知识库并生成回答..." : "");
+        showCaret = message.status === "typing";
+
+        return [
+          '<section class="rag-message" data-rag-message-id="' + message.id + '">',
+          '<div class="rag-answer-card' + (message.status === "loading" ? ' is-loading' : '') + '">',
+          '<div class="rag-answer-label">Assistant</div>',
+          '<div class="rag-answer-text" data-rag-message-text="' + message.id + '">' + escapeHTML(answerText) + (showCaret ? '<span class="rag-answer-caret"></span>' : '') + '</div>',
+          message.status === "loading" ? '<div class="rag-loading-row"><span></span><span></span><span></span></div>' : '',
+          '</div>',
+          renderAssistantSources(message.sources, !!message.showSources),
+          '</section>'
+        ].join("");
+      }
+
+      function renderAssistantThread() {
+        var list = document.getElementById("rag-list");
+        if (!list) {
+          return;
+        }
+        ragAssistantState.view = "chat";
+        ensureAssistantHistory();
+        updateAssistantTitle(ragAssistantState.loading ? "正在回答..." : "点右下角助手提问");
+        list.innerHTML = ragAssistantState.history.map(renderAssistantMessage).join("");
+        if (ragAssistantState.open) {
+          scrollAssistantToBottom();
+        }
+      }
+
+      function appendAssistantMessage(role, text, options) {
+        var message = {
+          id: createAssistantId(role),
+          role: role,
+          text: String(text || ""),
+          status: options && options.status ? options.status : "done",
+          sources: options && Array.isArray(options.sources) ? options.sources.slice(0, 4) : [],
+          showSources: !!(options && options.showSources)
+        };
+        ragAssistantState.history.push(message);
+        trimAssistantHistory();
+        persistAssistantState();
+        return message;
+      }
+
+      function updateAssistantMessage(messageId, updater) {
+        var i;
+        for (i = ragAssistantState.history.length - 1; i >= 0; i -= 1) {
+          if (ragAssistantState.history[i].id === messageId) {
+            updater(ragAssistantState.history[i]);
+            break;
+          }
+        }
+      }
+
+      function stopAssistantTyping() {
+        if (ragAssistantState.typingTimer) {
+          clearInterval(ragAssistantState.typingTimer);
+          ragAssistantState.typingTimer = 0;
+        }
+      }
+
+      function syncAssistantTypingNode(messageId, text, withCaret) {
+        var node = document.querySelector('[data-rag-message-text="' + messageId + '"]');
+        if (!node) {
+          return;
+        }
+        node.innerHTML = escapeHTML(text || "") + (withCaret ? '<span class="rag-answer-caret"></span>' : "");
+        scrollAssistantToBottom();
+      }
+
+      function finalizeAssistantMessage(messageId, text, sources, options) {
+        stopAssistantTyping();
+        updateAssistantMessage(messageId, function (message) {
+          message.text = String(text || "");
+          message.status = options && options.status === "error" ? "error" : "done";
+          message.sources = Array.isArray(sources) ? sources.slice(0, 4) : [];
+          message.showSources = !!(options && options.showSources);
+        });
+        persistAssistantState();
+        if (ragAssistantState.view === "chat") {
+          renderAssistantThread();
+        }
+        if (!ragAssistantState.open) {
+          setAssistantUnread(true);
+        }
+      }
+
+      function getAssistantMessageText(messageId) {
+        var i;
+        for (i = ragAssistantState.history.length - 1; i >= 0; i -= 1) {
+          if (ragAssistantState.history[i].id === messageId) {
+            return String(ragAssistantState.history[i].text || "");
+          }
+        }
+        return "";
+      }
+
+      function streamAssistantMessageChunk(messageId, delta) {
+        var chunk = String(delta || "");
+        if (!chunk) {
+          return;
+        }
+        updateAssistantMessage(messageId, function (message) {
+          message.text = String(message.text || "") + chunk;
+          message.status = "typing";
+          message.sources = [];
+          message.showSources = false;
+        });
+        syncAssistantTypingNode(messageId, getAssistantMessageText(messageId), true);
+        persistAssistantState();
+      }
+
+      function startAssistantTypewriter(messageId, text, sources, options) {
+        var targetText = String(text || "");
+        var cursor = 0;
+        var step = Math.max(1, Math.ceil(Math.max(targetText.length, 1) / 48));
+        stopAssistantTyping();
+        updateAssistantMessage(messageId, function (message) {
+          message.text = "";
+          message.status = targetText ? "typing" : "done";
+          message.sources = [];
+          message.showSources = false;
+        });
+        renderAssistantThread();
+        if (!targetText) {
+          finalizeAssistantMessage(messageId, "", sources, options);
+          return;
+        }
+        ragAssistantState.typingTimer = window.setInterval(function () {
+          cursor = Math.min(targetText.length, cursor + step);
+          updateAssistantMessage(messageId, function (message) {
+            message.text = targetText.slice(0, cursor);
+            message.status = cursor >= targetText.length ? "done" : "typing";
+          });
+          syncAssistantTypingNode(messageId, targetText.slice(0, cursor), cursor < targetText.length);
+          if (cursor >= targetText.length) {
+            finalizeAssistantMessage(messageId, targetText, sources, options);
+          }
+        }, 24);
       }
 
       function getLoginResult() {
@@ -1380,6 +2217,116 @@
           body: JSON.stringify(payload)
         }).then(function (resp) {
           return resp.json();
+        });
+      }
+
+      function createSSEParser(onEvent) {
+        var buffer = "";
+        return function (chunk, flush) {
+          var blocks;
+          var i;
+          buffer += chunk || "";
+          blocks = buffer.split(/\r?\n\r?\n/);
+          if (!flush) {
+            buffer = blocks.pop();
+          } else {
+            buffer = "";
+          }
+
+          for (i = 0; i < blocks.length; i += 1) {
+            var block = blocks[i];
+            var lines;
+            var j;
+            var eventName = "message";
+            var dataParts = [];
+            if (!block) {
+              continue;
+            }
+            lines = block.split(/\r?\n/);
+            for (j = 0; j < lines.length; j += 1) {
+              var line = lines[j];
+              if (!line || line.charAt(0) === ":") {
+                continue;
+              }
+              if (line.indexOf("event:") === 0) {
+                eventName = line.slice(6).trim() || "message";
+              } else if (line.indexOf("data:") === 0) {
+                dataParts.push(line.slice(5).trim());
+              }
+            }
+            if (dataParts.length) {
+              onEvent(eventName, dataParts.join("\n"));
+            }
+          }
+        };
+      }
+
+      function streamAssistantQuestion(question, handlers) {
+        var headers = Object.assign({
+          "Content-Type": "application/json",
+          "Accept": "text/event-stream"
+        }, getAuthHeaders());
+
+        return fetch("/api/v1/rag/chat/stream", {
+          method: "POST",
+          headers: headers,
+          body: JSON.stringify({
+            question: question,
+            top_k: 4
+          })
+        }).then(function (resp) {
+          var reader;
+          var decoder;
+          var parse;
+
+          if (!resp.ok) {
+            throw new Error("stream request failed with status " + resp.status);
+          }
+          if (!resp.body || !resp.body.getReader) {
+            throw new Error("stream body is not supported");
+          }
+
+          reader = resp.body.getReader();
+          decoder = new TextDecoder("utf-8");
+          parse = createSSEParser(function (eventName, rawData) {
+            var payload = {};
+            if (rawData) {
+              try {
+                payload = JSON.parse(rawData);
+              } catch (err) {
+                payload = {};
+              }
+            }
+
+            if (eventName === "chunk") {
+              if (handlers && handlers.onChunk) {
+                handlers.onChunk(String(payload.delta || ""));
+              }
+              return;
+            }
+            if (eventName === "done") {
+              if (handlers && handlers.onDone) {
+                handlers.onDone(payload);
+              }
+              return;
+            }
+            if (eventName === "error" && handlers && handlers.onError) {
+              handlers.onError(String(payload.message || "问答失败"));
+            }
+          });
+
+          function pump() {
+            return reader.read().then(function (result) {
+              if (result.done) {
+                parse("", true);
+                return;
+              }
+              parse(decoder.decode(result.value, { stream: true }), false);
+              return pump();
+            });
+          }
+
+          return pump();
         });
       }
 
@@ -1483,32 +2430,481 @@
       }
 
       function renderResults(query, hits) {
-        var panel = document.getElementById("rag-panel");
         var list = document.getElementById("rag-list");
-        var title = document.getElementById("rag-title");
-        title.textContent = 'RAG 搜索结果: "' + query + '"';
+        ragAssistantState.view = "search";
+        updateAssistantTitle('RAG 搜索结果: "' + query + '"');
         if (!hits || !hits.length) {
           list.innerHTML = '<div class="rag-empty">没有找到相关帖子</div>';
-          panel.classList.add("show");
+          showPanel({ preserveView: true });
           return;
         }
         list.innerHTML = hits.map(function (item) {
           var preview = item.chunk_text || item.content || "";
           return [
             '<a class="rag-item" href="/post/' + item.post_id + '">',
-            '<div class="rag-title">' + (item.title || "无标题") + '</div>',
-            '<div class="rag-content">' + truncate(preview, 180) + '</div>',
+            '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
+            '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
             '</a>'
           ].join("");
         }).join("");
+        showPanel({ preserveView: true });
+      }
+
+      function renderAssistantLoading(question) {
+        var loadingMessage;
+        appendAssistantMessage("user", question, {
+          status: "done"
+        });
+        loadingMessage = appendAssistantMessage("assistant", "", {
+          status: "loading",
+          sources: [],
+          showSources: false
+        });
+        renderAssistantThread();
+        showPanel({ preserveView: true });
+        return loadingMessage.id;
+      }
+
+      function renderAssistantResult(messageId, answer, hits) {
+        ragAssistantState.loading = false;
+        updateAssistantTitle("已结合知识库回答");
+        startAssistantTypewriter(
+          messageId,
+          answer || "知识库里暂时没有足够信息回答这个问题。",
+          hits || [],
+          { showSources: true }
+        );
+      }
+
+      function renderAssistantError(messageId, message) {
+        ragAssistantState.loading = false;
+        updateAssistantTitle("问答失败");
+        startAssistantTypewriter(
+          messageId,
+          message || "问答助手暂时不可用，请稍后再试。",
+          [],
+          { status: "error", showSources: false }
+        );
+      }
+
+      function scrollAssistantToBottom() {
+        var body = document.getElementById("rag-body");
+        if (body) {
+          body.scrollTop = body.scrollHeight;
+        }
+      }
+
+      function showPanel(options) {
+        var panel = document.getElementById("rag-panel");
+        var fab = document.getElementById("rag-fab");
+        if (!panel) {
+          return;
+        }
+        options = options || {};
+        ragAssistantState.open = true;
+        panel.setAttribute("aria-hidden", "false");
         panel.classList.add("show");
+        if (fab) {
+          fab.style.transform = "";
+        }
+        if (!options.preserveView) {
+          renderAssistantThread();
+        }
+        setAssistantUnread(false);
+        applyAssistantLayout();
+        scrollAssistantToBottom();
       }
 
       function hidePanel() {
         var panel = document.getElementById("rag-panel");
         if (panel) {
+          ragAssistantState.open = false;
+          panel.setAttribute("aria-hidden", "true");
           panel.classList.remove("show");
         }
+      }
+
+      function togglePanel() {
+        if (ragAssistantState.open) {
+          hidePanel();
+          return;
+        }
+        showPanel();
+        var input = document.getElementById("rag-input");
+        if (input) {
+          input.focus();
+        }
+      }
+
+      function beginAssistantDrag(event, source) {
+        if (event.button != null && event.button !== 0) {
+          return;
+        }
+        ragDragState.active = true;
+        ragDragState.source = source;
+        ragDragState.pointerId = event.pointerId;
+        ragDragState.startX = event.clientX;
+        ragDragState.startY = event.clientY;
+        ragDragState.originLeft = normalizeAssistantPosition(ragAssistantState.position).left;
+        ragDragState.originTop = normalizeAssistantPosition(ragAssistantState.position).top;
+        ragDragState.moved = false;
+        document.body.style.userSelect = "none";
+        document.getElementById("rag-panel").classList.add("dragging");
+        event.preventDefault();
+      }
+
+      function moveAssistantDrag(event) {
+        if (!ragDragState.active) {
+          return;
+        }
+        if (ragDragState.pointerId != null && event.pointerId != null && ragDragState.pointerId !== event.pointerId) {
+          return;
+        }
+        if (Math.abs(event.clientX - ragDragState.startX) > 4 || Math.abs(event.clientY - ragDragState.startY) > 4) {
+          ragDragState.moved = true;
+        }
+        ragAssistantState.position = normalizeAssistantPosition({
+          left: ragDragState.originLeft + (event.clientX - ragDragState.startX),
+          top: ragDragState.originTop + (event.clientY - ragDragState.startY)
+        });
+        applyAssistantLayout();
+      }
+
+      function endAssistantDrag(event) {
+        var panel = document.getElementById("rag-panel");
+        if (!ragDragState.active) {
+          return;
+        }
+        if (ragDragState.pointerId != null && event.pointerId != null && ragDragState.pointerId !== event.pointerId) {
+          return;
+        }
+        ragDragState.active = false;
+        document.body.style.userSelect = "";
+        if (panel) {
+          panel.classList.remove("dragging");
+        }
+        persistAssistantState();
+        if (ragDragState.source === "fab" && !ragDragState.moved) {
+          togglePanel();
+        }
+      }
+
+      function executeAssistant(input) {
+        var question = (input.value || "").trim();
+        var sendButton = document.getElementById("rag-send");
+        var messageId;
+        if (!question) {
+          return;
+        }
+        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
+          return;
+        }
+
+        ragAssistantState.loading = true;
+        ragAssistantState.lastQuestion = question;
+        if (sendButton) {
+          sendButton.disabled = true;
+          sendButton.textContent = "回答中";
+        }
+        messageId = renderAssistantLoading(question);
+        input.value = "";
+
+        postJSON("/api/v1/rag/chat", {
+          question: question,
+          top_k: 4
+        })
+          .then(function (resp) {
+            ragAssistantState.loading = false;
+            if (sendButton) {
+              sendButton.disabled = false;
+              sendButton.textContent = "发送";
+            }
+            if (!resp || resp.code !== 1000 || !resp.data) {
+              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : "问答失败");
+              return;
+            }
+            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
+          })
+          .catch(function () {
+            ragAssistantState.loading = false;
+            if (sendButton) {
+              sendButton.disabled = false;
+              sendButton.textContent = "发送";
+            }
+            renderAssistantError(messageId, "问答助手暂时不可用，请稍后再试。");
+          });
+      }
+
+      function executeAssistantStream(input) {
+        var question = (input.value || "").trim();
+        var sendButton = document.getElementById("rag-send");
+        var messageId;
+        var receivedChunks = false;
+
+        if (!question) {
+          return;
+        }
+        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
+          return;
+        }
+
+        ragAssistantState.loading = true;
+        ragAssistantState.lastQuestion = question;
+        if (sendButton) {
+          sendButton.disabled = true;
+          sendButton.textContent = "回答中...";
+        }
+        messageId = renderAssistantLoading(question);
+        input.value = "";
+
+        function resetSendButton() {
+          if (!sendButton) {
+            return;
+          }
+          sendButton.disabled = false;
+          sendButton.textContent = "发送";
+        }
+
+        function fallbackToJSON() {
+          return postJSON("/api/v1/rag/chat", {
+            question: question,
+            top_k: 4
+          }).then(function (resp) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            if (!resp || resp.code !== 1000 || !resp.data) {
+              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : "问答失败");
+              return;
+            }
+            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
+          }).catch(function () {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            renderAssistantError(messageId, "问答助手暂时不可用，请稍后再试。");
+          });
+        }
+
+        streamAssistantQuestion(question, {
+          onChunk: function (delta) {
+            if (!receivedChunks) {
+              receivedChunks = true;
+              updateAssistantTitle("正在结合知识库流式回答...");
+              updateAssistantMessage(messageId, function (message) {
+                message.text = "";
+                message.status = "typing";
+              });
+              renderAssistantThread();
+            }
+            streamAssistantMessageChunk(messageId, delta);
+          },
+          onDone: function (payload) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            finalizeAssistantMessage(
+              messageId,
+              payload && payload.answer ? String(payload.answer) : getAssistantMessageText(messageId),
+              payload && payload.hits ? payload.hits : [],
+              { showSources: true }
+            );
+            updateAssistantTitle("已结合知识库回答");
+          },
+          onError: function (message) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            renderAssistantError(messageId, message || "问答失败");
+          }
+        }).catch(function () {
+          if (!receivedChunks) {
+            return fallbackToJSON();
+          }
+        });
+      }
+
+      function buildWelcomeAssistantMessage() {
+        return {
+          id: createAssistantId("welcome"),
+          role: "assistant",
+          text: ASSISTANT_COPY.welcome,
+          status: "done",
+          sources: [],
+          showSources: false
+        };
+      }
+
+      function renderAssistantSources(sources, showEmpty) {
+        if (!sources || !sources.length) {
+          if (!showEmpty) {
+            return "";
+          }
+          return [
+            '<section class="rag-sources-card">',
+            '<div class="rag-sources-title">' + ASSISTANT_COPY.sourcesTitle + '</div>',
+            '<div class="rag-empty">' + ASSISTANT_COPY.sourcesEmpty + '</div>',
+            '</section>'
+          ].join("");
+        }
+        return [
+          '<section class="rag-sources-card">',
+          '<div class="rag-sources-title">' + ASSISTANT_COPY.sourcesTitle + '</div>',
+          sources.map(function (item) {
+            var preview = item.chunk_text || item.content || "";
+            return [
+              '<a class="rag-item" href="/post/' + item.post_id + '">',
+              '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
+              '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
+              '</a>'
+            ].join("");
+          }).join(""),
+          '</section>'
+        ].join("");
+      }
+
+      function renderAssistantMessage(message) {
+        var answerText;
+        var showCaret;
+        if (message.role === "user") {
+          return [
+            '<section class="rag-question-card" data-rag-message-id="' + message.id + '">',
+            '<div class="rag-question-label">' + ASSISTANT_COPY.userLabel + '</div>',
+            '<div class="rag-question-text">' + escapeHTML(message.text) + '</div>',
+            '</section>'
+          ].join("");
+        }
+
+        answerText = message.text || (message.status === "loading" ? ASSISTANT_COPY.answerLoading : "");
+        showCaret = message.status === "typing";
+
+        return [
+          '<section class="rag-message" data-rag-message-id="' + message.id + '">',
+          '<div class="rag-answer-card' + (message.status === "loading" ? ' is-loading' : '') + (message.status === "typing" ? ' is-streaming' : '') + (message.status === "error" ? ' is-error' : '') + '">',
+          '<div class="rag-answer-label">' + ASSISTANT_COPY.answerLabel + '</div>',
+          '<div class="rag-answer-text" data-rag-message-text="' + message.id + '">' + escapeHTML(answerText) + (showCaret ? '<span class="rag-answer-caret"></span>' : '') + '</div>',
+          message.status === "loading" ? '<div class="rag-loading-row"><span></span><span></span><span></span></div>' : '',
+          '</div>',
+          renderAssistantSources(message.sources, !!message.showSources),
+          '</section>'
+        ].join("");
+      }
+
+      function renderAssistantThread() {
+        var list = document.getElementById("rag-list");
+        if (!list) {
+          return;
+        }
+        ragAssistantState.view = "chat";
+        ensureAssistantHistory();
+        updateAssistantTitle(ragAssistantState.loading ? ASSISTANT_COPY.panelTitleLoading : ASSISTANT_COPY.panelTitleIdle);
+        list.innerHTML = ragAssistantState.history.map(renderAssistantMessage).join("");
+        if (ragAssistantState.open) {
+          scrollAssistantToBottom();
+        }
+      }
+
+      function renderAssistantResult(messageId, answer, hits) {
+        ragAssistantState.loading = false;
+        updateAssistantTitle(ASSISTANT_COPY.panelTitleDone);
+        startAssistantTypewriter(
+          messageId,
+          answer || ASSISTANT_COPY.answerFallback,
+          hits || [],
+          { showSources: true }
+        );
+      }
+
+      function renderAssistantError(messageId, message) {
+        ragAssistantState.loading = false;
+        updateAssistantTitle(ASSISTANT_COPY.panelTitleError);
+        startAssistantTypewriter(
+          messageId,
+          message || ASSISTANT_COPY.answerError,
+          [],
+          { status: "error", showSources: false }
+        );
+      }
+
+      function executeAssistantStream(input) {
+        var question = (input.value || "").trim();
+        var sendButton = document.getElementById("rag-send");
+        var messageId;
+        var receivedChunks = false;
+
+        if (!question) {
+          return;
+        }
+        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
+          return;
+        }
+
+        ragAssistantState.loading = true;
+        ragAssistantState.lastQuestion = question;
+        if (sendButton) {
+          sendButton.disabled = true;
+          sendButton.textContent = ASSISTANT_COPY.sending;
+        }
+        messageId = renderAssistantLoading(question);
+        input.value = "";
+
+        function resetSendButton() {
+          if (!sendButton) {
+            return;
+          }
+          sendButton.disabled = false;
+          sendButton.textContent = ASSISTANT_COPY.send;
+        }
+
+        function fallbackToJSON() {
+          return postJSON("/api/v1/rag/chat", {
+            question: question,
+            top_k: 4
+          }).then(function (resp) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            if (!resp || resp.code !== 1000 || !resp.data) {
+              renderAssistantError(messageId, resp && resp.msg ? String(resp.msg) : ASSISTANT_COPY.panelTitleError);
+              return;
+            }
+            renderAssistantResult(messageId, resp.data.answer, resp.data.hits || []);
+          }).catch(function () {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            renderAssistantError(messageId, ASSISTANT_COPY.answerError);
+          });
+        }
+
+        streamAssistantQuestion(question, {
+          onChunk: function (delta) {
+            if (!receivedChunks) {
+              receivedChunks = true;
+              updateAssistantTitle(ASSISTANT_COPY.panelTitleStreaming);
+              updateAssistantMessage(messageId, function (message) {
+                message.text = "";
+                message.status = "typing";
+              });
+              renderAssistantThread();
+            }
+            streamAssistantMessageChunk(messageId, delta);
+          },
+          onDone: function (payload) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            finalizeAssistantMessage(
+              messageId,
+              payload && payload.answer ? String(payload.answer) : getAssistantMessageText(messageId),
+              payload && payload.hits ? payload.hits : [],
+              { showSources: true }
+            );
+            updateAssistantTitle(ASSISTANT_COPY.panelTitleDone);
+          },
+          onError: function (message) {
+            ragAssistantState.loading = false;
+            resetSendButton();
+            renderAssistantError(messageId, message || ASSISTANT_COPY.panelTitleError);
+          }
+        }).catch(function () {
+          if (!receivedChunks) {
+            return fallbackToJSON();
+          }
+        });
       }
 
       function executeSearch(input) {
@@ -1545,7 +2941,7 @@
         }
 
         input.dataset.ragBound = "1";
-        input.setAttribute("placeholder", "输入关键词后回车或点击搜索");
+        input.setAttribute("placeholder", "搜索帖子内容，AI 助手在右下角");
 
         search.style.cursor = "text";
         search.addEventListener("click", function (event) {
@@ -2284,19 +3680,66 @@
       }
 
       ready(function () {
+        var fab = document.getElementById("rag-fab");
+        var header = document.getElementById("rag-header");
         var close = document.getElementById("rag-close");
+        var minimize = document.getElementById("rag-minimize");
+        var assistantInput = document.getElementById("rag-input");
+        var assistantSend = document.getElementById("rag-send");
+        loadAssistantState();
+        normalizeAssistantStaticCopy();
+        renderAssistantThread();
+        applyAssistantLayout();
+        updateAssistantBadge();
+        if (fab) {
+          fab.addEventListener("pointerdown", function (event) {
+            beginAssistantDrag(event, "fab");
+          });
+        }
+        if (header) {
+          header.addEventListener("pointerdown", function (event) {
+            if (event.target.closest("button")) {
+              return;
+            }
+            beginAssistantDrag(event, "header");
+          });
+        }
+        window.addEventListener("pointermove", moveAssistantDrag);
+        window.addEventListener("pointerup", endAssistantDrag);
+        window.addEventListener("pointercancel", endAssistantDrag);
+        window.addEventListener("resize", function () {
+          applyAssistantLayout();
+        });
         if (close) {
           close.addEventListener("click", hidePanel);
+        }
+        if (minimize) {
+          minimize.addEventListener("click", hidePanel);
+        }
+        if (assistantSend && assistantInput) {
+          assistantSend.addEventListener("click", function () {
+            executeAssistantStream(assistantInput);
+          });
+        }
+        if (assistantInput) {
+          assistantInput.addEventListener("keydown", function (event) {
+            if (event.key !== "Enter" || event.shiftKey) {
+              return;
+            }
+            event.preventDefault();
+            executeAssistantStream(assistantInput);
+          });
         }
 
         document.addEventListener("click", function (event) {
           var panel = document.getElementById("rag-panel");
           var input = document.querySelector(".s-input");
           var search = document.querySelector(".search");
+          var fabButton = document.getElementById("rag-fab");
           if (!panel || !panel.classList.contains("show")) {
             return;
           }
-          if (panel.contains(event.target) || (input && input.contains(event.target)) || (search && search.contains(event.target))) {
+          if (panel.contains(event.target) || (fabButton && fabButton.contains(event.target)) || (input && input.contains(event.target)) || (search && search.contains(event.target))) {
             return;
           }
           hidePanel();

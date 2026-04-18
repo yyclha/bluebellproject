@@ -5,21 +5,29 @@ import (
 	"bluebell/dao/mysql"
 	"bluebell/models"
 	"bluebell/pkg/embedder"
+	"bluebell/pkg/ragchat"
 	"bluebell/setting"
 	"context"
+	"errors"
+	"fmt"
 	"strconv"
 )
 
-// SearchPostByRAG 先在 Milvus 中检索最相关的 chunk，再聚合为帖子级结果返回给前端。
 func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAGSearchResult, error) {
-	vector, err := embedder.EmbedText(ctx, p.Query) // 先将用户查询转换成向量，后续用同一向量去检索 chunk。
+	vector, err := embedder.EmbedText(ctx, p.Query)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("embedding stage timed out: %w", err)
+		}
+		return nil, fmt.Errorf("embedding stage failed: %w", err)
 	}
 
-	hits, err := milvus.SearchByVector(ctx, vector, p.TopK) // 先召回 chunk 级结果，后面再去重聚合成帖子级结果。
+	hits, err := milvus.SearchByVector(ctx, vector, p.TopK)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("milvus search stage timed out: %w", err)
+		}
+		return nil, fmt.Errorf("milvus search stage failed: %w", err)
 	}
 	if len(hits) == 0 {
 		return &models.RAGSearchResult{Query: p.Query, Hits: []models.RAGHit{}}, nil
@@ -35,9 +43,12 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 		postIDs = append(postIDs, strconv.FormatInt(hit.PostID, 10))
 	}
 
-	postList, err := mysql.GetPostListByIDs(postIDs) // 用去重后的帖子 ID 批量回表，避免重复查询 MySQL。
+	postList, err := mysql.GetPostListByIDs(postIDs)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("mysql post hydration stage timed out: %w", err)
+		}
+		return nil, fmt.Errorf("mysql post hydration stage failed: %w", err)
 	}
 
 	postMap := make(map[int64]*models.Post, len(postList))
@@ -49,7 +60,7 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 	added := make(map[int64]struct{}, len(postIDs))
 	for _, hit := range hits {
 		if _, ok := added[hit.PostID]; ok {
-			continue // 同一帖子只保留分数最高的那个 chunk，确保结果页仍按帖子展示。
+			continue
 		}
 
 		post, ok := postMap[hit.PostID]
@@ -76,10 +87,83 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 	}, nil
 }
 
-// IndexPostToRAG 将一篇帖子切成多个 chunk，并把每个 chunk 的向量写入 Milvus。
+func AskRAGAssistant(ctx context.Context, p *models.ParamRAGChat) (*models.RAGChatResult, error) {
+	if p == nil {
+		return nil, errors.New("rag chat param is nil")
+	}
+	if !ragchat.Enabled() {
+		return nil, errors.New("rag chat is disabled")
+	}
+
+	topK := p.TopK
+	if topK <= 0 {
+		topK = ragchat.TopK()
+	}
+
+	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
+		Query: p.Question,
+		TopK:  topK,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("rag retrieval failed: %w", err)
+	}
+
+	answer, err := ragchat.AnswerQuestion(ctx, p.Question, searchResult.Hits)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
+		}
+		return nil, fmt.Errorf("llm answer stage failed: %w", err)
+	}
+
+	return &models.RAGChatResult{
+		Question: p.Question,
+		Answer:   answer,
+		Model:    ragchat.ModelName(),
+		Hits:     searchResult.Hits,
+	}, nil
+}
+
+func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk func(string) error) (*models.RAGChatResult, error) {
+	if p == nil {
+		return nil, errors.New("rag chat param is nil")
+	}
+	if !ragchat.Enabled() {
+		return nil, errors.New("rag chat is disabled")
+	}
+
+	topK := p.TopK
+	if topK <= 0 {
+		topK = ragchat.TopK()
+	}
+
+	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
+		Query: p.Question,
+		TopK:  topK,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("rag retrieval failed: %w", err)
+	}
+
+	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, searchResult.Hits, onChunk)
+	if err != nil {
+		if errors.Is(err, context.DeadlineExceeded) {
+			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
+		}
+		return nil, fmt.Errorf("llm answer stage failed: %w", err)
+	}
+
+	return &models.RAGChatResult{
+		Question: p.Question,
+		Answer:   answer,
+		Model:    ragchat.ModelName(),
+		Hits:     searchResult.Hits,
+	}, nil
+}
+
 func IndexPostToRAG(ctx context.Context, p *models.Post) error {
 	if !milvus.Enabled() || !embedder.Enabled() {
-		return nil // 向量检索能力未开启时直接跳过，不影响主业务流程。
+		return nil
 	}
 
 	fullText := BuildPostRAGText(p.Title, p.Content)
@@ -90,7 +174,7 @@ func IndexPostToRAG(ctx context.Context, p *models.Post) error {
 
 	chunkDocs := make([]milvus.ChunkDocument, 0, len(chunks))
 	for _, chunk := range chunks {
-		vector, err := embedder.EmbedText(ctx, chunk.Text) // 每个 chunk 单独向量化，提升长文本检索精度。
+		vector, err := embedder.EmbedText(ctx, chunk.Text)
 		if err != nil {
 			return err
 		}
@@ -103,10 +187,9 @@ func IndexPostToRAG(ctx context.Context, p *models.Post) error {
 		})
 	}
 
-	return milvus.ReplacePostChunks(ctx, p.ID, chunkDocs) // 重建同一帖子时先删旧 chunk 再写新 chunk，避免脏数据残留。
+	return milvus.ReplacePostChunks(ctx, p.ID, chunkDocs)
 }
 
-// ReindexPostToRAG 批量重建帖子向量索引，返回成功处理的帖子数。
 func ReindexPostToRAG(ctx context.Context, limit int) (int, error) {
 	posts, err := mysql.GetPostListForRAG(limit)
 	if err != nil {

@@ -44,6 +44,10 @@ func SetupRouter(mode string) *gin.Engine {
 	v1.GET("/post/:id", controller.GetPostDetailHandler)
 	v1.GET("/post/:id/comments", controller.GetCommentListHandler)
 	v1.GET("/rag/search", controller.RAGSearchHandler)
+	v1.GET("/rag/chat", controller.RAGChatHandler)
+	v1.POST("/rag/chat", controller.RAGChatHandler)
+	v1.GET("/rag/chat/stream", controller.RAGChatStreamHandler)
+	v1.POST("/rag/chat/stream", controller.RAGChatStreamHandler)
 
 	v1.Use(middlewares.JWTAuthMiddleware())
 	{

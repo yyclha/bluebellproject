@@ -8,6 +8,7 @@ import (
 	"bluebell/logger"
 	"bluebell/pkg/embedder"
 	"bluebell/pkg/postscore"
+	"bluebell/pkg/ragchat"
 	"bluebell/pkg/snowflake"
 	"bluebell/router"
 	"bluebell/setting"
@@ -64,6 +65,10 @@ func main() {
 	}
 	if err := postscore.Init(setting.Conf.PostScoreConfig); err != nil {
 		fmt.Printf("init post score failed, err:%v\n", err)
+		return
+	}
+	if err := ragchat.Init(setting.Conf.RAGChatConfig); err != nil {
+		fmt.Printf("init rag chat failed, err:%v\n", err)
 		return
 	}
 	if err := milvus.Init(setting.Conf.MilvusConfig); err != nil {

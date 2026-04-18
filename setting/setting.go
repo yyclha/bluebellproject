@@ -23,6 +23,7 @@ type AppConfig struct {
 	*MilvusConfig    `mapstructure:"milvus"`
 	*EmbeddingConfig `mapstructure:"embedding"`
 	*PostScoreConfig `mapstructure:"post_score"`
+	*RAGChatConfig   `mapstructure:"rag_chat"`
 }
 
 type MySQLConfig struct {
@@ -82,6 +83,17 @@ type PostScoreConfig struct {
 	Model          string  `mapstructure:"model"`
 	TimeoutSeconds int     `mapstructure:"timeout_seconds"`
 	ScoreWeight    float64 `mapstructure:"score_weight"`
+}
+
+type RAGChatConfig struct {
+	Enabled         bool    `mapstructure:"enabled"`
+	BaseURL         string  `mapstructure:"base_url"`
+	APIKey          string  `mapstructure:"api_key"`
+	Model           string  `mapstructure:"model"`
+	TimeoutSeconds  int     `mapstructure:"timeout_seconds"`
+	TopK            int     `mapstructure:"top_k"`
+	MaxContextChars int     `mapstructure:"max_context_chars"`
+	Temperature     float64 `mapstructure:"temperature"`
 }
 
 func Init(filePath string) (err error) {

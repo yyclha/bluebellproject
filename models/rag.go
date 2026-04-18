@@ -9,6 +9,11 @@ type ParamRAGReindex struct {
 	Limit int `json:"limit"`
 }
 
+type ParamRAGChat struct {
+	Question string `json:"question" form:"question" binding:"required"`
+	TopK     int    `json:"top_k" form:"top_k"`
+}
+
 type RAGHit struct {
 	PostID      int64   `json:"post_id,string"`
 	Score       float32 `json:"score"`
@@ -23,4 +28,11 @@ type RAGHit struct {
 type RAGSearchResult struct {
 	Query string   `json:"query"`
 	Hits  []RAGHit `json:"hits"`
+}
+
+type RAGChatResult struct {
+	Question string   `json:"question"`
+	Answer   string   `json:"answer"`
+	Model    string   `json:"model"`
+	Hits     []RAGHit `json:"hits"`
 }
