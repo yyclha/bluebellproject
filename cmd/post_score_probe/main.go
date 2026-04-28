@@ -1,15 +1,16 @@
 package main
 
 import (
-	"bluebell/models"
+	"bluebell/internal/models"
+	"bluebell/internal/setting"
 	"bluebell/pkg/postscore"
-	"bluebell/setting"
 	"context"
 	"fmt"
 	"os"
 	"time"
 )
 
+// main 程序入口，负责执行当前命令行任务。
 func main() {
 	configPath := "./conf/config.yaml"
 	if len(os.Args) >= 2 && os.Args[1] != "" {

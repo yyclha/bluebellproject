@@ -1,17 +1,17 @@
 package main
 
 import (
-	"bluebell/controller"
-	"bluebell/dao/milvus"
-	"bluebell/dao/mysql"
-	"bluebell/dao/redis"
-	"bluebell/logger"
+	"bluebell/internal/controller"
+	"bluebell/internal/dao/milvus"
+	"bluebell/internal/dao/mysql"
+	"bluebell/internal/dao/redis"
+	"bluebell/internal/logger"
+	"bluebell/internal/router"
+	"bluebell/internal/setting"
 	"bluebell/pkg/embedder"
 	"bluebell/pkg/postscore"
 	"bluebell/pkg/ragchat"
 	"bluebell/pkg/snowflake"
-	"bluebell/router"
-	"bluebell/setting"
 	"fmt"
 	"os"
 )

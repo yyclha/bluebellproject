@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bluebell/dao/milvus"
-	"bluebell/dao/mysql"
-	"bluebell/logger"
-	"bluebell/logic"
+	"bluebell/internal/dao/milvus"
+	"bluebell/internal/dao/mysql"
+	"bluebell/internal/logger"
+	"bluebell/internal/logic"
+	"bluebell/internal/setting"
 	"bluebell/pkg/embedder"
-	"bluebell/setting"
 	"context"
 	"fmt"
 	"os"
@@ -14,6 +14,7 @@ import (
 	"time"
 )
 
+// main 程序入口，负责执行当前命令行任务。
 func main() {
 	configPath := "./conf/config.yaml"
 	if len(os.Args) >= 2 && os.Args[1] != "" {

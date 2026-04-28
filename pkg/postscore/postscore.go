@@ -1,8 +1,8 @@
 package postscore
 
 import (
-	"bluebell/models"
-	"bluebell/setting"
+	"bluebell/internal/models"
+	"bluebell/internal/setting"
 	"bufio"
 	"bytes"
 	"context"
@@ -52,6 +52,7 @@ type Result struct {
 	Model        string
 }
 
+// Init 初始化当前模块。
 func Init(c *setting.PostScoreConfig) error {
 	cfg = c
 	if cfg == nil || !cfg.Enabled {
@@ -68,10 +69,12 @@ func Init(c *setting.PostScoreConfig) error {
 	return nil
 }
 
+// Enabled 返回当前组件是否已启用且可正常使用。
 func Enabled() bool {
 	return cfg != nil && cfg.Enabled
 }
 
+// ScoreWeight 执行。
 func ScoreWeight() float64 {
 	if cfg == nil || cfg.ScoreWeight <= 0 {
 		return 1
@@ -79,6 +82,7 @@ func ScoreWeight() float64 {
 	return cfg.ScoreWeight
 }
 
+// ModelName 返回当前使用的模型名称。
 func ModelName() string {
 	if cfg == nil {
 		return ""
@@ -86,6 +90,7 @@ func ModelName() string {
 	return cfg.Model
 }
 
+// ScorePost 调用模型为帖子生成 AI 分数。
 func ScorePost(ctx context.Context, post *models.Post) (*Result, error) {
 	if !Enabled() {
 		return nil, errors.New("post score is disabled")
@@ -159,6 +164,7 @@ func ScorePost(ctx context.Context, post *models.Post) (*Result, error) {
 	}, nil
 }
 
+// buildPrompt 构建发给模型的提示词内容。
 func buildPrompt(post *models.Post) string {
 	return "Score this community post on a 0-100 scale.\n" +
 		"Consider content quality, information density, discussion value, title clarity, and readability.\n" +
@@ -167,6 +173,7 @@ func buildPrompt(post *models.Post) string {
 		"Content:\n" + strings.TrimSpace(post.Content)
 }
 
+// buildChatURL 构建聊天补全接口地址。
 func buildChatURL(baseURL string) string {
 	baseURL = strings.TrimRight(baseURL, "/")
 	if strings.HasSuffix(baseURL, "/chat/completions") {
@@ -178,6 +185,7 @@ func buildChatURL(baseURL string) string {
 	return baseURL + "/v1/chat/completions"
 }
 
+// readStreamContent 读取流式响应中的完整文本内容。
 func readStreamContent(body io.Reader) (string, error) {
 	reader := bufio.NewReader(body)
 	var answerBuilder strings.Builder
@@ -222,6 +230,7 @@ func readStreamContent(body io.Reader) (string, error) {
 	return strings.TrimSpace(reasoningBuilder.String()), nil
 }
 
+// parseScore 从模型输出中解析帖子分数。
 func parseScore(text string) (float64, error) {
 	match := scoreRE.FindStringSubmatch(strings.TrimSpace(text))
 	if len(match) < 2 {

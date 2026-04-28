@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bluebell/setting"
+	"bluebell/internal/setting"
 	"context"
 	"fmt"
 	"os"
@@ -33,6 +33,7 @@ type commentCountRow struct {
 	Count  int64 `db:"cnt"`
 }
 
+// main 程序入口，负责执行当前命令行任务。
 func main() {
 	configPath := "./conf/config.yaml"
 	if len(os.Args) >= 2 && os.Args[1] != "" {

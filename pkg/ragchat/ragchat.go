@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"bluebell/models"
-	"bluebell/setting"
+	"bluebell/internal/models"
+	"bluebell/internal/setting"
 
 	"github.com/cloudwego/eino-ext/components/model/qwen"
 	einomodel "github.com/cloudwego/eino/components/model"
@@ -22,6 +22,7 @@ var (
 	chatModel einomodel.BaseChatModel
 )
 
+// Init 初始化当前模块。
 func Init(c *setting.RAGChatConfig) error {
 	cfg = c
 	chatModel = nil
@@ -53,10 +54,12 @@ func Init(c *setting.RAGChatConfig) error {
 	return nil
 }
 
+// Enabled 返回当前组件是否已启用且可正常使用。
 func Enabled() bool {
 	return cfg != nil && cfg.Enabled && chatModel != nil
 }
 
+// ModelName 返回当前使用的模型名称。
 func ModelName() string {
 	if cfg == nil {
 		return ""
@@ -64,6 +67,7 @@ func ModelName() string {
 	return cfg.Model
 }
 
+// TopK 返回 RAG 检索使用的默认 TopK。
 func TopK() int {
 	if cfg == nil || cfg.TopK <= 0 {
 		return 4
@@ -71,6 +75,7 @@ func TopK() int {
 	return cfg.TopK
 }
 
+// MaxContextChars 返回问答上下文允许的最大字符数。
 func MaxContextChars() int {
 	if cfg == nil || cfg.MaxContextChars <= 0 {
 		return 3600
@@ -78,6 +83,7 @@ func MaxContextChars() int {
 	return cfg.MaxContextChars
 }
 
+// StreamAnswerQuestion 基于检索结果流式生成问答答案。
 func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RAGHit, onChunk func(string) error) (string, error) {
 	if !Enabled() {
 		return "", errors.New("rag chat is disabled")
@@ -149,6 +155,7 @@ func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RA
 	return "", errors.New("rag chat response is empty")
 }
 
+// buildPrompt 构建发给模型的提示词内容。
 func buildPrompt(question string, hits []models.RAGHit) string {
 	var builder strings.Builder
 	builder.WriteString("Question:\n")
@@ -188,6 +195,7 @@ func buildPrompt(question string, hits []models.RAGHit) string {
 	return builder.String()
 }
 
+// temperature 返回当前问答模型的采样温度。
 func temperature() float64 {
 	if cfg == nil {
 		return 0.2
@@ -201,6 +209,7 @@ func temperature() float64 {
 	return cfg.Temperature
 }
 
+// normalizeBaseURL 规范化模型服务基础地址。
 func normalizeBaseURL(baseURL string) string {
 	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
 	baseURL = strings.TrimSuffix(baseURL, "/chat/completions")
@@ -210,6 +219,7 @@ func normalizeBaseURL(baseURL string) string {
 	return baseURL + "/v1"
 }
 
+// float32Ptr 返回 float32 值的指针。
 func float32Ptr(v float32) *float32 {
 	return &v
 }

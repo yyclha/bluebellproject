@@ -1,7 +1,7 @@
 package embedder
 
 import (
-	"bluebell/setting"
+	"bluebell/internal/setting"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -29,6 +29,7 @@ type embeddingResponse struct {
 	} `json:"data"`
 }
 
+// Init 初始化当前模块。
 func Init(c *setting.EmbeddingConfig) error {
 	cfg = c
 	if cfg == nil || !cfg.Enabled {
@@ -45,10 +46,12 @@ func Init(c *setting.EmbeddingConfig) error {
 	return nil
 }
 
+// Enabled 返回当前组件是否已启用且可正常使用。
 func Enabled() bool {
 	return cfg != nil && cfg.Enabled
 }
 
+// EmbedText 将文本转换为向量表示。
 func EmbedText(ctx context.Context, text string) ([]float32, error) {
 	if !Enabled() {
 		return nil, errors.New("embedding is disabled")
@@ -93,6 +96,7 @@ func EmbedText(ctx context.Context, text string) ([]float32, error) {
 	return embResp.Data[0].Embedding, nil
 }
 
+// buildEmbeddingsURL 构建 Embedding 接口地址。
 func buildEmbeddingsURL(baseURL string) string {
 	baseURL = strings.TrimRight(baseURL, "/")
 	if strings.HasSuffix(baseURL, "/embeddings") {
