@@ -28,10 +28,9 @@ CREATE TABLE `community` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 
-INSERT INTO `community` VALUES ('1', '1', 'Go', 'Golang', '2016-11-01 08:10:10', '2016-11-01 08:10:10');
-INSERT INTO `community` VALUES ('2', '2', 'leetcode', '刷题刷题刷题', '2020-01-01 08:00:00', '2020-01-01 08:00:00');
-INSERT INTO `community` VALUES ('3', '3', 'CS:GO', 'Rush B。。。', '2018-08-07 08:30:00', '2018-08-07 08:30:00');
-INSERT INTO `community` VALUES ('4', '4', 'LOL', '欢迎来到英雄联盟!', '2016-01-01 08:00:00', '2016-01-01 08:00:00');
+INSERT INTO `community` VALUES ('1', '1', 'LOL', '英雄联盟开黑、版本理解、英雄攻略与赛事讨论', '2016-01-01 08:00:00', '2016-01-01 08:00:00');
+INSERT INTO `community` VALUES ('2', '2', 'CF', '穿越火线枪法、地图点位、战术配合与活动交流', '2018-08-07 08:30:00', '2018-08-07 08:30:00');
+INSERT INTO `community` VALUES ('3', '3', '力扣', '算法刷题、面试准备、题解复盘与学习路线', '2020-01-01 08:00:00', '2020-01-01 08:00:00');
 
 DROP TABLE IF EXISTS `post`;
 CREATE TABLE `post` (

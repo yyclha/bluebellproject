@@ -42,6 +42,10 @@ func main() {
 		fmt.Printf("init post ai score table failed, err:%v\n", err)
 		return
 	}
+	if err := mysql.InitDefaultCommunities(); err != nil {
+		fmt.Printf("init default communities failed, err:%v\n", err)
+		return
+	}
 	defer mysql.Close()
 
 	if err := redis.Init(setting.Conf.RedisConfig); err != nil {

@@ -104,7 +104,7 @@ func GetPostList2(p *models.ParamPostList) (data []*models.ApiPostDetail, err er
 	}
 	if len(ids) == 0 {
 		zap.L().Warn("redis.GetPostIDsInOrder(p) return 0 data")
-		return
+		return GetPostList(p.Page, p.Size)
 	}
 
 	posts, err := mysql.GetPostListByIDs(ids)
@@ -152,7 +152,11 @@ func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail
 	}
 	if len(ids) == 0 {
 		zap.L().Warn("redis.GetCommunityPostIDsInOrder(p) return 0 data")
-		return
+		posts, postErr := mysql.GetPostListByCommunityID(p.CommunityID, p.Page, p.Size)
+		if postErr != nil {
+			return nil, postErr
+		}
+		return buildPostDetails(posts, nil)
 	}
 
 	posts, err := mysql.GetPostListByIDs(ids)
@@ -190,6 +194,39 @@ func GetCommunityPostList(p *models.ParamPostList) (data []*models.ApiPostDetail
 		})
 	}
 	return
+}
+
+// buildPostDetails 聚合帖子、作者、社区和投票数信息。
+func buildPostDetails(posts []*models.Post, voteData []int64) (data []*models.ApiPostDetail, err error) {
+	data = make([]*models.ApiPostDetail, 0, len(posts))
+	for idx, post := range posts {
+		authorName := ""
+		user, userErr := mysql.GetUserById(post.AuthorID)
+		if userErr != nil {
+			zap.L().Warn("mysql.GetUserById(post.AuthorID) failed", zap.Int64("author_id", post.AuthorID), zap.Error(userErr))
+		} else {
+			authorName = user.Username
+		}
+
+		community, communityErr := mysql.GetCommunityDetailByID(post.CommunityID)
+		if communityErr != nil {
+			zap.L().Warn("mysql.GetCommunityDetailByID(post.CommunityID) failed", zap.Int64("community_id", post.CommunityID), zap.Error(communityErr))
+			community = &models.CommunityDetail{ID: post.CommunityID}
+		}
+
+		voteNum := int64(0)
+		if idx < len(voteData) {
+			voteNum = voteData[idx]
+		}
+
+		data = append(data, &models.ApiPostDetail{
+			AuthorName:      authorName,
+			VoteNum:         voteNum,
+			Post:            post,
+			CommunityDetail: community,
+		})
+	}
+	return data, nil
 }
 
 // GetPostListNew 按新的排序规则聚合帖子列表数据。

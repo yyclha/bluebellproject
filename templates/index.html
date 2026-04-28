@@ -3,37 +3,34 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="/static/favicon.ico">
   <title>YXB GameBase</title>
-  <link href="/static/css/app.50fb5caf.css" rel="preload" as="style">
-  <link href="/static/js/app.7fce8887.js" rel="preload" as="script">
-  <link href="/static/js/chunk-vendors.57f9e9d6.js" rel="preload" as="script">
-  <link href="/static/css/app.50fb5caf.css" rel="stylesheet">
   <style>
     :root {
-      --bg: #f4efe7;
-      --bg-soft: #fbf8f3;
-      --surface: rgba(255, 255, 255, 0.82);
-      --surface-strong: #fffdf9;
-      --surface-muted: #f7f1e8;
-      --text: #1f2937;
-      --text-soft: #5f6b7a;
-      --line: rgba(115, 96, 71, 0.14);
-      --line-strong: rgba(115, 96, 71, 0.24);
-      --accent: #1d6b63;
-      --accent-strong: #134f49;
-      --accent-soft: #d8ece7;
-      --warm: #c67d4e;
-      --warm-soft: #f4dfcf;
-      --shadow-lg: 0 28px 60px rgba(73, 54, 32, 0.12);
-      --shadow-md: 0 18px 36px rgba(73, 54, 32, 0.09);
-      --shadow-sm: 0 10px 22px rgba(73, 54, 32, 0.06);
-      --radius-xl: 28px;
-      --radius-lg: 22px;
-      --radius-md: 16px;
-      --radius-sm: 12px;
-      --header-height: 72px;
+      --bg: #f6f7fb;
+      --surface: #ffffff;
+      --surface-soft: #f0f3f8;
+      --surface-strong: #111827;
+      --line: #d9e0ea;
+      --line-strong: #b8c2cf;
+      --text: #141823;
+      --muted: #667085;
+      --muted-strong: #475467;
+      --primary: #0f766e;
+      --primary-strong: #115e59;
+      --blue: #2563eb;
+      --amber: #c77700;
+      --red: #c2413a;
+      --green-soft: #e7f5f2;
+      --blue-soft: #eaf1ff;
+      --amber-soft: #fff3d8;
+      --red-soft: #fae8e6;
+      --shadow: 0 18px 44px rgba(31, 41, 55, 0.10);
+      --shadow-sm: 0 8px 22px rgba(31, 41, 55, 0.08);
+      --radius: 8px;
+      --header-h: 68px;
+      color-scheme: light;
     }
 
     * {
@@ -42,3146 +39,1076 @@
 
     html {
       min-height: 100%;
-      background:
-        radial-gradient(circle at top left, rgba(29, 107, 99, 0.14), transparent 34%),
-        radial-gradient(circle at top right, rgba(198, 125, 78, 0.16), transparent 32%),
-        linear-gradient(180deg, #f9f5ef 0%, #f4efe7 40%, #f0e8dd 100%);
+      background: var(--bg);
     }
 
     body {
       margin: 0;
       min-height: 100vh;
       color: var(--text);
-      background: transparent;
-      font-family: "Avenir Next", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      font-family: Inter, "Segoe UI", "PingFang SC", "Microsoft YaHei", Arial, sans-serif;
+      line-height: 1.6;
       -webkit-font-smoothing: antialiased;
       text-rendering: optimizeLegibility;
     }
 
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      inset: auto;
-      width: 36vw;
-      height: 36vw;
-      border-radius: 999px;
-      filter: blur(28px);
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.32;
-    }
-
-    body::before {
-      top: -10vw;
-      left: -12vw;
-      background: rgba(29, 107, 99, 0.18);
-    }
-
-    body::after {
-      right: -10vw;
-      bottom: -14vw;
-      background: rgba(198, 125, 78, 0.18);
-    }
-
-    #app,
-    .page {
-      position: relative;
-      z-index: 1;
-      min-height: 100vh;
-    }
-
-    h1,
-    h2,
-    h3,
-    h4,
-    h5 {
-      font-family: "Georgia", "Songti SC", "STSong", serif;
-      letter-spacing: 0.01em;
-    }
-
-    a,
-    button,
-    input,
-    textarea {
-      transition: all 0.22s ease;
+    body.is-locked {
+      overflow: hidden;
     }
 
     button,
     input,
-    textarea {
+    textarea,
+    select {
       font: inherit;
     }
 
-    ::selection {
-      background: rgba(29, 107, 99, 0.18);
-      color: var(--accent-strong);
+    button {
+      cursor: pointer;
     }
 
-    .header[data-v-75d7d08c] {
-      height: var(--header-height);
-      padding: 0 20px;
-      background: rgba(251, 248, 243, 0.8);
-      border-bottom: 1px solid rgba(115, 96, 71, 0.12);
-      backdrop-filter: blur(18px);
-      box-shadow: 0 12px 30px rgba(82, 60, 37, 0.06);
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.64;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.34);
+      outline-offset: 3px;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
       z-index: 30;
+      height: var(--header-h);
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(16px);
     }
 
-    .header .logo[data-v-75d7d08c] {
-      height: 40px;
-      margin-left: 2px;
-      margin-right: 22px;
-      padding-left: 46px;
-      line-height: 40px;
-      color: var(--accent-strong);
-      font-family: "Georgia", "Songti SC", serif;
-      font-size: 24px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      background-size: 36px 36px;
-      background-position: 0 50%;
+    .topbar-inner {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: min(1280px, calc(100% - 32px));
+      height: 100%;
+      margin: 0 auto;
     }
 
-    .header .search[data-v-75d7d08c] {
-      max-width: 780px;
-    }
-
-    .header .search .s-logo[data-v-75d7d08c] {
-      left: 18px;
-      width: 20px;
-      height: 20px;
-      margin-top: -10px;
-      opacity: 0.72;
-    }
-
-    .header .search .s-input[data-v-75d7d08c] {
-      height: 46px;
-      padding: 0 18px 0 50px;
-      border: 1px solid rgba(115, 96, 71, 0.14);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.74);
-      color: var(--text);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    }
-
-    .header .search .s-input[data-v-75d7d08c]::placeholder {
-      color: rgba(95, 107, 122, 0.74);
-    }
-
-    .header .search .s-input[data-v-75d7d08c]:focus {
-      border-color: rgba(29, 107, 99, 0.34);
-      background: rgba(255, 255, 255, 0.95);
-      box-shadow: 0 0 0 4px rgba(29, 107, 99, 0.08);
-    }
-
-    .header .btns .login-btn[data-v-75d7d08c] {
-      min-width: 88px;
-      padding: 8px 18px;
-      border-radius: 999px;
-      border: 1px solid rgba(29, 107, 99, 0.16);
-      background: rgba(255, 255, 255, 0.62);
-      color: var(--accent-strong);
-      font-size: 12px;
-      line-height: 1;
-      text-transform: none;
-      letter-spacing: 0.04em;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header .btns .login-btn[data-v-75d7d08c]:hover {
-      transform: translateY(-1px);
-      background: var(--accent);
-      border-color: var(--accent);
-      color: #fff;
-    }
-
-    .header .btns .user[data-v-75d7d08c] {
-      min-height: 44px;
-      padding: 10px 14px 10px 34px;
-      border: 1px solid rgba(115, 96, 71, 0.14);
-      border-radius: 999px;
-      background-color: rgba(255, 255, 255, 0.74);
-      background-position: 10px 50%;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .header .btns .dropdown-content[data-v-75d7d08c] {
-      right: 0;
-      top: calc(100% + 10px);
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-sm);
-      overflow: hidden;
-      background: rgba(255, 253, 249, 0.96);
-      backdrop-filter: blur(18px);
-      box-shadow: var(--shadow-md);
-    }
-
-    .content[data-v-2baf73fc],
-    .content[data-v-4466eba1],
-    .content[data-v-6236a644] {
-      max-width: 1320px;
-      gap: 28px;
-      padding: 32px 28px 72px;
-      margin-top: var(--header-height);
-      align-items: flex-start;
-      overflow: visible;
-    }
-
-    .content .left[data-v-2baf73fc],
-    .content .left[data-v-4466eba1],
-    .content .left[data-v-6236a644],
-    .main .container[data-v-5d78ac92],
-    .main .container[data-v-326a7a12] {
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-xl);
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.94), rgba(255, 249, 240, 0.9));
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(12px);
-    }
-
-    .content .right[data-v-2baf73fc],
-    .content .right[data-v-4466eba1],
-    .content .right[data-v-6236a644] {
-      margin-left: 0;
-      margin-top: 0;
-    }
-
-    .content .left[data-v-2baf73fc] {
-      width: min(100%, 820px);
-      padding: 28px;
-      margin: 0;
-      background: linear-gradient(180deg, rgba(255, 251, 245, 0.94), rgba(255, 255, 255, 0.88));
-    }
-
-    .content .left .c-l-header[data-v-2baf73fc] {
-      height: auto;
-      margin-bottom: 24px;
-      padding: 12px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.7);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .content .left .c-l-header .new[data-v-2baf73fc],
-    .content .left .c-l-header .top[data-v-2baf73fc] {
-      margin-right: 0;
-      padding: 0 16px;
-      height: 40px;
-      border-radius: 999px;
-      color: var(--text-soft);
-      font-weight: 600;
+    .brand {
       display: inline-flex;
       align-items: center;
-    }
-
-    .content .left .c-l-header .active[data-v-2baf73fc] {
-      height: 40px;
-      margin-right: 0;
-      color: #fff;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      box-shadow: 0 10px 20px rgba(29, 107, 99, 0.18);
-    }
-
-    .content .left .c-l-header .btn-publish[data-v-2baf73fc] {
-      width: auto;
-      min-width: 108px;
-      height: 40px;
-      padding: 0 18px;
-      margin-left: auto;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--warm), #b36435);
-      box-shadow: 0 12px 22px rgba(182, 105, 55, 0.22);
-      font-weight: 700;
-    }
-
-    .content .left .c-l-header .btn-publish[data-v-2baf73fc]:hover,
-    .content .right .topic-info .topic-btn[data-v-4466eba1]:hover,
-    .content .left .post-content .post-footer .btns .btn[data-v-6236a644]:hover,
-    .main .container .form-btn .btn[data-v-5d78ac92]:hover,
-    .main .container .form-btn .btn[data-v-326a7a12]:hover,
-    .comment-submit:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.05);
-    }
-
-    .content .left .c-l-list .c-l-item[data-v-2baf73fc] {
-      margin-bottom: 18px;
-      padding-left: 64px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(251, 246, 238, 0.9));
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-    }
-
-    .content .left .c-l-list .c-l-item[data-v-2baf73fc]:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 24px 40px rgba(73, 54, 32, 0.12);
-      border-color: rgba(29, 107, 99, 0.18);
-    }
-
-    .content .left .c-l-list .c-l-item .post[data-v-2baf73fc] {
-      width: 64px;
-      padding: 14px 8px;
-      border-left: 0;
-      background:
-        linear-gradient(180deg, rgba(216, 236, 231, 0.82), rgba(255, 255, 255, 0.55));
-      border-right: 1px solid rgba(115, 96, 71, 0.08);
-    }
-
-    .content .left .c-l-list .c-l-item .post .iconfont[data-v-2baf73fc],
-    .content .left .container .post .iconfont[data-v-4466eba1] {
+      gap: 10px;
+      min-width: 196px;
+      border: 0;
+      background: transparent;
+      color: var(--text);
+      font-weight: 800;
       font-size: 18px;
-      color: var(--accent-strong);
+      letter-spacing: 0;
+      text-align: left;
     }
 
-    .content .left .c-l-list .c-l-item .post .text[data-v-2baf73fc],
-    .content .left .container .post .text[data-v-4466eba1] {
-      margin: 8px 0;
-      font-size: 14px;
-      color: var(--accent-strong);
-    }
-
-    .content .left .c-l-list .c-l-item .l-container[data-v-2baf73fc] {
-      padding: 20px 22px;
-    }
-
-    .content .left .c-l-list .c-l-item .l-container .con-title[data-v-2baf73fc] {
-      font-size: 24px;
-      line-height: 1.3;
-      color: #1e2b30;
-    }
-
-    .content .left .c-l-list .c-l-item .l-container .con-memo[data-v-2baf73fc] {
-      margin: 14px 0 0;
-    }
-
-    .content .left .c-l-list .c-l-item .l-container .con-memo p[data-v-2baf73fc] {
-      margin: 0;
-      font-size: 15px;
-      line-height: 1.8;
-      color: var(--text-soft);
-      display: -webkit-box;
-      -webkit-line-clamp: 3;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-
-    .home-feed-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      margin-top: 8px;
-      padding: 18px 20px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.94), rgba(250, 244, 236, 0.9));
+    .brand img {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      object-fit: cover;
       box-shadow: var(--shadow-sm);
     }
 
-    .home-search-toolbar {
+    .brand-sub {
+      display: block;
+      margin-top: -2px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      max-width: 560px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      color: var(--muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 42px;
+      padding: 0 14px 0 42px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+      color: var(--text);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 700;
+      line-height: 1;
+      text-decoration: none;
+      transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--line-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .btn-primary {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      border-color: var(--primary-strong);
+      background: var(--primary-strong);
+    }
+
+    .btn-danger {
+      border-color: rgba(194, 65, 58, 0.22);
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .btn-ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--muted-strong);
+      box-shadow: none;
+    }
+
+    .btn-icon {
+      width: 42px;
+      padding: 0;
+    }
+
+    .btn svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+    }
+
+    .user-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 42px;
+      padding: 0 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted-strong);
+      font-weight: 700;
+    }
+
+    .user-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--primary);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1fr) 320px;
+      gap: 22px;
+      width: min(1280px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 60px;
+    }
+
+    .sidebar,
+    .rightbar {
+      position: sticky;
+      top: calc(var(--header-h) + 20px);
+      align-self: start;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .panel + .panel {
+      margin-top: 16px;
+    }
+
+    .panel-head {
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .panel-desc {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .domains {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .domain-btn {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 10px;
+      width: 100%;
+      min-height: 58px;
+      padding: 9px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      text-align: left;
+    }
+
+    .domain-btn:hover,
+    .domain-btn.is-active {
+      border-color: rgba(15, 118, 110, 0.22);
+      background: var(--green-soft);
+    }
+
+    .domain-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 8px;
+      background: var(--surface-soft);
+      color: var(--primary-strong);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .domain-btn:nth-child(3n + 1) .domain-mark {
+      background: var(--green-soft);
+      color: var(--primary-strong);
+    }
+
+    .domain-btn:nth-child(3n + 2) .domain-mark {
+      background: var(--blue-soft);
+      color: var(--blue);
+    }
+
+    .domain-btn:nth-child(3n + 3) .domain-mark {
+      background: var(--amber-soft);
+      color: var(--amber);
+    }
+
+    .domain-name {
+      display: block;
+      overflow: hidden;
+      color: var(--text);
+      font-size: 14px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .domain-desc {
+      display: block;
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 12px;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .main {
+      min-width: 0;
+    }
+
+    .main-toolbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      margin-bottom: 14px;
-      padding: 16px 18px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(247, 243, 235, 0.92));
+      margin-bottom: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
       box-shadow: var(--shadow-sm);
     }
 
-    .home-search-toolbar-main {
-      min-width: 0;
+    .section-kicker {
+      margin: 0 0 4px;
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
-    .home-search-title {
+    .section-title {
       margin: 0;
-      font-size: 18px;
-      line-height: 1.4;
-      color: var(--text-strong);
-      font-weight: 700;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: 0;
     }
 
-    .home-search-meta {
-      margin-top: 4px;
-      font-size: 13px;
-      color: var(--text-soft);
-      line-height: 1.6;
+    .section-desc {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
     }
 
-    .home-search-reset {
-      flex: 0 0 auto;
-      height: 40px;
-      padding: 0 18px;
-      border: 0;
-      border-radius: 999px;
-      background: rgba(29, 107, 99, 0.12);
-      color: var(--accent-strong);
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-    }
-
-    .home-search-reset:hover {
-      background: rgba(29, 107, 99, 0.18);
-    }
-
-    .home-feed-more {
+    .segmented {
       display: inline-flex;
       align-items: center;
-      justify-content: center;
-      width: 100%;
-      max-width: 220px;
-      height: 44px;
-      padding: 0 22px;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+    }
+
+    .segmented button {
+      min-height: 34px;
+      padding: 0 12px;
       border: 0;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #fff;
-      font-size: 14px;
-      font-weight: 700;
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.16);
-      cursor: pointer;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--muted-strong);
+      font-weight: 800;
     }
 
-    .home-feed-more:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.04);
+    .segmented button.is-active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: 0 3px 10px rgba(31, 41, 55, 0.08);
     }
 
-    .home-feed-more:disabled {
-      opacity: 0.68;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
+    .post-list {
+      display: grid;
+      gap: 14px;
     }
 
-    .home-feed-status,
-    .home-feed-empty {
-      color: var(--text-soft);
-      font-size: 13px;
-      line-height: 1.6;
-      text-align: center;
-    }
-
-    .home-feed-status {
-      min-height: 20px;
-    }
-
-    .home-feed-empty {
-      display: block;
-      margin: 0;
-      padding: 26px 18px;
-      border: 1px dashed rgba(115, 96, 71, 0.18);
-      border-radius: var(--radius-lg);
-      background: rgba(255, 253, 249, 0.72);
-      list-style: none;
-    }
-
-    @media (max-width: 768px) {
-      .home-search-toolbar {
-        flex-direction: column;
-        align-items: stretch;
-      }
-
-      .home-search-reset {
-        width: 100%;
-      }
-    }
-
-    .content .right .communities[data-v-2baf73fc],
-    .content .right .r-trending[data-v-2baf73fc],
-    .dynamic-sidebar-card,
-    .content .right .topic-info[data-v-4466eba1],
-    .content .right .post-rank[data-v-6236a644] {
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.94), rgba(250, 244, 236, 0.92));
-      box-shadow: var(--shadow-md);
+    .post-card {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
       overflow: hidden;
     }
 
-    .content .right .communities .r-c-title[data-v-2baf73fc],
-    .dynamic-sidebar-header {
-      height: auto;
-      padding: 18px 18px 16px;
-      line-height: 1.35;
-      text-align: left;
-      font-size: 22px;
-      background:
-        linear-gradient(135deg, rgba(29, 107, 99, 0.94), rgba(16, 70, 66, 0.92));
-      color: #fff;
+    .vote-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 8px;
+      border-right: 1px solid var(--line);
+      background: var(--surface-soft);
     }
 
-    .content .right .communities .r-c-content .r-c-item[data-v-2baf73fc],
-    .dynamic-sidebar-item,
-    .content .right .r-trending .rank .r-t-cell[data-v-2baf73fc] {
-      min-height: 60px;
-      padding: 14px 18px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.09);
-    }
-
-    .content .right .communities .view-all[data-v-2baf73fc],
-    .content .right .r-trending .rank .r-t-cell .join-btn[data-v-2baf73fc],
-    .content .right .topic-info .topic-btn[data-v-4466eba1] {
-      width: calc(100% - 36px);
-      height: 42px;
-      margin: 18px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #fff;
-      font-size: 13px;
-      line-height: 42px;
-      letter-spacing: 0.04em;
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.18);
-    }
-
-    .content .right .r-trending[data-v-2baf73fc] {
-      padding-top: 0;
-    }
-
-    .content .right .r-trending .r-t-title[data-v-2baf73fc] {
-      padding: 18px 18px 14px;
-      font-size: 12px;
-      color: var(--text-soft);
-      letter-spacing: 0.16em;
-    }
-
-    .content .right[data-v-2baf73fc] {
-      width: 320px !important;
-      position: static;
-      top: auto;
-      align-self: flex-start;
-    }
-
-    .content .right[data-v-2baf73fc] .communities[data-v-2baf73fc],
-    .content .right[data-v-2baf73fc] .r-trending[data-v-2baf73fc] {
-      border-radius: var(--radius-lg) !important;
-      border: 1px solid rgba(115, 96, 71, 0.12) !important;
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.97), rgba(250, 244, 236, 0.94)) !important;
-      box-shadow: var(--shadow-md) !important;
-      overflow: hidden !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .r-c-title[data-v-2baf73fc] {
-      padding: 18px 18px 16px !important;
-      min-height: 88px !important;
-      line-height: 1.35 !important;
-      font-size: 22px !important;
-      text-align: left !important;
-      background: linear-gradient(135deg, rgba(29, 107, 99, 0.96), rgba(16, 70, 66, 0.92)) !important;
-      color: #fff !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .r-c-content[data-v-2baf73fc] {
-      padding: 6px 0 !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .r-c-content .r-c-item[data-v-2baf73fc] {
-      height: auto !important;
-      min-height: 60px !important;
-      padding: 14px 18px !important;
-      font-size: 15px !important;
-      color: var(--text) !important;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.09) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .r-c-content .r-c-item .index[data-v-2baf73fc] {
-      width: 28px !important;
-      color: var(--accent-strong) !important;
-      font-size: 15px !important;
-      font-weight: 700 !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .r-c-content .r-c-item .icon[data-v-2baf73fc] {
-      width: 36px !important;
-      height: 36px !important;
-      margin-right: 14px !important;
-      border-radius: 12px !important;
-      box-shadow: var(--shadow-sm) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .communities .view-all[data-v-2baf73fc] {
-      display: block !important;
-      width: calc(100% - 36px) !important;
-      margin: 18px !important;
-      padding: 0 !important;
-      border: 0 !important;
-      border-radius: 999px !important;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong)) !important;
-      color: #fff !important;
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.18) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending[data-v-2baf73fc] {
-      margin-top: 18px !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .r-t-title[data-v-2baf73fc] {
-      padding: 18px 18px 14px !important;
-      font-size: 12px !important;
-      color: var(--text-soft) !important;
-      letter-spacing: 0.16em !important;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.08) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank[data-v-2baf73fc] {
-      padding: 10px 14px 14px !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell[data-v-2baf73fc] {
-      margin-bottom: 0 !important;
-      padding: 14px 6px !important;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.08) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell:last-child[data-v-2baf73fc] {
-      border-bottom: 0 !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell .avatar[data-v-2baf73fc] {
-      width: 40px !important;
-      height: 40px !important;
-      margin-right: 12px !important;
-      border-radius: 14px !important;
-      box-shadow: var(--shadow-sm) !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell .info .info-title[data-v-2baf73fc] {
-      width: auto !important;
-      max-width: 130px !important;
-      color: var(--text) !important;
-      font-size: 14px !important;
-      font-weight: 700 !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell .info .info-num[data-v-2baf73fc] {
-      color: var(--text-soft) !important;
-      font-size: 12px !important;
-      margin: 4px 0 0 !important;
-      padding-bottom: 0 !important;
-    }
-
-    .content .right[data-v-2baf73fc] .r-trending .rank .r-t-cell .join-btn[data-v-2baf73fc] {
-      width: auto !important;
-      min-width: 92px !important;
-      height: 36px !important;
-      line-height: 36px !important;
-      margin: 0 !important;
-      padding: 0 16px !important;
-      border: 0 !important;
-      border-radius: 999px !important;
-      background: linear-gradient(135deg, var(--warm), #b36435) !important;
-      box-shadow: 0 10px 20px rgba(182, 105, 55, 0.18) !important;
-    }
-
-    .dynamic-sidebar-card {
-      margin-bottom: 18px;
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.96), rgba(252, 247, 240, 0.92));
-    }
-
-    .dynamic-sidebar-header {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .dynamic-sidebar-list {
-      display: block;
-      margin: 0;
-      padding: 6px 0;
-    }
-
-    .dynamic-sidebar-item {
-      display: block;
-      text-decoration: none;
-      color: inherit;
-    }
-
-    .dynamic-sidebar-item:last-child {
-      border-bottom: 0;
-    }
-
-    .dynamic-sidebar-item:hover {
-      background: rgba(216, 236, 231, 0.45);
-    }
-
-    .dynamic-sidebar-item-title {
-      font-size: 15px;
-      color: var(--text);
-    }
-
-    .dynamic-sidebar-item-desc,
-    .dynamic-sidebar-empty {
-      color: var(--text-soft);
-    }
-
-    .rag-panel {
-      top: 92px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: rgba(255, 253, 249, 0.95);
-      backdrop-filter: blur(22px);
-      box-shadow: 0 30px 60px rgba(58, 39, 22, 0.16);
-      padding: 0;
-    }
-
-    .rag-header {
-      padding: 18px 20px 14px;
-      background: linear-gradient(135deg, rgba(29, 107, 99, 0.94), rgba(16, 70, 66, 0.9));
-      color: #fff;
-      border-bottom: 0;
-      font-size: 15px;
-    }
-
-    .rag-close {
-      color: rgba(255, 255, 255, 0.78);
-    }
-
-    .rag-list {
-      padding: 10px 18px 14px;
-    }
-
-    .rag-answer-card {
-      margin: 6px 0 14px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(235, 245, 243, 0.96), rgba(249, 251, 250, 0.94));
-      border: 1px solid rgba(29, 107, 99, 0.12);
-      box-shadow: 0 12px 28px rgba(22, 70, 65, 0.08);
-    }
-
-    .rag-answer-label {
+    .vote-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #1d6b63;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted-strong);
     }
 
-    .rag-answer-text {
-      font-size: 15px;
-      line-height: 1.8;
-      color: #243235;
-      white-space: pre-wrap;
-      word-break: break-word;
+    .vote-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
     }
 
-    .rag-sources-title {
-      margin: 14px 6px 8px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #6e655d;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .rag-item {
-      padding: 16px 6px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.09);
-    }
-
-    .rag-item:hover {
-      transform: translateX(2px);
-    }
-
-    .rag-title {
+    .vote-count {
       color: var(--text);
-      font-size: 18px;
+      font-size: 13px;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
     }
 
-    .rag-content,
-    .rag-empty {
-      color: var(--text-soft);
-      line-height: 1.75;
-    }
-
-    .content .left[data-v-4466eba1] {
-      margin: 0;
-      padding: 28px;
-      max-width: 840px;
-    }
-
-    .content .left .container[data-v-4466eba1] {
-      display: flex;
-      align-items: flex-start;
-      gap: 18px;
-      border-radius: var(--radius-lg);
-      background: transparent;
-    }
-
-    .content .left .container .post[data-v-4466eba1] {
-      position: sticky;
-      top: calc(var(--header-height) + 20px);
-      flex: 0 0 64px;
-      width: 64px;
-      padding: 14px 8px;
-      border: 1px solid rgba(115, 96, 71, 0.1);
-      background: linear-gradient(180deg, rgba(216, 236, 231, 0.94), rgba(255, 255, 255, 0.88));
-      border-radius: 18px;
-      box-shadow: var(--shadow-sm);
-      max-height: calc(100vh - var(--header-height) - 40px);
-    }
-
-    .content .left .container .l-container[data-v-4466eba1] {
-      flex: 1 1 auto;
+    .post-body {
       min-width: 0;
-      margin-left: 0;
-      padding: 22px 26px 10px 0;
+      padding: 18px 20px 17px;
     }
 
-    .content .left .container .l-container .con-title[data-v-4466eba1] {
-      font-size: 34px;
-      line-height: 1.2;
-      color: #1f2a2d;
-    }
-
-    .content .left .container .l-container .con-info[data-v-4466eba1] {
-      margin: 22px 0 18px;
-      padding: 0 0 24px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.14);
-      color: var(--text-soft);
-      font-size: 16px;
-      line-height: 1.9;
-      white-space: pre-wrap;
-    }
-
-    .content .left .container .l-container .user-btn[data-v-4466eba1] {
+    .post-meta {
       display: flex;
       align-items: center;
       flex-wrap: wrap;
-      gap: 12px;
-      color: var(--text-soft);
-      font-size: 13px;
-    }
-
-    .detail-delete-btn {
-      border: 0;
-      min-width: 108px;
-      padding: 9px 16px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, #c67d4e, #a65233);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      box-shadow: 0 12px 24px rgba(166, 82, 51, 0.18);
-      cursor: pointer;
-    }
-
-    .detail-delete-btn:hover {
-      transform: translateY(-1px);
-      filter: saturate(1.04);
-    }
-
-    .detail-delete-btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.68;
-      transform: none;
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-header {
-      height: 96px;
-      background:
-        radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 30%),
-        linear-gradient(135deg, var(--accent), var(--accent-strong));
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-info {
-      height: auto;
-      padding: 0 18px;
-      margin-top: -22px;
-      align-items: flex-end;
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-info .avatar {
-      width: 64px;
-      height: 64px;
-      border: 4px solid rgba(255, 253, 249, 0.95);
-      border-radius: 20px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-info .topic-name {
-      line-height: 1.2;
-      height: auto;
-      font-size: 24px;
-      color: var(--text);
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-desc,
-    .content .right .topic-info[data-v-4466eba1] .date {
-      padding: 0 18px;
-      color: var(--text-soft);
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-num {
-      padding: 8px 18px 20px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.1);
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-num .number {
-      font-size: 24px;
-      color: var(--accent-strong);
-    }
-
-    .content .right .topic-info[data-v-4466eba1] .t-num .unit {
-      color: var(--text-soft);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .comment-panel {
-      margin-top: 26px;
-      padding: 24px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-lg);
-      background: linear-gradient(180deg, rgba(255, 253, 249, 0.95), rgba(250, 244, 236, 0.92));
-      box-shadow: var(--shadow-md);
-    }
-
-    .comment-title {
-      font-family: "Georgia", "Songti SC", serif;
-      font-size: 28px;
-      color: var(--text);
-    }
-
-    .comment-input {
-      min-height: 120px;
-      padding: 14px 16px;
-      border: 1px solid rgba(115, 96, 71, 0.16);
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.7);
-      color: var(--text);
-      line-height: 1.7;
-    }
-
-    .comment-input:focus {
-      outline: none;
-      border-color: rgba(29, 107, 99, 0.34);
-      box-shadow: 0 0 0 4px rgba(29, 107, 99, 0.08);
-      background: rgba(255, 255, 255, 0.95);
-    }
-
-    .comment-submit {
-      min-width: 132px;
-      padding: 12px 20px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.18);
+      gap: 8px;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 12px;
       font-weight: 700;
     }
 
-    .comment-item {
-      padding: 16px 18px;
-      border: 1px solid rgba(115, 96, 71, 0.1);
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.72);
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--primary-strong);
+      font-size: 12px;
+      font-weight: 900;
     }
 
-    .comment-meta,
-    .comment-empty {
-      color: var(--text-soft);
-    }
-
-    .comment-author {
-      color: var(--accent-strong);
-    }
-
-    .comment-content {
-      color: var(--text);
-      line-height: 1.8;
-    }
-
-    .content .left[data-v-6236a644] {
+    .post-title {
       margin: 0;
-      padding: 28px;
-      max-width: 840px;
-      background: linear-gradient(180deg, rgba(255, 251, 245, 0.94), rgba(255, 255, 255, 0.88));
-      max-height: none;
-      overflow: visible;
-      align-self: stretch;
-    }
-
-    .content .left .post-name[data-v-6236a644] {
-      margin: 0 0 20px;
-      padding: 0 0 18px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.12);
       color: var(--text);
-      font-family: "Georgia", "Songti SC", serif;
-      font-size: 30px;
+      font-size: 20px;
+      line-height: 1.35;
+      font-weight: 900;
+      letter-spacing: 0;
     }
 
-    .content .left .post-type[data-v-6236a644] {
-      width: 100%;
-      height: 52px;
-      border: 1px solid rgba(115, 96, 71, 0.14);
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.76);
-      box-shadow: none;
-    }
-
-    .content .left .post-type .post-type-value[data-v-6236a644] {
-      line-height: 52px;
-      padding-right: 36px;
-      color: var(--text);
-    }
-
-    .content .left .post-type .post-type-options[data-v-6236a644] {
-      margin-top: 8px;
-      border: 1px solid rgba(115, 96, 71, 0.12);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-    }
-
-    .content .left .post-content[data-v-6236a644] {
-      margin: 18px 0 0;
-      padding-bottom: 18px;
-      border: 1px solid rgba(115, 96, 71, 0.1);
-      border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, 0.66);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-      overflow: visible;
-    }
-
-    .content .left .post-content .cat .cat-item[data-v-6236a644] {
-      height: 58px;
-      line-height: 38px;
-      color: var(--text-soft);
-    }
-
-    .content .left .post-content .cat .active[data-v-6236a644] {
-      color: var(--accent-strong);
-      background: rgba(216, 236, 231, 0.4);
-    }
-
-    .content .left .post-content .post-sub-container .post-sub-header .post-title[data-v-6236a644],
-    .content .left .post-content .post-sub-container .post-text-con .post-content-t[data-v-6236a644],
-    .main .container .form-group .form-control[data-v-5d78ac92],
-    .main .container .form-group .form-control[data-v-326a7a12] {
-      border: 1px solid rgba(115, 96, 71, 0.14);
-      border-radius: var(--radius-md);
-      background: rgba(255, 255, 255, 0.78);
-      color: var(--text);
-    }
-
-    .content .left .post-content .post-sub-container .post-sub-header .post-title[data-v-6236a644] {
-      height: 54px;
-      line-height: 54px;
-      font-size: 16px;
-    }
-
-    .content .left .post-content .post-sub-container .post-text-con[data-v-6236a644] {
+    .post-title button {
+      display: inline;
+      padding: 0;
       border: 0;
-      margin-top: 18px;
-      height: auto;
-      overflow: visible;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      text-align: left;
     }
 
-    .content .left .post-content .post-sub-container .post-text-con .post-content-t[data-v-6236a644] {
-      min-height: 280px;
-      height: min(56vh, 520px);
-      max-height: 60vh;
-      line-height: 1.8;
-      overflow-y: auto;
+    .post-title button:hover {
+      color: var(--primary);
+    }
+
+    .post-excerpt {
+      display: -webkit-box;
+      margin: 10px 0 0;
+      overflow: hidden;
+      color: var(--muted-strong);
+      font-size: 14px;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 3;
+    }
+
+    .post-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .link-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .empty,
+    .loading {
+      padding: 34px 18px;
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--muted);
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px;
+    }
+
+    .stat {
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--surface-soft);
+    }
+
+    .stat-value {
+      display: block;
+      color: var(--text);
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.2;
+    }
+
+    .stat-label {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .assistant-box {
+      padding: 14px;
+    }
+
+    .assistant-output {
+      min-height: 92px;
+      max-height: 220px;
+      margin-bottom: 10px;
+      padding: 12px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+      color: var(--muted-strong);
+      font-size: 13px;
+      white-space: pre-wrap;
+    }
+
+    .assistant-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .assistant-row input {
+      min-width: 0;
+      height: 40px;
+      padding: 0 11px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .detail,
+    .form-page,
+    .auth-page {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .detail-head,
+    .form-head,
+    .auth-head {
+      padding: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .detail-content,
+    .form-body,
+    .auth-body {
+      padding: 22px;
+    }
+
+    .detail-title {
+      margin: 10px 0 0;
+      font-size: 32px;
+      line-height: 1.22;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .detail-text {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.85;
+      white-space: pre-wrap;
+    }
+
+    .detail-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .comments {
+      margin-top: 22px;
+      padding-top: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .comments h3 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .comment-form {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .comment-form textarea,
+    .field textarea,
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .comment-form textarea,
+    .field textarea {
+      min-height: 118px;
+      padding: 12px;
       resize: vertical;
     }
 
-    .content .left .post-content .post-footer .btns .btn[data-v-6236a644] {
-      min-width: 108px;
-      padding: 9px 20px;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.18);
-      text-transform: none;
+    .field input,
+    .field select {
+      height: 44px;
+      padding: 0 12px;
     }
 
-    .content .right .post-rank[data-v-6236a644] {
-      margin-top: 0;
-      padding: 18px;
+    .comment-list {
+      display: grid;
+      gap: 10px;
     }
 
-    .content .right .post-rank .p-r-title[data-v-6236a644] {
-      padding-bottom: 14px;
-      color: var(--text);
-      font-size: 18px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.12);
+    .comment-item {
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
     }
 
-    .content .right .post-rank .p-r-content .p-r-item[data-v-6236a644] {
-      padding: 14px 6px;
-      color: var(--text-soft);
-      border-bottom: 1px solid rgba(115, 96, 71, 0.08);
-      line-height: 1.7;
-    }
-
-    .main[data-v-5d78ac92],
-    .main[data-v-326a7a12] {
-      min-height: calc(100vh - var(--header-height));
-      padding: calc(var(--header-height) + 56px) 20px 60px;
-      background: transparent;
-    }
-
-    .main .container[data-v-5d78ac92],
-    .main .container[data-v-326a7a12] {
-      width: min(560px, 100%);
-      padding: 34px 34px 28px;
-    }
-
-    .main .container .form-title[data-v-5d78ac92],
-    .main .container .form-title[data-v-326a7a12] {
-      margin-bottom: 24px;
-      color: var(--text);
-      font-size: 34px;
-    }
-
-    .main .container .form-group[data-v-5d78ac92],
-    .main .container .form-group[data-v-326a7a12] {
-      margin: 18px 0;
-    }
-
-    .main .container .form-group label[data-v-5d78ac92],
-    .main .container .form-group label[data-v-326a7a12] {
-      margin-bottom: 8px;
-      color: var(--text-soft);
-      font-size: 13px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
-    .main .container .form-group .form-control[data-v-5d78ac92],
-    .main .container .form-group .form-control[data-v-326a7a12] {
-      height: 48px;
-      padding: 10px 14px;
-    }
-
-    .main .container .form-group .form-control[data-v-5d78ac92]:focus,
-    .main .container .form-group .form-control[data-v-326a7a12]:focus {
-      outline: none;
-      border-color: rgba(29, 107, 99, 0.34);
-      box-shadow: 0 0 0 4px rgba(29, 107, 99, 0.08);
-      background: rgba(255, 255, 255, 0.96);
-    }
-
-    .main .container .form-btn .btn[data-v-5d78ac92],
-    .main .container .form-btn .btn[data-v-326a7a12] {
-      min-width: 148px;
-      padding: 12px 22px;
-      border-radius: 999px;
-      border: 0;
-      font-size: 15px;
+    .comment-meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 12px;
       font-weight: 700;
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      box-shadow: 0 14px 28px rgba(29, 107, 99, 0.18);
     }
 
-    @media (max-width: 1100px) {
-      .content[data-v-2baf73fc],
-      .content[data-v-4466eba1],
-      .content[data-v-6236a644] {
-        padding: 24px 18px 56px;
-        gap: 20px;
+    .comment-author {
+      color: var(--text);
+      font-weight: 900;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+    }
+
+    .field label {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .form-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .auth-page {
+      max-width: 520px;
+      margin: 0 auto;
+    }
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 80;
+      display: none;
+      max-width: min(420px, calc(100vw - 40px));
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-strong);
+      color: #fff;
+      box-shadow: var(--shadow);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    .mobile-domain-strip {
+      display: none;
+      width: min(1280px, calc(100% - 32px));
+      margin: 14px auto 0;
+      overflow-x: auto;
+      gap: 8px;
+      scrollbar-width: none;
+    }
+
+    .mobile-domain-strip::-webkit-scrollbar {
+      display: none;
+    }
+
+    .mobile-domain-strip .domain-chip {
+      flex: 0 0 auto;
+      min-height: 40px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--muted-strong);
+      font-weight: 800;
+    }
+
+    .mobile-domain-strip .domain-chip.is-active {
+      border-color: var(--primary);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    @media (max-width: 1120px) {
+      .layout {
+        grid-template-columns: 230px minmax(0, 1fr);
       }
 
-      .content .left[data-v-2baf73fc],
-      .content .left[data-v-4466eba1],
-      .content .left[data-v-6236a644] {
-        padding: 22px;
-      }
-
-      .content .right[data-v-2baf73fc],
-      .content .right[data-v-4466eba1],
-      .content .right[data-v-6236a644] {
-        width: 290px;
+      .rightbar {
+        display: none;
       }
     }
 
-    @media (max-width: 960px) {
-      .header[data-v-75d7d08c] {
+    @media (max-width: 820px) {
+      :root {
+        --header-h: auto;
+      }
+
+      .topbar {
+        position: static;
         height: auto;
-        min-height: var(--header-height);
-        padding: 12px 14px;
+      }
+
+      .topbar-inner {
         flex-wrap: wrap;
-        gap: 10px;
+        width: min(100% - 24px, 720px);
+        padding: 12px 0;
       }
 
-      .header .logo[data-v-75d7d08c] {
-        margin-right: auto;
+      .brand {
+        min-width: 0;
       }
 
-      .header .search[data-v-75d7d08c] {
+      .search-wrap {
         order: 3;
-        width: 100%;
         max-width: none;
+        flex-basis: 100%;
       }
 
-      .content[data-v-2baf73fc],
-      .content[data-v-4466eba1],
-      .content[data-v-6236a644] {
+      .topbar-actions {
+        margin-left: auto;
+      }
+
+      .layout {
+        display: block;
+        width: min(100% - 24px, 720px);
+        padding-top: 14px;
+      }
+
+      .sidebar {
+        display: none;
+      }
+
+      .mobile-domain-strip {
+        display: flex;
+      }
+
+      .main-toolbar {
+        align-items: stretch;
         flex-direction: column;
       }
 
-      .content .left[data-v-2baf73fc],
-      .content .left[data-v-4466eba1],
-      .content .left[data-v-6236a644],
-      .content .right[data-v-2baf73fc],
-      .content .right[data-v-4466eba1],
-      .content .right[data-v-6236a644] {
+      .section-title {
+        font-size: 24px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .topbar-actions .user-pill,
+      .topbar-actions .btn-ghost {
+        display: none;
+      }
+
+      .post-card {
+        grid-template-columns: 1fr;
+      }
+
+      .vote-box {
+        flex-direction: row;
+        justify-content: flex-start;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .post-body,
+      .detail-head,
+      .detail-content,
+      .form-head,
+      .form-body,
+      .auth-head,
+      .auth-body {
+        padding: 16px;
+      }
+
+      .detail-title {
+        font-size: 25px;
+      }
+
+      .form-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+      }
+
+      .form-actions .btn {
         width: 100%;
-        max-width: none;
-      }
-
-      .content .left .c-l-list .c-l-item .l-container .con-title[data-v-2baf73fc] {
-        font-size: 22px;
-      }
-
-      .content .left .container .l-container .con-title[data-v-4466eba1] {
-        font-size: 28px;
       }
     }
-
-    @media (max-width: 640px) {
-      .header .btns[data-v-75d7d08c] {
-        width: 100%;
-        margin: 0;
-        justify-content: flex-end;
-      }
-
-      .content[data-v-2baf73fc],
-      .content[data-v-4466eba1],
-      .content[data-v-6236a644] {
-        padding: 18px 12px 40px;
-      }
-
-      .content .left[data-v-2baf73fc],
-      .content .left[data-v-4466eba1],
-      .content .left[data-v-6236a644],
-      .main .container[data-v-5d78ac92],
-      .main .container[data-v-326a7a12] {
-        border-radius: 22px;
-      }
-
-      .content .left .c-l-header[data-v-2baf73fc] {
-        border-radius: 24px;
-      }
-
-      .content .left .c-l-header .btn-publish[data-v-2baf73fc] {
-        width: 100%;
-        margin-left: 0;
-      }
-
-      .content .left .c-l-list .c-l-item[data-v-2baf73fc] {
-        padding-left: 56px;
-      }
-
-      .content .left .c-l-list .c-l-item .post[data-v-2baf73fc],
-      .content .left .container .post[data-v-4466eba1] {
-        width: 56px;
-      }
-
-      .content .left .container[data-v-4466eba1] {
-        gap: 14px;
-      }
-
-      .content .left .container .post[data-v-4466eba1] {
-        top: calc(var(--header-height) + 16px);
-        flex-basis: 56px;
-      }
-
-      .content .left .container .l-container[data-v-4466eba1] {
-        margin-left: 0;
-        padding: 18px 18px 10px 0;
-      }
-
-      .comment-panel {
-        padding: 18px;
-      }
-
-      .main .container[data-v-5d78ac92],
-      .main .container[data-v-326a7a12] {
-        padding: 26px 20px 22px;
-      }
-    }
-
-    .rag-fab {
-      position: fixed;
-      right: 22px;
-      bottom: 28px;
-      width: 66px;
-      height: 66px;
-      border: 0;
-      border-radius: 999px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at 30% 30%, #49b2a7, #1d6b63 62%, #124a46 100%);
-      color: #fff;
-      box-shadow: 0 20px 40px rgba(18, 74, 70, 0.34);
-      cursor: pointer;
-      z-index: 10000;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    .rag-fab:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 24px 46px rgba(18, 74, 70, 0.42);
-    }
-
-    .rag-fab-label {
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-    }
-
-    .rag-panel {
-      position: fixed;
-      right: 22px;
-      bottom: 108px;
-      width: min(390px, calc(100vw - 28px));
-      height: min(620px, calc(100vh - 130px));
-      display: none;
-      flex-direction: column;
-      z-index: 9999;
-      border: 1px solid rgba(17, 70, 66, 0.14);
-      border-radius: 26px;
-      background: rgba(255, 252, 247, 0.98);
-      box-shadow: 0 28px 60px rgba(58, 39, 22, 0.2);
-      backdrop-filter: blur(20px);
-      overflow: hidden;
-    }
-
-    .rag-panel.show {
-      display: flex;
-    }
-
-    .rag-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 18px 18px 14px;
-      background: linear-gradient(135deg, rgba(29, 107, 99, 0.96), rgba(16, 70, 66, 0.92));
-      color: #fff;
-      font-size: 14px;
-    }
-
-    .rag-header-main {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      min-width: 0;
-    }
-
-    .rag-header-title {
-      font-size: 16px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .rag-header-subtitle {
-      font-size: 12px;
-      color: rgba(255, 255, 255, 0.72);
-    }
-
-    .rag-close {
-      border: 0;
-      background: transparent;
-      font-size: 20px;
-      line-height: 1;
-      font-family: Arial, "Helvetica Neue", Helvetica, "PingFang SC", "Microsoft YaHei", sans-serif;
-      font-weight: 400;
-      font-style: normal;
-      text-transform: none;
-      cursor: pointer;
-      color: rgba(255, 255, 255, 0.82);
-    }
-
-    .rag-body {
-      flex: 1 1 auto;
-      overflow-y: auto;
-      padding: 16px 16px 8px;
-      background: linear-gradient(180deg, rgba(253, 251, 246, 0.98), rgba(247, 244, 238, 0.95));
-    }
-
-    .rag-list {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .rag-composer {
-      display: flex;
-      align-items: flex-end;
-      gap: 10px;
-      padding: 14px 14px 16px;
-      border-top: 1px solid rgba(115, 96, 71, 0.1);
-      background: rgba(255, 252, 247, 0.96);
-    }
-
-    .rag-input {
-      flex: 1 1 auto;
-      min-height: 44px;
-      max-height: 120px;
-      resize: none;
-      padding: 12px 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(115, 96, 71, 0.14);
-      background: #fff;
-      color: #243235;
-      font-size: 14px;
-      line-height: 1.5;
-      outline: none;
-    }
-
-    .rag-send {
-      flex: 0 0 auto;
-      height: 44px;
-      padding: 0 16px;
-      border: 0;
-      border-radius: 14px;
-      background: linear-gradient(135deg, #1d6b63, #124a46);
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 12px 24px rgba(18, 74, 70, 0.18);
-    }
-
-    .rag-send:disabled {
-      opacity: 0.55;
-      cursor: default;
-      box-shadow: none;
-    }
-
-    .rag-answer-card {
-      margin: 0;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: linear-gradient(180deg, rgba(235, 245, 243, 0.96), rgba(249, 251, 250, 0.94));
-      border: 1px solid rgba(29, 107, 99, 0.12);
-      box-shadow: 0 12px 28px rgba(22, 70, 65, 0.08);
-    }
-
-    .rag-answer-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: #1d6b63;
-    }
-
-    .rag-question-card {
-      align-self: flex-end;
-      max-width: 90%;
-      padding: 14px 16px;
-      border-radius: 18px 18px 6px 18px;
-      background: linear-gradient(135deg, #1d6b63, #155853);
-      color: #fff;
-      box-shadow: 0 10px 24px rgba(18, 74, 70, 0.18);
-    }
-
-    .rag-question-label {
-      margin-bottom: 6px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .rag-question-text,
-    .rag-answer-text {
-      font-size: 15px;
-      line-height: 1.8;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .rag-answer-text {
-      color: #243235;
-    }
-
-    .rag-sources-card {
-      padding: 14px 14px 4px;
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.78);
-      border: 1px solid rgba(115, 96, 71, 0.1);
-    }
-
-    .rag-sources-title {
-      margin: 0 4px 8px;
-      font-size: 12px;
-      font-weight: 700;
-      color: #6e655d;
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .rag-item {
-      display: block;
-      padding: 12px 4px;
-      border-bottom: 1px solid rgba(115, 96, 71, 0.08);
-      color: inherit;
-      text-decoration: none;
-    }
-
-    .rag-item:last-child {
-      border-bottom: 0;
-    }
-
-    .rag-title {
-      font-size: 15px;
-      font-weight: 600;
-      color: #222;
-      margin-bottom: 6px;
-    }
-
-    .rag-content {
-      font-size: 13px;
-      color: #555;
-      line-height: 1.6;
-      word-break: break-word;
-    }
-
-    .rag-empty {
-      padding: 10px 4px 6px;
-      color: #888;
-      font-size: 13px;
-      line-height: 1.6;
-    }
-
-    @media (max-width: 768px) {
-      .rag-fab {
-        right: 16px;
-        bottom: 18px;
-        width: 60px;
-        height: 60px;
-      }
-
-      .rag-panel {
-        right: 12px;
-        bottom: 88px;
-        width: calc(100vw - 24px);
-        height: min(70vh, 560px);
-        border-radius: 22px;
-      }
-    }
-
-    .rag-fab {
-      touch-action: none;
-    }
-
-    .rag-fab.has-unread::after {
-      content: "";
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      width: 12px;
-      height: 12px;
-      border-radius: 999px;
-      border: 2px solid rgba(255, 252, 247, 0.96);
-      background: #d94b61;
-      box-shadow: 0 8px 16px rgba(217, 75, 97, 0.28);
-      animation: rag-badge-pulse 1.8s ease-in-out infinite;
-    }
-
-    .rag-panel {
-      display: flex;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transform: translateY(18px) scale(0.96);
-      transform-origin: bottom right;
-      transition: opacity 0.2s ease, transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .rag-panel.show {
-      opacity: 1;
-      visibility: visible;
-      pointer-events: auto;
-      transform: translateY(0) scale(1);
-    }
-
-    .rag-panel.dragging {
-      transition: none;
-    }
-
-    .rag-header {
-      cursor: grab;
-      user-select: none;
-      touch-action: none;
-    }
-
-    .rag-header:active {
-      cursor: grabbing;
-    }
-
-    .rag-answer-card.is-loading {
-      background: linear-gradient(180deg, rgba(244, 248, 247, 0.98), rgba(251, 251, 250, 0.96));
-      border-color: rgba(29, 107, 99, 0.08);
-    }
-
-    .rag-answer-card.is-error {
-      background: linear-gradient(180deg, rgba(255, 245, 246, 0.98), rgba(255, 251, 251, 0.96));
-      border-color: rgba(217, 75, 97, 0.16);
-    }
-
-    .rag-answer-card.is-streaming {
-      box-shadow: 0 18px 34px rgba(29, 107, 99, 0.12);
-    }
-
-    .rag-question-card,
-    .rag-answer-card {
-      transition: transform 0.2s ease, box-shadow 0.24s ease, border-color 0.24s ease;
-    }
-
-    .rag-question-card:hover,
-    .rag-answer-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .rag-answer-caret {
-      display: inline-block;
-      width: 7px;
-      height: 1.05em;
-      margin-left: 4px;
-      border-radius: 999px;
-      background: #1d6b63;
-      vertical-align: -0.12em;
-      animation: rag-caret-blink 1s steps(1) infinite;
-    }
-
-    .rag-loading-row {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      margin-top: 10px;
-    }
-
-    .rag-loading-row span {
-      width: 7px;
-      height: 7px;
-      border-radius: 999px;
-      background: rgba(29, 107, 99, 0.55);
-      animation: rag-dot-pulse 1.1s ease-in-out infinite;
-    }
-
-    .rag-loading-row span:nth-child(2) {
-      animation-delay: 0.14s;
-    }
-
-    .rag-loading-row span:nth-child(3) {
-      animation-delay: 0.28s;
-    }
-
-    @keyframes rag-dot-pulse {
-      0%, 80%, 100% {
-        opacity: 0.35;
-        transform: translateY(0);
-      }
-
-      40% {
-        opacity: 1;
-        transform: translateY(-2px);
-      }
-    }
-
-    @keyframes rag-caret-blink {
-      0%, 50% {
-        opacity: 1;
-      }
-
-      50.01%, 100% {
-        opacity: 0;
-      }
-    }
-
-    @keyframes rag-badge-pulse {
-      0%, 100% {
-        transform: scale(1);
-        box-shadow: 0 8px 16px rgba(217, 75, 97, 0.28);
-      }
-
-      50% {
-        transform: scale(1.12);
-        box-shadow: 0 12px 22px rgba(217, 75, 97, 0.36);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .rag-panel,
-      .rag-fab {
-        transition: none;
-      }
-
-      .rag-answer-caret,
-      .rag-loading-row span {
-        animation: none;
-      }
-    }
-
   </style>
 </head>
 <body>
   <noscript>
-    <strong>We're sorry but YXB GameBase doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    <strong>YXB GameBase 需要启用 JavaScript 才能运行。</strong>
   </noscript>
-  <div id="app"></div>
 
-  <button id="rag-fab" class="rag-fab" type="button" aria-label="打开知识库问答助手">
-    <span class="rag-fab-label">AI</span>
-  </button>
+  <div id="app" class="app-shell"></div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-  <div id="rag-panel" class="rag-panel" aria-hidden="true">
-    <div id="rag-header" class="rag-header">
-      <div class="rag-header-main">
-        <span class="rag-header-title">知识库问答助手</span>
-        <span id="rag-title" class="rag-header-subtitle">点右下角助手提问</span>
-      </div>
-      <div style="display:inline-flex;align-items:center;gap:8px;flex:0 0 auto;margin-left:12px;">
-        <button id="rag-minimize" class="rag-close" type="button" aria-label="最小化助手" style="width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:18px;">-</button>
-        <button id="rag-close" class="rag-close" type="button" aria-label="关闭助手" style="width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,0.14);font-size:18px;">×</button>
-      </div>
-    </div>
-    <div id="rag-body" class="rag-body">
-      <div id="rag-list" class="rag-list">
-        <section class="rag-answer-card">
-          <div class="rag-answer-label">助手</div>
-          <div class="rag-answer-text">我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。</div>
-        </section>
-      </div>
-    </div>
-    <div class="rag-composer">
-      <textarea id="rag-input" class="rag-input" placeholder="输入你的问题，比如：项目里 Gin 路由是怎么做的？"></textarea>
-      <button id="rag-send" class="rag-send" type="button">发送</button>
-    </div>
-  </div>
-
-  <script src="/static/js/chunk-vendors.57f9e9d6.js"></script>
-  <script src="/static/js/app.7fce8887.js"></script>
   <script>
     (function () {
-      var RAG_ASSISTANT_STORAGE_KEY = "ragAssistantStateV2";
-      var voteStateByPost = Object.create(null);
-      var votePendingByPost = Object.create(null);
-      var ragAssistantState = {
-        loading: false,
-        lastQuestion: "",
-        open: false,
-        unread: false,
-        view: "chat",
-        history: [],
-        position: null,
-        typingTimer: 0
-      };
-      var ragDragState = {
-        active: false,
-        source: "",
-        pointerId: null,
-        startX: 0,
-        startY: 0,
-        originLeft: 0,
-        originTop: 0,
-        moved: false
-      };
-      var homeFeedState = {
+      "use strict";
+
+      var API = "/api/v1";
+      var DEFAULT_DOMAINS = [
+        { id: 1, name: "LOL", introduction: "英雄联盟开黑、版本理解、英雄攻略与赛事讨论" },
+        { id: 2, name: "CF", introduction: "穿越火线枪法、地图点位、战术配合与活动交流" },
+        { id: 3, name: "力扣", introduction: "算法刷题、面试准备、题解复盘与学习路线" }
+      ];
+
+      var state = {
+        route: parseRoute(),
+        communities: [],
+        selectedCommunityID: 0,
         order: "time",
-        page: 1,
-        size: 10,
-        items: [],
-        searchQuery: "",
-        searchHits: [],
+        query: "",
+        posts: [],
+        post: null,
+        comments: [],
         loading: false,
-        reachedEnd: false,
-        initialized: false
-      };
-      var ASSISTANT_COPY = {
-        welcome: "我会先检索你的 RAG 知识库，再根据检索结果回答。你可以直接问功能实现、帖子内容或项目知识。",
-        panelTitleIdle: "点右下角助手提问",
-        panelTitleLoading: "正在回答...",
-        panelTitleStreaming: "正在结合知识库流式回答...",
-        panelTitleDone: "已结合知识库回答",
-        panelTitleError: "问答失败",
-        answerLabel: "助手",
-        userLabel: "你",
-        sourcesTitle: "引用知识片段",
-        sourcesEmpty: "没有检索到可引用的知识片段。",
-        answerLoading: "正在检索知识库并生成回答...",
-        answerFallback: "知识库里暂时没有足够信息回答这个问题。",
-        answerError: "问答助手暂时不可用，请稍后再试。",
-        send: "发送",
-        sending: "回答中...",
-        fabAria: "打开知识库问答助手",
-        closeAria: "关闭助手",
-        minimizeAria: "最小化助手",
-        placeholder: "输入你的问题，比如：项目里 Gin 路由是怎么做的？",
-        headerTitle: "知识库问答助手"
+        assistantLoading: false,
+        assistantAnswer: "",
+        auth: readLogin()
       };
 
-      function normalizeAssistantStaticCopy() {
-        var fab = document.getElementById("rag-fab");
-        var headerTitle = document.querySelector(".rag-header-title");
-        var title = document.getElementById("rag-title");
-        var minimize = document.getElementById("rag-minimize");
-        var close = document.getElementById("rag-close");
-        var input = document.getElementById("rag-input");
-        var send = document.getElementById("rag-send");
-        var firstLabel = document.querySelector(".rag-list .rag-answer-label");
-        var firstText = document.querySelector(".rag-list .rag-answer-text");
+      var app = document.getElementById("app");
+      var toastTimer = null;
 
-        if (fab) {
-          fab.setAttribute("aria-label", ASSISTANT_COPY.fabAria);
-        }
-        if (headerTitle) {
-          headerTitle.textContent = ASSISTANT_COPY.headerTitle;
-        }
-        if (title && !ragAssistantState.loading) {
-          title.textContent = ASSISTANT_COPY.panelTitleIdle;
-        }
-        if (minimize) {
-          minimize.setAttribute("aria-label", ASSISTANT_COPY.minimizeAria);
-        }
-        if (close) {
-          close.setAttribute("aria-label", ASSISTANT_COPY.closeAria);
-          close.textContent = "×";
-        }
-        if (input) {
-          input.setAttribute("placeholder", ASSISTANT_COPY.placeholder);
-        }
-        if (send && !ragAssistantState.loading) {
-          send.textContent = ASSISTANT_COPY.send;
-        }
-        if (firstLabel) {
-          firstLabel.textContent = ASSISTANT_COPY.answerLabel;
-        }
-        if (firstText && !ragAssistantState.history.length) {
-          firstText.textContent = ASSISTANT_COPY.welcome;
-        }
-      }
-
-      function ready(fn) {
-        if (document.readyState === "loading") {
-          document.addEventListener("DOMContentLoaded", fn);
-          return;
-        }
-        fn();
-      }
-
-      function truncate(text, size) {
-        if (!text) return "";
-        if (text.length <= size) return text;
-        return text.slice(0, size) + "...";
-      }
-
-      function escapeHTML(text) {
-        return String(text || "")
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#39;");
-      }
-
-      function clamp(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-      }
-
-      function createAssistantId(prefix) {
-        return [prefix || "msg", Date.now(), Math.random().toString(16).slice(2, 8)].join("-");
-      }
-
-      function buildWelcomeAssistantMessage() {
-        return {
-          id: createAssistantId("welcome"),
-          role: "assistant",
-          text: ASSISTANT_COPY.welcome,
-          status: "done",
-          sources: [],
-          showSources: false
+      function icon(name) {
+        var paths = {
+          search: '<path d="M21 21l-4.3-4.3"></path><circle cx="11" cy="11" r="7"></circle>',
+          plus: '<path d="M12 5v14"></path><path d="M5 12h14"></path>',
+          send: '<path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4Z"></path>',
+          up: '<path d="m18 15-6-6-6 6"></path>',
+          down: '<path d="m6 9 6 6 6-6"></path>',
+          back: '<path d="m15 18-6-6 6-6"></path>',
+          trash: '<path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path>'
         };
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || "") + "</svg>";
       }
 
-      function normalizeAssistantMessage(message) {
-        if (!message || (message.role !== "user" && message.role !== "assistant")) {
-          return null;
+      function parseRoute() {
+        var path = window.location.pathname;
+        var match = path.match(/^\/post\/([^/]+)$/);
+        if (match) {
+          return { name: "detail", id: decodeURIComponent(match[1]) };
         }
-        return {
-          id: String(message.id || createAssistantId(message.role)),
-          role: message.role,
-          text: String(message.text || ""),
-          status: message.status === "error" ? "error" : (message.status === "loading" ? "loading" : "done"),
-          sources: Array.isArray(message.sources) ? message.sources.slice(0, 4) : [],
-          showSources: !!message.showSources
-        };
-      }
-
-      function ensureAssistantHistory() {
-        if (!ragAssistantState.history.length) {
-          ragAssistantState.history = [buildWelcomeAssistantMessage()];
+        if (path === "/publish") {
+          return { name: "publish" };
         }
-      }
-
-      function trimAssistantHistory() {
-        if (ragAssistantState.history.length > 24) {
-          ragAssistantState.history = ragAssistantState.history.slice(ragAssistantState.history.length - 24);
+        if (path === "/login") {
+          return { name: "login" };
         }
+        if (path === "/signup") {
+          return { name: "signup" };
+        }
+        return { name: "home" };
       }
 
-      function persistAssistantState() {
+      function navigate(path) {
+        window.history.pushState({}, "", path);
+        state.route = parseRoute();
+        render();
+        loadRouteData();
+      }
+
+      function readLogin() {
         try {
-          localStorage.setItem(RAG_ASSISTANT_STORAGE_KEY, JSON.stringify({
-            unread: !!ragAssistantState.unread,
-            history: ragAssistantState.history,
-            position: ragAssistantState.position
-          }));
-        } catch (err) {
-          return;
-        }
-      }
-
-      function loadAssistantState() {
-        try {
-          var raw = localStorage.getItem(RAG_ASSISTANT_STORAGE_KEY);
-          if (raw) {
-            var saved = JSON.parse(raw);
-            ragAssistantState.unread = !!(saved && saved.unread);
-            ragAssistantState.history = Array.isArray(saved && saved.history)
-              ? saved.history.map(normalizeAssistantMessage).filter(Boolean)
-              : [];
-            if (saved && saved.position && typeof saved.position.left === "number" && typeof saved.position.top === "number") {
-              ragAssistantState.position = {
-                left: saved.position.left,
-                top: saved.position.top
-              };
-            }
-          }
-        } catch (err) {
-          ragAssistantState.unread = false;
-          ragAssistantState.history = [];
-          ragAssistantState.position = null;
-        }
-        ensureAssistantHistory();
-        trimAssistantHistory();
-      }
-
-      function getAssistantMetrics() {
-        var mobile = window.innerWidth <= 768;
-        return {
-          mobile: mobile,
-          fabSize: mobile ? 60 : 66,
-          edge: mobile ? 12 : 16,
-          panelGap: mobile ? 12 : 14,
-          panelWidth: Math.min(390, Math.max(280, window.innerWidth - (mobile ? 24 : 28))),
-          panelHeight: Math.min(mobile ? 560 : 620, Math.max(320, window.innerHeight - 130)),
-          topSafe: mobile ? 12 : 84
-        };
-      }
-
-      function getDefaultAssistantPosition() {
-        var metrics = getAssistantMetrics();
-        return {
-          left: window.innerWidth - metrics.fabSize - metrics.edge,
-          top: window.innerHeight - metrics.fabSize - (metrics.mobile ? 18 : 28)
-        };
-      }
-
-      function normalizeAssistantPosition(position) {
-        var metrics = getAssistantMetrics();
-        var next = position && typeof position.left === "number" && typeof position.top === "number"
-          ? position
-          : getDefaultAssistantPosition();
-        return {
-          left: clamp(next.left, metrics.edge, Math.max(metrics.edge, window.innerWidth - metrics.fabSize - metrics.edge)),
-          top: clamp(next.top, metrics.topSafe, Math.max(metrics.topSafe, window.innerHeight - metrics.fabSize - metrics.edge))
-        };
-      }
-
-      function updateAssistantBadge() {
-        var fab = document.getElementById("rag-fab");
-        if (!fab) {
-          return;
-        }
-        fab.classList.toggle("has-unread", !!ragAssistantState.unread);
-      }
-
-      function setAssistantUnread(nextValue) {
-        ragAssistantState.unread = !!nextValue;
-        updateAssistantBadge();
-        persistAssistantState();
-      }
-
-      function applyAssistantLayout() {
-        var fab = document.getElementById("rag-fab");
-        var panel = document.getElementById("rag-panel");
-        var metrics;
-        var position;
-        var panelLeft;
-        var panelTop;
-        if (!fab || !panel) {
-          return;
-        }
-        metrics = getAssistantMetrics();
-        position = normalizeAssistantPosition(ragAssistantState.position);
-        panelLeft = clamp(
-          position.left + metrics.fabSize - metrics.panelWidth,
-          metrics.edge,
-          Math.max(metrics.edge, window.innerWidth - metrics.panelWidth - metrics.edge)
-        );
-        panelTop = clamp(
-          position.top - metrics.panelHeight - metrics.panelGap,
-          metrics.topSafe,
-          Math.max(metrics.topSafe, window.innerHeight - metrics.panelHeight - metrics.edge)
-        );
-
-        ragAssistantState.position = position;
-        fab.style.left = position.left + "px";
-        fab.style.top = position.top + "px";
-        fab.style.right = "auto";
-        fab.style.bottom = "auto";
-
-        panel.style.left = panelLeft + "px";
-        panel.style.top = panelTop + "px";
-        panel.style.right = "auto";
-        panel.style.bottom = "auto";
-        panel.style.width = metrics.panelWidth + "px";
-        panel.style.height = metrics.panelHeight + "px";
-      }
-
-      function updateAssistantTitle(text) {
-        var title = document.getElementById("rag-title");
-        if (title) {
-          title.textContent = text;
-        }
-      }
-
-      function appendAssistantMessage(role, text, options) {
-        var message = {
-          id: createAssistantId(role),
-          role: role,
-          text: String(text || ""),
-          status: options && options.status ? options.status : "done",
-          sources: options && Array.isArray(options.sources) ? options.sources.slice(0, 4) : [],
-          showSources: !!(options && options.showSources)
-        };
-        ragAssistantState.history.push(message);
-        trimAssistantHistory();
-        persistAssistantState();
-        return message;
-      }
-
-      function updateAssistantMessage(messageId, updater) {
-        var i;
-        for (i = ragAssistantState.history.length - 1; i >= 0; i -= 1) {
-          if (ragAssistantState.history[i].id === messageId) {
-            updater(ragAssistantState.history[i]);
-            break;
-          }
-        }
-      }
-
-      function stopAssistantTyping() {
-        if (ragAssistantState.typingTimer) {
-          clearInterval(ragAssistantState.typingTimer);
-          ragAssistantState.typingTimer = 0;
-        }
-      }
-
-      function syncAssistantTypingNode(messageId, text, withCaret) {
-        var node = document.querySelector('[data-rag-message-text="' + messageId + '"]');
-        if (!node) {
-          return;
-        }
-        node.innerHTML = escapeHTML(text || "") + (withCaret ? '<span class="rag-answer-caret"></span>' : "");
-        scrollAssistantToBottom();
-      }
-
-      function finalizeAssistantMessage(messageId, text, sources, options) {
-        stopAssistantTyping();
-        updateAssistantMessage(messageId, function (message) {
-          message.text = String(text || "");
-          message.status = options && options.status === "error" ? "error" : "done";
-          message.sources = Array.isArray(sources) ? sources.slice(0, 4) : [];
-          message.showSources = !!(options && options.showSources);
-        });
-        persistAssistantState();
-        if (ragAssistantState.view === "chat") {
-          renderAssistantThread();
-        }
-        if (!ragAssistantState.open) {
-          setAssistantUnread(true);
-        }
-      }
-
-      function getAssistantMessageText(messageId) {
-        var i;
-        for (i = ragAssistantState.history.length - 1; i >= 0; i -= 1) {
-          if (ragAssistantState.history[i].id === messageId) {
-            return String(ragAssistantState.history[i].text || "");
-          }
-        }
-        return "";
-      }
-
-      function streamAssistantMessageChunk(messageId, delta) {
-        var chunk = String(delta || "");
-        if (!chunk) {
-          return;
-        }
-        updateAssistantMessage(messageId, function (message) {
-          message.text = String(message.text || "") + chunk;
-          message.status = "typing";
-          message.sources = [];
-          message.showSources = false;
-        });
-        syncAssistantTypingNode(messageId, getAssistantMessageText(messageId), true);
-        persistAssistantState();
-      }
-
-      function startAssistantTypewriter(messageId, text, sources, options) {
-        var targetText = String(text || "");
-        var cursor = 0;
-        var step = Math.max(1, Math.ceil(Math.max(targetText.length, 1) / 48));
-        stopAssistantTyping();
-        updateAssistantMessage(messageId, function (message) {
-          message.text = "";
-          message.status = targetText ? "typing" : "done";
-          message.sources = [];
-          message.showSources = false;
-        });
-        renderAssistantThread();
-        if (!targetText) {
-          finalizeAssistantMessage(messageId, "", sources, options);
-          return;
-        }
-        ragAssistantState.typingTimer = window.setInterval(function () {
-          cursor = Math.min(targetText.length, cursor + step);
-          updateAssistantMessage(messageId, function (message) {
-            message.text = targetText.slice(0, cursor);
-            message.status = cursor >= targetText.length ? "done" : "typing";
-          });
-          syncAssistantTypingNode(messageId, targetText.slice(0, cursor), cursor < targetText.length);
-          if (cursor >= targetText.length) {
-            finalizeAssistantMessage(messageId, targetText, sources, options);
-          }
-        }, 24);
-      }
-
-      function getLoginResult() {
-        try {
-          return JSON.parse(localStorage.getItem("loginResult") || "null");
+          return JSON.parse(localStorage.getItem("loginResult")) || null;
         } catch (err) {
           return null;
         }
       }
 
-      function getAuthHeaders() {
-        var loginResult = getLoginResult();
-        var headers = { "Accept": "application/json" };
-        if (loginResult && loginResult.token) {
-          headers.Authorization = "Bearer " + loginResult.token;
+      function setLogin(data) {
+        localStorage.setItem("loginResult", JSON.stringify(data));
+        state.auth = data;
+      }
+
+      function logout() {
+        localStorage.removeItem("loginResult");
+        state.auth = null;
+        toast("已退出登录");
+        navigate("/");
+      }
+
+      function authHeaders() {
+        var headers = { "Content-Type": "application/json" };
+        if (state.auth && state.auth.token) {
+          headers.Authorization = "Bearer " + state.auth.token;
         }
         return headers;
       }
 
-      function requestJSON(url) {
-        return fetch(url, {
-          method: "GET",
-          headers: getAuthHeaders()
-        }).then(function (resp) {
-          return resp.json();
-        });
-      }
-
-      function postJSON(url, payload) {
-        return fetch(url, {
-          method: "POST",
-          headers: Object.assign({
-            "Content-Type": "application/json"
-          }, getAuthHeaders()),
-          body: JSON.stringify(payload)
-        }).then(function (resp) {
-          return resp.json();
-        });
-      }
-
-      function createSSEParser(onEvent) {
-        var buffer = "";
-        return function (chunk, flush) {
-          var blocks;
-          var i;
-          buffer += chunk || "";
-          blocks = buffer.split(/\r?\n\r?\n/);
-          if (!flush) {
-            buffer = blocks.pop();
-          } else {
-            buffer = "";
-          }
-
-          for (i = 0; i < blocks.length; i += 1) {
-            var block = blocks[i];
-            var lines;
-            var j;
-            var eventName = "message";
-            var dataParts = [];
-            if (!block) {
-              continue;
-            }
-            lines = block.split(/\r?\n/);
-            for (j = 0; j < lines.length; j += 1) {
-              var line = lines[j];
-              if (!line || line.charAt(0) === ":") {
-                continue;
-              }
-              if (line.indexOf("event:") === 0) {
-                eventName = line.slice(6).trim() || "message";
-              } else if (line.indexOf("data:") === 0) {
-                dataParts.push(line.slice(5).trim());
-              }
-            }
-            if (dataParts.length) {
-              onEvent(eventName, dataParts.join("\n"));
-            }
-          }
-        };
-      }
-
-      function streamAssistantQuestion(question, handlers) {
-        var headers = Object.assign({
-          "Content-Type": "application/json",
-          "Accept": "text/event-stream"
-        }, getAuthHeaders());
-
-        return fetch("/api/v1/rag/chat/stream", {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify({
-            question: question,
-            top_k: 4
-          })
-        }).then(function (resp) {
-          var reader;
-          var decoder;
-          var parse;
-
-          if (!resp.ok) {
-            throw new Error("stream request failed with status " + resp.status);
-          }
-          if (!resp.body || !resp.body.getReader) {
-            throw new Error("stream body is not supported");
-          }
-
-          reader = resp.body.getReader();
-          decoder = new TextDecoder("utf-8");
-          parse = createSSEParser(function (eventName, rawData) {
-            var payload = {};
-            if (rawData) {
-              try {
-                payload = JSON.parse(rawData);
-              } catch (err) {
-                payload = {};
-              }
-            }
-
-            if (eventName === "chunk") {
-              if (handlers && handlers.onChunk) {
-                handlers.onChunk(String(payload.delta || ""));
-              }
-              return;
-            }
-            if (eventName === "done") {
-              if (handlers && handlers.onDone) {
-                handlers.onDone(payload);
-              }
-              return;
-            }
-            if (eventName === "error" && handlers && handlers.onError) {
-              handlers.onError(String(payload.message || "问答失败"));
-            }
-          });
-
-          function pump() {
-            return reader.read().then(function (result) {
-              if (result.done) {
-                parse("", true);
-                return;
-              }
-              parse(decoder.decode(result.value, { stream: true }), false);
-              return pump();
-            });
-          }
-
-          return pump();
-        });
-      }
-
-      function deleteJSON(url) {
-        return fetch(url, {
-          method: "DELETE",
-          headers: getAuthHeaders()
-        }).then(function (resp) {
-          return resp.json();
-        });
-      }
-
-      function buildSidebarCard(title, items, emptyText) {
-        if (!items || !items.length) {
-          return [
-            '<section class="dynamic-sidebar-card">',
-            '<div class="dynamic-sidebar-header">' + escapeHTML(title) + '</div>',
-            '<div class="dynamic-sidebar-empty">' + escapeHTML(emptyText) + '</div>',
-            '</section>'
-          ].join("");
-        }
-        return [
-          '<section class="dynamic-sidebar-card">',
-          '<div class="dynamic-sidebar-header">' + escapeHTML(title) + '</div>',
-          '<div class="dynamic-sidebar-list">',
-          items.map(function (item) {
-            return [
-              '<a class="dynamic-sidebar-item" href="/post/' + item.id + '">',
-              '<div class="dynamic-sidebar-item-title">' + escapeHTML(item.title || "无标题") + '</div>',
-              '<div class="dynamic-sidebar-item-desc">' + escapeHTML(truncate(item.content || "", 56)) + '</div>',
-              '</a>'
-            ].join("");
-          }).join(""),
-          '</div>',
-          '</section>'
-        ].join("");
-      }
-
-      function renderGlobalSidebar(right, latestPosts, hotPosts) {
-        right.innerHTML = [
-          buildSidebarCard("全站最近发布", latestPosts, "暂无最近发布的帖子"),
-          buildSidebarCard("全站最热门", hotPosts, "暂无热门帖子")
-        ].join("");
-      }
-
-      function needsSidebarReplacement(right) {
-        if (!right) {
-          return false;
-        }
-        if (right.querySelector(".dynamic-sidebar-card")) {
-          return false;
-        }
-        return !!right.querySelector(".communities, .r-trending");
-      }
-
-      function bindDynamicSidebar(force) {
-        var right = document.querySelector('.content .right[data-v-2baf73fc]');
-        if (!right) {
-          return;
-        }
-
-        if (!force && right.dataset.dynamicSidebarState === "loading") {
-          return;
-        }
-
-        if (!force && right.dataset.dynamicSidebarState === "ready" && !needsSidebarReplacement(right)) {
-          return;
-        }
-
-        right.dataset.dynamicSidebarState = "loading";
-        right.innerHTML = [
-          '<section class="dynamic-sidebar-card">',
-          '<div class="dynamic-sidebar-header">全站帖子</div>',
-          '<div class="dynamic-sidebar-empty">正在加载...</div>',
-          '</section>'
-        ].join("");
-
-        Promise.all([
-          requestJSON("/api/v1/posts2?page=1&size=100&order=time"),
-          requestJSON("/api/v1/posts2?page=1&size=100&order=score")
-        ]).then(function (results) {
-          var latestResp = results[0];
-          var hotResp = results[1];
-          var latestData = latestResp && latestResp.code === 1000 && latestResp.data ? latestResp.data : [];
-          var hotData = hotResp && hotResp.code === 1000 && hotResp.data ? hotResp.data : [];
-
-          var latestPosts = latestData.slice(0, 5);
-          var hotPosts = hotData.slice(0, 5);
-
-          renderGlobalSidebar(right, latestPosts, hotPosts);
-          right.dataset.dynamicSidebarState = "ready";
-        }).catch(function () {
-          right.innerHTML = [
-            '<section class="dynamic-sidebar-card">',
-            '<div class="dynamic-sidebar-header">全站帖子</div>',
-            '<div class="dynamic-sidebar-empty">加载失败，请稍后重试</div>',
-            '</section>'
-          ].join("");
-          right.dataset.dynamicSidebarState = "error";
-        });
-      }
-
-      function renderResults(query, hits) {
-        homeFeedState.searchQuery = String(query || "");
-        homeFeedState.searchHits = Array.isArray(hits) ? hits.map(function (item) {
-          return {
-            id: item && item.post_id != null ? item.post_id : "",
-            title: item && item.title ? item.title : "无标题",
-            content: item && typeof item.chunk_text === "string" && item.chunk_text
-              ? item.chunk_text
-              : (item && typeof item.content === "string" ? item.content : ""),
-            vote_num: item && item.vote_num != null ? item.vote_num : 0
-          };
-        }) : [];
-        renderHomeFeedState();
-      }
-
-      function searchPostsByKeyword(query) {
-        return fetch("/api/v1/posts2?page=1&size=100&order=time", {
-          method: "GET",
-          headers: {
-            "Accept": "application/json"
-          }
-        })
+      function requestJSON(path, options) {
+        options = options || {};
+        options.headers = Object.assign(authHeaders(), options.headers || {});
+        return fetch(API + path, options)
           .then(function (resp) { return resp.json(); })
-          .then(function (resp) {
-            var keyword;
-            var posts;
-            if (!resp || resp.code !== 1000 || !Array.isArray(resp.data)) {
-              return [];
+          .then(function (payload) {
+            if (!payload || payload.code !== 1000) {
+              throw new Error(payload && payload.msg ? formatMsg(payload.msg) : "请求失败");
             }
-            keyword = String(query || "").toLowerCase();
-            posts = resp.data.slice();
-            return posts.filter(function (item) {
-              var title = item && item.title ? String(item.title).toLowerCase() : "";
-              var content = item && item.content ? String(item.content).toLowerCase() : "";
-              return title.indexOf(keyword) !== -1 || content.indexOf(keyword) !== -1;
-            });
-          })
-          .catch(function () {
-            return [];
+            return payload.data;
           });
       }
 
-      function renderAssistantLoading(question) {
-        var loadingMessage;
-        appendAssistantMessage("user", question, {
-          status: "done"
-        });
-        loadingMessage = appendAssistantMessage("assistant", "", {
-          status: "loading",
-          sources: [],
-          showSources: false
-        });
-        renderAssistantThread();
-        showPanel({ preserveView: true });
-        return loadingMessage.id;
-      }
-
-      function scrollAssistantToBottom() {
-        var body = document.getElementById("rag-body");
-        if (body) {
-          body.scrollTop = body.scrollHeight;
+      function formatMsg(msg) {
+        if (typeof msg === "string") {
+          return msg;
+        }
+        try {
+          return Object.values(msg).join("；");
+        } catch (err) {
+          return "请求失败";
         }
       }
 
-      function showPanel(options) {
-        var panel = document.getElementById("rag-panel");
-        var fab = document.getElementById("rag-fab");
-        if (!panel) {
-          return;
-        }
-        options = options || {};
-        ragAssistantState.open = true;
-        panel.setAttribute("aria-hidden", "false");
-        panel.classList.add("show");
-        if (fab) {
-          fab.style.transform = "";
-        }
-        if (!options.preserveView) {
-          renderAssistantThread();
-        }
-        setAssistantUnread(false);
-        applyAssistantLayout();
-        scrollAssistantToBottom();
+      function escapeHTML(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       }
 
-      function hidePanel() {
-        var panel = document.getElementById("rag-panel");
-        if (panel) {
-          ragAssistantState.open = false;
-          panel.setAttribute("aria-hidden", "true");
-          panel.classList.remove("show");
+      function normalizeID(value) {
+        if (value == null || value === "") {
+          return 0;
         }
+        return Number(value);
       }
 
-      function togglePanel() {
-        if (ragAssistantState.open) {
-          hidePanel();
-          return;
-        }
-        showPanel();
-        var input = document.getElementById("rag-input");
-        if (input) {
-          input.focus();
-        }
+      function getCommunityName(id) {
+        id = normalizeID(id);
+        var found = state.communities.find(function (item) { return normalizeID(item.id) === id; });
+        return found ? found.name : "领域";
       }
 
-      function beginAssistantDrag(event, source) {
-        if (event.button != null && event.button !== 0) {
-          return;
-        }
-        ragDragState.active = true;
-        ragDragState.source = source;
-        ragDragState.pointerId = event.pointerId;
-        ragDragState.startX = event.clientX;
-        ragDragState.startY = event.clientY;
-        ragDragState.originLeft = normalizeAssistantPosition(ragAssistantState.position).left;
-        ragDragState.originTop = normalizeAssistantPosition(ragAssistantState.position).top;
-        ragDragState.moved = false;
-        document.body.style.userSelect = "none";
-        document.getElementById("rag-panel").classList.add("dragging");
-        event.preventDefault();
-      }
-
-      function moveAssistantDrag(event) {
-        if (!ragDragState.active) {
-          return;
-        }
-        if (ragDragState.pointerId != null && event.pointerId != null && ragDragState.pointerId !== event.pointerId) {
-          return;
-        }
-        if (Math.abs(event.clientX - ragDragState.startX) > 4 || Math.abs(event.clientY - ragDragState.startY) > 4) {
-          ragDragState.moved = true;
-        }
-        ragAssistantState.position = normalizeAssistantPosition({
-          left: ragDragState.originLeft + (event.clientX - ragDragState.startX),
-          top: ragDragState.originTop + (event.clientY - ragDragState.startY)
-        });
-        applyAssistantLayout();
-      }
-
-      function endAssistantDrag(event) {
-        var panel = document.getElementById("rag-panel");
-        if (!ragDragState.active) {
-          return;
-        }
-        if (ragDragState.pointerId != null && event.pointerId != null && ragDragState.pointerId !== event.pointerId) {
-          return;
-        }
-        ragDragState.active = false;
-        document.body.style.userSelect = "";
-        if (panel) {
-          panel.classList.remove("dragging");
-        }
-        persistAssistantState();
-        if (ragDragState.source === "fab" && !ragDragState.moved) {
-          togglePanel();
-        }
-      }
-
-      function renderAssistantSources(sources, showEmpty) {
-        if (!sources || !sources.length) {
-          if (!showEmpty) {
-            return "";
-          }
-          return [
-            '<section class="rag-sources-card">',
-            '<div class="rag-sources-title">' + ASSISTANT_COPY.sourcesTitle + '</div>',
-            '<div class="rag-empty">' + ASSISTANT_COPY.sourcesEmpty + '</div>',
-            '</section>'
-          ].join("");
-        }
-        return [
-          '<section class="rag-sources-card">',
-          '<div class="rag-sources-title">' + ASSISTANT_COPY.sourcesTitle + '</div>',
-          sources.map(function (item) {
-            var preview = item.chunk_text || item.content || "";
-            return [
-              '<a class="rag-item" href="/post/' + item.post_id + '">',
-              '<div class="rag-title">' + escapeHTML(item.title || "无标题") + '</div>',
-              '<div class="rag-content">' + escapeHTML(truncate(preview, 180)) + '</div>',
-              '</a>'
-            ].join("");
-          }).join(""),
-          '</section>'
-        ].join("");
-      }
-
-      function renderAssistantMessage(message) {
-        var answerText;
-        var showCaret;
-        if (message.role === "user") {
-          return [
-            '<section class="rag-question-card" data-rag-message-id="' + message.id + '">',
-            '<div class="rag-question-label">' + ASSISTANT_COPY.userLabel + '</div>',
-            '<div class="rag-question-text">' + escapeHTML(message.text) + '</div>',
-            '</section>'
-          ].join("");
-        }
-
-        answerText = message.text || (message.status === "loading" ? ASSISTANT_COPY.answerLoading : "");
-        showCaret = message.status === "typing";
-
-        return [
-          '<section class="rag-message" data-rag-message-id="' + message.id + '">',
-          '<div class="rag-answer-card' + (message.status === "loading" ? ' is-loading' : '') + (message.status === "typing" ? ' is-streaming' : '') + (message.status === "error" ? ' is-error' : '') + '">',
-          '<div class="rag-answer-label">' + ASSISTANT_COPY.answerLabel + '</div>',
-          '<div class="rag-answer-text" data-rag-message-text="' + message.id + '">' + escapeHTML(answerText) + (showCaret ? '<span class="rag-answer-caret"></span>' : '') + '</div>',
-          message.status === "loading" ? '<div class="rag-loading-row"><span></span><span></span><span></span></div>' : '',
-          '</div>',
-          renderAssistantSources(message.sources, !!message.showSources),
-          '</section>'
-        ].join("");
-      }
-
-      function renderAssistantThread() {
-        var list = document.getElementById("rag-list");
-        if (!list) {
-          return;
-        }
-        ragAssistantState.view = "chat";
-        ensureAssistantHistory();
-        updateAssistantTitle(ragAssistantState.loading ? ASSISTANT_COPY.panelTitleLoading : ASSISTANT_COPY.panelTitleIdle);
-        list.innerHTML = ragAssistantState.history.map(renderAssistantMessage).join("");
-        if (ragAssistantState.open) {
-          scrollAssistantToBottom();
-        }
-      }
-
-      function renderAssistantResult(messageId, answer, hits) {
-        ragAssistantState.loading = false;
-        updateAssistantTitle(ASSISTANT_COPY.panelTitleDone);
-        startAssistantTypewriter(
-          messageId,
-          answer || ASSISTANT_COPY.answerFallback,
-          hits || [],
-          { showSources: true }
-        );
-      }
-
-      function renderAssistantError(messageId, message) {
-        ragAssistantState.loading = false;
-        updateAssistantTitle(ASSISTANT_COPY.panelTitleError);
-        startAssistantTypewriter(
-          messageId,
-          message || ASSISTANT_COPY.answerError,
-          [],
-          { status: "error", showSources: false }
-        );
-      }
-
-      function executeAssistantStream(input) {
-        var question = (input.value || "").trim();
-        var sendButton = document.getElementById("rag-send");
-        var messageId;
-        var receivedChunks = false;
-
-        if (!question) {
-          return;
-        }
-        if (ragAssistantState.loading && ragAssistantState.lastQuestion === question) {
-          return;
-        }
-
-        ragAssistantState.loading = true;
-        ragAssistantState.lastQuestion = question;
-        if (sendButton) {
-          sendButton.disabled = true;
-          sendButton.textContent = ASSISTANT_COPY.sending;
-        }
-        messageId = renderAssistantLoading(question);
-        input.value = "";
-
-        function resetSendButton() {
-          if (!sendButton) {
-            return;
-          }
-          sendButton.disabled = false;
-          sendButton.textContent = ASSISTANT_COPY.send;
-        }
-
-        streamAssistantQuestion(question, {
-          onChunk: function (delta) {
-            if (!receivedChunks) {
-              receivedChunks = true;
-              updateAssistantTitle(ASSISTANT_COPY.panelTitleStreaming);
-              updateAssistantMessage(messageId, function (message) {
-                message.text = "";
-                message.status = "typing";
-              });
-              renderAssistantThread();
-            }
-            streamAssistantMessageChunk(messageId, delta);
-          },
-          onDone: function (payload) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            finalizeAssistantMessage(
-              messageId,
-              payload && payload.answer ? String(payload.answer) : getAssistantMessageText(messageId),
-              payload && payload.hits ? payload.hits : [],
-              { showSources: true }
-            );
-            updateAssistantTitle(ASSISTANT_COPY.panelTitleDone);
-          },
-          onError: function (message) {
-            ragAssistantState.loading = false;
-            resetSendButton();
-            renderAssistantError(messageId, message || ASSISTANT_COPY.panelTitleError);
-          }
-        }).catch(function () {
-          ragAssistantState.loading = false;
-          resetSendButton();
-          renderAssistantError(messageId, ASSISTANT_COPY.answerError);
-        });
-      }
-
-      function executeSearch(input) {
-        var query = (input.value || "").trim();
-        if (!query) {
-          clearSearchResults();
-          refreshHomePostList({ reset: true });
-          return;
-        }
-        searchPostsByKeyword(query).then(function (posts) {
-          renderResults(query, posts || []);
-        });
-      }
-
-      function bindSearch() {
-        var search = document.querySelector(".search");
-        var logo = document.querySelector(".s-logo");
-        var input = document.querySelector(".s-input");
-        if (!search || !input || input.dataset.ragBound === "1") {
-          return;
-        }
-
-        input.dataset.ragBound = "1";
-        input.setAttribute("placeholder", "搜索帖子标题或内容");
-
-        search.style.cursor = "text";
-        search.addEventListener("click", function (event) {
-          if (event.target === input) {
-            return;
-          }
-          executeSearch(input);
-        });
-
-        if (logo) {
-          logo.style.cursor = "pointer";
-          logo.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
-            executeSearch(input);
-          });
-        }
-
-        input.addEventListener("keydown", function (event) {
-          if (event.key !== "Enter") {
-            return;
-          }
-          executeSearch(input);
-        });
-      }
-
-      function getCurrentPostOrder() {
-        if (homeFeedState.order === "score" || homeFeedState.order === "time") {
-          return homeFeedState.order;
-        }
-        var scoreButton = document.querySelector(".c-l-header .top.active");
-        return scoreButton ? "score" : "time";
-      }
-
-      function syncHomeFeedOrderUI(order) {
-        var header = document.querySelector(".c-l-header");
-        if (!header) {
-          return;
-        }
-
-        var newButton = header.querySelector(".new");
-        var scoreButton = header.querySelector(".top");
-        var normalizedOrder = order === "score" ? "score" : "time";
-
-        header.dataset.currentOrder = normalizedOrder;
-
-        if (newButton) {
-          newButton.classList.toggle("active", normalizedOrder === "time");
-        }
-        if (scoreButton) {
-          scoreButton.classList.toggle("active", normalizedOrder === "score");
-        }
-      }
-
-      function getHomePostItems() {
-        return Array.prototype.slice.call(document.querySelectorAll(".c-l-list .c-l-item"));
-      }
-
-      function getHomeListNode() {
-        return document.querySelector(".c-l-list");
-      }
-      function getHomeSearchToolbarNode() {
-        return document.querySelector(".home-search-toolbar");
-      }
-
-      function clearSearchResults() {
-        homeFeedState.searchQuery = "";
-        homeFeedState.searchHits = [];
-      }
-
-      function ensureHomeSearchToolbar() {
-        var list = getHomeListNode();
-        var toolbar;
-        if (!list) {
+      function getActiveCommunity() {
+        if (!state.selectedCommunityID) {
           return null;
         }
-
-        toolbar = getHomeSearchToolbarNode();
-        if (toolbar) {
-          return toolbar;
-        }
-
-        toolbar = document.createElement("div");
-        toolbar.className = "home-search-toolbar";
-        toolbar.style.display = "none";
-        toolbar.innerHTML = [
-          '<div class="home-search-toolbar-main">',
-          '<div class="home-search-title"></div>',
-          '<div class="home-search-meta"></div>',
-          '</div>',
-          '<button class="home-search-reset" type="button">返回全部帖子</button>'
-        ].join("");
-        list.insertAdjacentElement("beforebegin", toolbar);
-        return toolbar;
+        return state.communities.find(function (item) {
+          return normalizeID(item.id) === state.selectedCommunityID;
+        }) || null;
       }
 
-
-      function getHomeFeedActionNode() {
-        return document.querySelector(".home-feed-actions");
+      function domainInitial(name) {
+        name = String(name || "");
+        if (/leetcode/i.test(name) || name === "力扣") {
+          return "LC";
+        }
+        if (/cross|cf|穿越/i.test(name)) {
+          return "CF";
+        }
+        if (/lol|英雄/i.test(name)) {
+          return "LOL";
+        }
+        return name.slice(0, 2).toUpperCase() || "ALL";
       }
 
-      function ensureHomeFeedFooter() {
-        var list = getHomeListNode();
-        if (!list) {
-          return null;
-        }
-
-        var footer = getHomeFeedActionNode();
-        if (footer) {
-          return footer;
-        }
-
-        footer = document.createElement("div");
-        footer.className = "home-feed-actions";
-        footer.innerHTML = [
-          '<button class="home-feed-more" type="button">加载更多</button>',
-          '<div class="home-feed-status"></div>'
-        ].join("");
-        list.insertAdjacentElement("afterend", footer);
-        return footer;
-      }
-
-      function renderHomePostItem(post) {
-        var title = escapeHTML(post && post.title ? post.title : "无标题");
-        var content = escapeHTML(post && typeof post.content === "string" ? post.content : "");
-        var voteNum = post && post.vote_num != null ? String(post.vote_num) : "0";
-        var postId = post && post.id != null
-          ? String(post.id)
-          : (post && post.post_id != null ? String(post.post_id) : "");
-        return [
-          '<li class="c-l-item" data-v-2baf73fc data-post-id="' + escapeHTML(postId) + '">',
-          '<div class="post" data-v-2baf73fc>',
-          '<a class="vote" data-v-2baf73fc><span class="iconfont icon-up" data-v-2baf73fc></span></a>',
-          '<span class="text" data-v-2baf73fc>' + escapeHTML(voteNum) + '</span>',
-          '<a class="vote" data-v-2baf73fc><span class="iconfont icon-down" data-v-2baf73fc></span></a>',
-          '</div>',
-          '<div class="l-container" data-v-2baf73fc>',
-          '<h4 class="con-title" data-v-2baf73fc>' + title + '</h4>',
-          '<div class="con-memo" data-v-2baf73fc><p data-v-2baf73fc>' + content + '</p></div>',
-          '</div>',
-          '</li>'
-        ].join("");
-      }
-
-      function renderHomeFeedState() {
-        var list = getHomeListNode();
-        var searchToolbar;
-        var footer;
-        var button;
-        var status;
-        if (!list) {
-          return;
-        }
-
-        searchToolbar = ensureHomeSearchToolbar();
-        footer = ensureHomeFeedFooter();
-        if (!footer || !searchToolbar) {
-          return;
-        }
-        button = footer.querySelector(".home-feed-more");
-        status = footer.querySelector(".home-feed-status");
-        if (!button || !status) {
-          return;
-        }
-
-        if (homeFeedState.searchQuery) {
-          searchToolbar.style.display = "flex";
-          searchToolbar.querySelector(".home-search-title").textContent = "搜索结果";
-          searchToolbar.querySelector(".home-search-meta").textContent = homeFeedState.searchHits.length
-            ? '关键词“' + homeFeedState.searchQuery + '”，共找到 ' + homeFeedState.searchHits.length + ' 条帖子'
-            : '关键词“' + homeFeedState.searchQuery + '”，没有找到匹配帖子';
-          if (!homeFeedState.searchHits.length) {
-            list.innerHTML = '<div class="home-feed-empty">搜索“' + escapeHTML(homeFeedState.searchQuery) + '”没有找到结果。</div>';
-          } else {
-            list.innerHTML = homeFeedState.searchHits.map(renderHomePostItem).join("");
-          }
-          button.disabled = true;
-          button.style.display = "none";
-          status.textContent = "";
-          return;
-        }
-
-        searchToolbar.style.display = "none";
-
-        if (!homeFeedState.items.length) {
-          list.innerHTML = '<div class="home-feed-empty">暂无内容，稍后再来看看吧。</div>';
-        } else {
-          list.innerHTML = homeFeedState.items.map(renderHomePostItem).join("");
-        }
-
-        button.disabled = homeFeedState.loading || homeFeedState.reachedEnd || !homeFeedState.items.length;
-        button.style.display = homeFeedState.reachedEnd || !homeFeedState.items.length ? "none" : "inline-flex";
-        button.textContent = homeFeedState.loading ? "加载中..." : "加载更多";
-
-        if (!homeFeedState.items.length) {
-          status.textContent = "";
-        } else if (homeFeedState.loading) {
-          status.textContent = "正在加载内容";
-        } else if (homeFeedState.reachedEnd) {
-          status.textContent = "没有更多内容了";
-        } else {
-          status.textContent = "已加载 " + homeFeedState.items.length + " 条内容";
-        }
-      }
-
-      function fetchHomePosts(page, order) {
-        return requestJSON("/api/v1/posts2?page=" + encodeURIComponent(page) + "&size=" + encodeURIComponent(homeFeedState.size) + "&order=" + encodeURIComponent(order))
-          .then(function (resp) {
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              return [];
-            }
-            return resp.data;
-          })
-          .catch(function () {
-            return [];
-          });
-      }
-
-      function refetchLoadedHomePages() {
-        var order = homeFeedState.order || getCurrentPostOrder();
-        var pageCount = homeFeedState.page > 0 ? homeFeedState.page : 1;
-        var requests = [];
-        var pageIndex;
-
-        for (pageIndex = 1; pageIndex <= pageCount; pageIndex++) {
-          requests.push(fetchHomePosts(pageIndex, order));
-        }
-
-        return Promise.all(requests).then(function (pages) {
-          var merged = [];
-          pages.forEach(function (items) {
-            merged = merged.concat(items || []);
-          });
-          homeFeedState.order = order;
-          homeFeedState.items = merged;
-          homeFeedState.initialized = true;
-          homeFeedState.reachedEnd = pages.length > 0 ? (pages[pages.length - 1] || []).length < homeFeedState.size : true;
-          syncHomeFeedOrderUI(order);
-          renderHomeFeedState();
-          return merged.slice();
-        });
-      }
-
-      function refreshHomePostList(options) {
-        options = options || {};
-        var list = getHomeListNode();
-        if (!list || homeFeedState.loading) {
-          return Promise.resolve(homeFeedState.items.slice());
-        }
-
-        clearSearchResults();
-
-        var requestedOrder = options.order || getCurrentPostOrder();
-        if (options.preserveLoaded && homeFeedState.initialized && homeFeedState.page > 0 && homeFeedState.order === requestedOrder) {
-          homeFeedState.loading = true;
-          syncHomeFeedOrderUI(requestedOrder);
-          renderHomeFeedState();
-          return refetchLoadedHomePages()
-            .finally(function () {
-              homeFeedState.loading = false;
-              renderHomeFeedState();
-            });
-        }
-
-        var reset = !!options.reset || !homeFeedState.initialized || homeFeedState.order !== requestedOrder;
-
-        if (reset) {
-          homeFeedState.order = requestedOrder;
-          homeFeedState.page = 1;
-          homeFeedState.items = [];
-          homeFeedState.reachedEnd = false;
-        }
-
-        homeFeedState.loading = true;
-        syncHomeFeedOrderUI(requestedOrder);
-        renderHomeFeedState();
-
-        var nextPage = reset ? 1 : homeFeedState.page + 1;
-        return fetchHomePosts(nextPage, requestedOrder)
-          .then(function (data) {
-            if (reset) {
-              homeFeedState.items = data.slice();
-            } else {
-              homeFeedState.items = homeFeedState.items.concat(data);
-            }
-            homeFeedState.page = nextPage;
-            homeFeedState.order = requestedOrder;
-            homeFeedState.initialized = true;
-            homeFeedState.reachedEnd = data.length < homeFeedState.size;
-            syncHomeFeedOrderUI(requestedOrder);
-            renderHomeFeedState();
-            return homeFeedState.items.slice();
-          })
-          .finally(function () {
-            homeFeedState.loading = false;
-            renderHomeFeedState();
-          });
-      }
-
-      function bindHomeFeedActions() {
-        var searchToolbar = ensureHomeSearchToolbar();
-        var footer = ensureHomeFeedFooter();
-        var resetButton;
-        var button;
-        var list;
-        if (!footer || !searchToolbar) {
-          return;
-        }
-
-        resetButton = searchToolbar.querySelector(".home-search-reset");
-        if (resetButton && resetButton.dataset.bound !== "1") {
-          resetButton.dataset.bound = "1";
-          resetButton.addEventListener("click", function () {
-            var searchInput = document.querySelector(".s-input");
-            clearSearchResults();
-            if (searchInput) {
-              searchInput.value = "";
-            }
-            refreshHomePostList({ reset: true });
-          });
-        }
-
-        button = footer.querySelector(".home-feed-more");
-        if (button && button.dataset.bound !== "1") {
-          button.dataset.bound = "1";
-          button.addEventListener("click", function () {
-            refreshHomePostList();
-          });
-        }
-
-        list = getHomeListNode();
-        if (!list || list.dataset.homeOpenBound === "1") {
-          return;
-        }
-
-        list.dataset.homeOpenBound = "1";
-        list.addEventListener("click", function (event) {
-          var item = event.target.closest(".c-l-item");
-          if (!item || !list.contains(item)) {
-            return;
-          }
-          if (event.target.closest(".post")) {
-            return;
-          }
-          var postId = item.dataset.postId;
-          if (!postId) {
-            return;
-          }
-          window.location.href = "/post/" + encodeURIComponent(postId);
-        });
-
-        var header = document.querySelector(".c-l-header");
-        if (header && header.dataset.feedSortBound !== "1") {
-          header.dataset.feedSortBound = "1";
-          header.addEventListener("click", function (event) {
-            var orderButton = event.target.closest(".new, .top");
-            if (!orderButton) {
-              return;
-            }
-            event.preventDefault();
-            var requestedOrder = orderButton.classList.contains("top") ? "score" : "time";
-            if (homeFeedState.loading && homeFeedState.order === requestedOrder) {
-              syncHomeFeedOrderUI(requestedOrder);
-              return;
-            }
-            homeFeedState.order = requestedOrder;
-            syncHomeFeedOrderUI(requestedOrder);
-            refreshHomePostList({
-              reset: true,
-              order: requestedOrder
-            });
-          });
-        }
-      }
-
-      function formatDetailDate(value) {
-        if (!value) {
-          return "";
-        }
-        var date = new Date(value);
-        if (Number.isNaN(date.getTime())) {
-          return String(value);
-        }
-        return date.toLocaleDateString("zh-CN", {
-          year: "numeric",
-          month: "short",
-          day: "numeric"
-        });
-      }
-
-      function ensureCommentPanel() {
-        if (document.getElementById("comment-panel")) {
-          return document.getElementById("comment-panel");
-        }
-        var container = document.querySelector(".content .left .container");
-        if (!container) {
-          return null;
-        }
-        var panel = document.createElement("section");
-        panel.id = "comment-panel";
-        panel.className = "comment-panel";
-        panel.innerHTML = [
-          '<div class="comment-header">',
-          '<div class="comment-title">评论</div>',
-          '</div>',
-          '<div class="comment-form">',
-          '<textarea id="comment-input" class="comment-input" placeholder="写下你的评论..."></textarea>',
-          '<div class="comment-actions">',
-          '<button id="comment-submit" class="comment-submit" type="button">发表评论</button>',
-          '</div>',
-          '</div>',
-          '<div id="comment-list" class="comment-list"></div>'
-        ].join("");
-        container.appendChild(panel);
-        return panel;
-      }
-
-      function formatCommentTime(value) {
+      function formatDate(value) {
         if (!value) {
           return "";
         }
@@ -3198,475 +1125,677 @@
         });
       }
 
-      function renderCommentList(comments) {
-        var list = document.getElementById("comment-list");
-        if (!list) {
-          return;
-        }
-        if (!comments || !comments.length) {
-          list.innerHTML = '<div class="comment-empty">还没有评论，来发第一条吧。</div>';
-          return;
-        }
-        list.innerHTML = comments.map(function (comment) {
-          return [
-            '<article class="comment-item">',
-            '<div class="comment-meta">',
-            '<span class="comment-author">' + escapeHTML(comment.author_name || "匿名") + '</span>',
-            '<span>' + escapeHTML(formatCommentTime(comment.create_time)) + '</span>',
-            '</div>',
-            '<div class="comment-content">' + escapeHTML(comment.content || "") + '</div>',
-            '</article>'
-          ].join("");
-        }).join("");
+      function excerpt(text) {
+        text = String(text || "").replace(/\s+/g, " ").trim();
+        return text.length > 180 ? text.slice(0, 180) + "..." : text;
       }
 
-      function loadComments(postId) {
-        requestJSON("/api/v1/post/" + encodeURIComponent(postId) + "/comments")
-          .then(function (resp) {
-            if (!resp || resp.code !== 1000) {
-              renderCommentList([]);
-              return;
-            }
-            renderCommentList(resp.data || []);
-          })
-          .catch(function () {
-            renderCommentList([]);
-          });
+      function toast(message) {
+        var el = document.getElementById("toast");
+        if (!el) {
+          return;
+        }
+        el.textContent = message;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () {
+          el.classList.remove("show");
+        }, 2600);
       }
 
-      function bindCommentSubmit(postId) {
-        var button = document.getElementById("comment-submit");
-        var input = document.getElementById("comment-input");
-        if (!button || !input || button.dataset.boundPostId === String(postId)) {
-          return;
+      function visiblePosts() {
+        var q = state.query.trim().toLowerCase();
+        if (!q) {
+          return state.posts;
         }
-
-        button.dataset.boundPostId = String(postId);
-        button.onclick = function () {
-          var loginResult = getLoginResult();
-          if (!loginResult || !loginResult.token) {
-            showVoteMessage("请先登录后再评论");
-            return;
-          }
-
-          var content = (input.value || "").trim();
-          if (!content) {
-            showVoteMessage("评论内容不能为空");
-            return;
-          }
-
-          button.disabled = true;
-          postJSON("/api/v1/comment", {
-            post_id: String(postId),
-            content: content
-          }).then(function (resp) {
-            if (!resp || resp.code !== 1000) {
-              showVoteMessage(resp && resp.msg ? resp.msg : "发表评论失败，请稍后重试");
-              return;
-            }
-            input.value = "";
-            loadComments(postId);
-          }).catch(function () {
-            showVoteMessage("发表评论失败，请稍后重试");
-          }).finally(function () {
-            button.disabled = false;
-          });
-        };
-      }
-
-      function ensureDetailDeleteButton() {
-        var actions = document.querySelector(".content .left .container .l-container .user-btn");
-        if (!actions) {
-          return null;
-        }
-        var button = document.getElementById("detail-delete-btn");
-        if (button) {
-          return button;
-        }
-        button = document.createElement("button");
-        button.id = "detail-delete-btn";
-        button.className = "detail-delete-btn";
-        button.type = "button";
-        button.textContent = "删除帖子";
-        button.style.display = "none";
-        actions.appendChild(button);
-        return button;
-      }
-
-      function bindDetailDelete(postId, post) {
-        var button = ensureDetailDeleteButton();
-        if (!button) {
-          return;
-        }
-
-        var loginResult = getLoginResult();
-        var canDelete = !!(loginResult && loginResult.token);
-        button.style.display = canDelete ? "inline-flex" : "none";
-        if (!canDelete || button.dataset.boundPostId === String(postId)) {
-          return;
-        }
-
-        button.dataset.boundPostId = String(postId);
-        button.onclick = function () {
-          if (!window.confirm("确认删除这篇帖子吗？删除后无法恢复。")) {
-            return;
-          }
-
-          button.disabled = true;
-          deleteJSON("/api/v1/post/" + encodeURIComponent(postId))
-            .then(function (resp) {
-              if (!resp || resp.code !== 1000) {
-                showVoteMessage(resp && resp.msg ? resp.msg : "删除帖子失败，请稍后重试");
-                return;
-              }
-              window.location.href = "/";
-            })
-            .catch(function () {
-              showVoteMessage("删除帖子失败，请稍后重试");
-            })
-            .finally(function () {
-              button.disabled = false;
-            });
-        };
-      }
-
-      function syncPostDetail() {
-        var match = window.location.pathname.match(/^\/post\/([^/]+)$/);
-        if (!match) {
-          return;
-        }
-
-        requestJSON("/api/v1/post/" + encodeURIComponent(match[1]))
-          .then(function (resp) {
-            if (!resp || resp.code !== 1000 || !resp.data) {
-              return;
-            }
-
-            var post = resp.data;
-            var voteNum = document.querySelector(".content .left .post .text");
-            if (voteNum) {
-              voteNum.textContent = post.vote_num != null ? post.vote_num : 0;
-            }
-
-            var title = document.querySelector(".content .left .con-title");
-            if (title && post.title) {
-              title.textContent = post.title;
-            }
-
-            var content = document.querySelector(".content .left .con-info");
-            if (content && typeof post.content === "string") {
-              content.textContent = post.content;
-            }
-
-            var topicName = document.querySelector(".content .right .topic-name");
-            if (topicName) {
-              topicName.textContent = post.author_name || "";
-            }
-
-            var topicDesc = document.querySelector(".content .right .t-desc");
-            if (topicDesc) {
-              if (post.community && post.community.name) {
-                topicDesc.textContent = "社区: " + post.community.name;
-              } else {
-                topicDesc.textContent = "";
-              }
-            }
-
-            var statNumbers = document.querySelectorAll(".content .right .t-num .number");
-            var statUnits = document.querySelectorAll(".content .right .t-num .unit");
-            if (statNumbers.length > 0) {
-              statNumbers[0].textContent = post.vote_num != null ? String(post.vote_num) : "0";
-            }
-            if (statUnits.length > 0) {
-              statUnits[0].textContent = "赞同";
-            }
-            if (statNumbers.length > 1) {
-              statNumbers[1].textContent = post.community && post.community.id != null ? String(post.community.id) : "-";
-            }
-            if (statUnits.length > 1) {
-              statUnits[1].textContent = "社区 ID";
-            }
-
-            var date = document.querySelector(".content .right .date");
-            if (date) {
-              var formatted = formatDetailDate(post.create_time);
-              date.textContent = formatted ? "发布时间: " + formatted : "";
-            }
-
-            bindDetailDelete(match[1], post);
-
-            if (ensureCommentPanel()) {
-              loadComments(match[1]);
-              bindCommentSubmit(match[1]);
-            }
-          })
-          .catch(function () {
-            return null;
-          });
-      }
-
-      function showVoteMessage(message) {
-        if (!message) {
-          return;
-        }
-        window.alert(message);
-      }
-
-      function handleVoteClick(icon, direction) {
-        var listItem = icon.closest(".c-l-item");
-        if (!listItem) {
-          return;
-        }
-        var postId = listItem.dataset.postId;
-        if (!postId) {
-          refreshHomePostList().then(function (posts) {
-            var items = getHomePostItems();
-            var index = items.indexOf(listItem);
-            if (index === -1 || !posts[index]) {
-              showVoteMessage("未找到对应帖子，刷新后重试");
-              return;
-            }
-            submitVote(String(posts[index].id), direction);
-          });
-          return;
-        }
-        submitVote(postId, direction);
-      }
-
-      function submitVote(postId, direction) {
-        var loginResult = getLoginResult();
-        if (!loginResult || !loginResult.token) {
-          showVoteMessage("请先登录后再投票");
-          return;
-        }
-        postJSON("/api/v1/vote", {
-          post_id: postId,
-          direction: String(direction)
-        }).then(function (resp) {
-          if (!resp || resp.code !== 1000) {
-            showVoteMessage(resp && resp.msg ? resp.msg : "投票失败，请稍后重试");
-            return;
-          }
-          refreshHomePostList();
-          bindDynamicSidebar(true);
-        }).catch(function () {
-          showVoteMessage("投票失败，请稍后重试");
+        return state.posts.filter(function (post) {
+          return String(post.title || "").toLowerCase().indexOf(q) !== -1 ||
+            String(post.content || "").toLowerCase().indexOf(q) !== -1 ||
+            String(post.author_name || "").toLowerCase().indexOf(q) !== -1 ||
+            String(post.community && post.community.name || "").toLowerCase().indexOf(q) !== -1;
         });
       }
 
-      function getKnownVoteDirection(postId) {
-        postId = String(postId);
-        if (!Object.prototype.hasOwnProperty.call(voteStateByPost, postId)) {
-          return null;
+      function render() {
+        app.innerHTML = [
+          renderTopbar(),
+          renderMobileDomains(),
+          '<div class="layout">',
+          '<aside class="sidebar">' + renderDomainPanel() + '</aside>',
+          '<main class="main" id="main">' + renderMain() + '</main>',
+          '<aside class="rightbar">' + renderRightbar() + '</aside>',
+          '</div>'
+        ].join("");
+        bindEvents();
+      }
+
+      function renderTopbar() {
+        var isAuth = !!(state.auth && state.auth.token);
+        return [
+          '<header class="topbar">',
+          '<div class="topbar-inner">',
+          '<button class="brand" data-action="home" aria-label="返回首页">',
+          '<img src="/static/img/logo.da56125f.png" alt="">',
+          '<span><span>YXB GameBase</span><span class="brand-sub">Game & Code Community</span></span>',
+          '</button>',
+          '<div class="search-wrap">',
+          icon("search"),
+          '<input class="search-input" id="global-search" type="search" value="' + escapeHTML(state.query) + '" placeholder="搜索帖子标题、内容或作者">',
+          '</div>',
+          '<div class="topbar-actions">',
+          isAuth ? '<span class="user-pill"><span class="user-dot"></span>' + escapeHTML(state.auth.user_name || "玩家") + '</span>' : '',
+          isAuth ? '<button class="btn btn-ghost" data-action="logout">退出</button>' : '<button class="btn btn-ghost" data-action="login">登录</button>',
+          isAuth ? '<button class="btn btn-primary" data-action="publish">' + icon("plus") + '<span>发布</span></button>' : '<button class="btn btn-primary" data-action="signup">注册</button>',
+          '</div>',
+          '</div>',
+          '</header>'
+        ].join("");
+      }
+
+      function renderMobileDomains() {
+        var items = [{ id: 0, name: "全部" }].concat(state.communities);
+        return '<nav class="mobile-domain-strip" aria-label="领域筛选">' + items.map(function (item) {
+          var id = normalizeID(item.id);
+          return '<button class="domain-chip' + (state.selectedCommunityID === id ? " is-active" : "") + '" data-community-id="' + id + '">' + escapeHTML(item.name) + '</button>';
+        }).join("") + '</nav>';
+      }
+
+      function renderDomainPanel() {
+        var items = [{ id: 0, name: "全部领域", introduction: "查看所有游戏与技术讨论" }].concat(state.communities);
+        return [
+          '<section class="panel">',
+          '<div class="panel-head">',
+          '<h2 class="panel-title">领域筛选</h2>',
+          '<p class="panel-desc">先选方向，再看内容。</p>',
+          '</div>',
+          '<div class="domains">',
+          items.map(function (item) {
+            var id = normalizeID(item.id);
+            return [
+              '<button class="domain-btn' + (state.selectedCommunityID === id ? " is-active" : "") + '" data-community-id="' + id + '">',
+              '<span class="domain-mark">' + escapeHTML(id === 0 ? "ALL" : domainInitial(item.name)) + '</span>',
+              '<span>',
+              '<span class="domain-name">' + escapeHTML(item.name) + '</span>',
+              '<span class="domain-desc">' + escapeHTML(item.introduction || "") + '</span>',
+              '</span>',
+              '</button>'
+            ].join("");
+          }).join(""),
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderRightbar() {
+        var count = state.posts.length;
+        var active = getActiveCommunity();
+        return [
+          '<section class="panel">',
+          '<div class="panel-head">',
+          '<h2 class="panel-title">社区概览</h2>',
+          '<p class="panel-desc">' + escapeHTML(active ? active.introduction : "聚合游戏玩家与刷题用户的讨论场。") + '</p>',
+          '</div>',
+          '<div class="stat-grid">',
+          '<div class="stat"><span class="stat-value">' + count + '</span><span class="stat-label">当前帖子</span></div>',
+          '<div class="stat"><span class="stat-value">' + state.communities.length + '</span><span class="stat-label">领域</span></div>',
+          '<div class="stat"><span class="stat-value">' + (state.order === "score" ? "热度" : "最新") + '</span><span class="stat-label">排序</span></div>',
+          '</div>',
+          '</section>',
+          renderAssistant()
+        ].join("");
+      }
+
+      function renderAssistant() {
+        return [
+          '<section class="panel">',
+          '<div class="panel-head">',
+          '<h2 class="panel-title">知识库问答</h2>',
+          '<p class="panel-desc">基于帖子内容的 RAG 问答。</p>',
+          '</div>',
+          '<div class="assistant-box">',
+          '<div class="assistant-output" id="assistant-output">' + escapeHTML(state.assistantAnswer || "输入问题后，系统会从帖子知识库检索并生成回答。") + '</div>',
+          '<div class="assistant-row">',
+          '<input id="assistant-input" type="text" placeholder="例如：力扣如何刷动态规划？">',
+          '<button class="btn btn-primary btn-icon" data-action="ask" aria-label="发送问题">' + icon("send") + '</button>',
+          '</div>',
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderMain() {
+        if (state.route.name === "detail") {
+          return renderDetail();
         }
-        return voteStateByPost[postId];
-      }
-
-      function setKnownVoteDirection(postId, direction) {
-        voteStateByPost[String(postId)] = direction;
-      }
-
-      function isRepeatedVoteResponse(resp) {
-        if (!resp || resp.code === 1000 || !resp.msg) {
-          return false;
+        if (state.route.name === "publish") {
+          return renderPublish();
         }
-        var msg = String(resp.msg).toLowerCase();
-        return msg.indexOf("repeat") !== -1 || msg.indexOf("重复") !== -1;
+        if (state.route.name === "login") {
+          return renderAuth("login");
+        }
+        if (state.route.name === "signup") {
+          return renderAuth("signup");
+        }
+        return renderHome();
       }
 
-      function sendVoteRequest(postId, direction) {
-        return postJSON("/api/v1/vote", {
-          post_id: String(postId),
-          direction: String(direction)
+      function renderHome() {
+        var active = getActiveCommunity();
+        var posts = visiblePosts();
+        return [
+          '<section class="main-toolbar">',
+          '<div>',
+          '<p class="section-kicker">Explore</p>',
+          '<h1 class="section-title">' + escapeHTML(active ? active.name : "全部领域") + '</h1>',
+          '<p class="section-desc">' + escapeHTML(active ? active.introduction : "选择 LOL、CF、力扣等领域，快速进入你关心的讨论。") + '</p>',
+          '</div>',
+          '<div class="segmented" aria-label="帖子排序">',
+          '<button class="' + (state.order === "time" ? "is-active" : "") + '" data-order="time">最新</button>',
+          '<button class="' + (state.order === "score" ? "is-active" : "") + '" data-order="score">热度</button>',
+          '</div>',
+          '</section>',
+          state.loading ? '<div class="loading">正在加载帖子...</div>' : renderPostList(posts)
+        ].join("");
+      }
+
+      function renderPostList(posts) {
+        if (!posts.length) {
+          return '<div class="empty">当前筛选下还没有帖子。你可以发布第一条讨论。</div>';
+        }
+        return '<section class="post-list">' + posts.map(renderPostCard).join("") + '</section>';
+      }
+
+      function renderPostCard(post) {
+        var community = post.community || {};
+        return [
+          '<article class="post-card">',
+          '<div class="vote-box">',
+          '<button class="vote-btn" data-vote="1" data-post-id="' + escapeHTML(post.id) + '" aria-label="赞同">' + icon("up") + '</button>',
+          '<span class="vote-count">' + escapeHTML(post.vote_num || 0) + '</span>',
+          '<button class="vote-btn" data-vote="-1" data-post-id="' + escapeHTML(post.id) + '" aria-label="反对">' + icon("down") + '</button>',
+          '</div>',
+          '<div class="post-body">',
+          '<div class="post-meta">',
+          '<span class="tag">' + escapeHTML(community.name || getCommunityName(post.community_id)) + '</span>',
+          '<span>' + escapeHTML(post.author_name || "玩家") + '</span>',
+          '<span>' + escapeHTML(formatDate(post.create_time)) + '</span>',
+          '</div>',
+          '<h2 class="post-title"><button data-open-post="' + escapeHTML(post.id) + '">' + escapeHTML(post.title || "未命名帖子") + '</button></h2>',
+          '<p class="post-excerpt">' + escapeHTML(excerpt(post.content)) + '</p>',
+          '<div class="post-actions">',
+          '<button class="link-btn" data-open-post="' + escapeHTML(post.id) + '">查看详情</button>',
+          '</div>',
+          '</div>',
+          '</article>'
+        ].join("");
+      }
+
+      function renderDetail() {
+        if (state.loading || !state.post) {
+          return '<div class="loading">正在加载帖子详情...</div>';
+        }
+        var post = state.post;
+        var community = post.community || {};
+        var isAuth = !!(state.auth && state.auth.token);
+        return [
+          '<article class="detail">',
+          '<div class="detail-head">',
+          '<button class="btn btn-ghost" data-action="home">' + icon("back") + '<span>返回列表</span></button>',
+          '<div class="post-meta" style="margin-top:14px">',
+          '<span class="tag">' + escapeHTML(community.name || getCommunityName(post.community_id)) + '</span>',
+          '<span>' + escapeHTML(post.author_name || "玩家") + '</span>',
+          '<span>' + escapeHTML(formatDate(post.create_time)) + '</span>',
+          '</div>',
+          '<h1 class="detail-title">' + escapeHTML(post.title || "未命名帖子") + '</h1>',
+          '<div class="detail-actions">',
+          '<button class="btn" data-vote="1" data-post-id="' + escapeHTML(post.id) + '">' + icon("up") + '<span>赞同 ' + escapeHTML(post.vote_num || 0) + '</span></button>',
+          '<button class="btn" data-vote="-1" data-post-id="' + escapeHTML(post.id) + '">' + icon("down") + '<span>反对</span></button>',
+          isAuth ? '<button class="btn btn-danger" data-action="delete-post" data-post-id="' + escapeHTML(post.id) + '">' + icon("trash") + '<span>删除</span></button>' : '',
+          '</div>',
+          '</div>',
+          '<div class="detail-content">',
+          '<p class="detail-text">' + escapeHTML(post.content || "") + '</p>',
+          renderComments(isAuth),
+          '</div>',
+          '</article>'
+        ].join("");
+      }
+
+      function renderComments(isAuth) {
+        return [
+          '<section class="comments">',
+          '<h3>评论</h3>',
+          isAuth ? [
+            '<div class="comment-form">',
+            '<textarea id="comment-input" placeholder="写下你的观点，补充攻略、经验或题解。"></textarea>',
+            '<div><button class="btn btn-primary" data-action="comment">发表评论</button></div>',
+            '</div>'
+          ].join("") : '<div class="empty" style="padding:18px">登录后可以发表评论。</div>',
+          '<div class="comment-list">',
+          state.comments.length ? state.comments.map(function (comment) {
+            return [
+              '<article class="comment-item">',
+              '<div class="comment-meta"><span class="comment-author">' + escapeHTML(comment.author_name || "玩家") + '</span><span>' + escapeHTML(formatDate(comment.create_time)) + '</span></div>',
+              '<div>' + escapeHTML(comment.content || "") + '</div>',
+              '</article>'
+            ].join("");
+          }).join("") : '<div class="empty" style="padding:18px">还没有评论。</div>',
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderPublish() {
+        if (!(state.auth && state.auth.token)) {
+          setTimeout(function () { navigate("/login"); }, 0);
+          return '<div class="loading">请先登录...</div>';
+        }
+        return [
+          '<section class="form-page">',
+          '<div class="form-head">',
+          '<p class="section-kicker">Create</p>',
+          '<h1 class="section-title">发布新讨论</h1>',
+          '<p class="section-desc">选择领域后发布，帖子会自动参与该领域筛选。</p>',
+          '</div>',
+          '<form class="form-body" id="publish-form">',
+          '<div class="form-grid">',
+          '<div class="field"><label for="publish-community">领域</label><select id="publish-community" required>',
+          state.communities.map(function (item) {
+            return '<option value="' + escapeHTML(item.id) + '"' + (state.selectedCommunityID === normalizeID(item.id) ? " selected" : "") + '>' + escapeHTML(item.name) + '</option>';
+          }).join(""),
+          '</select></div>',
+          '<div class="field"><label for="publish-title">标题</label><input id="publish-title" maxlength="128" required placeholder="一句话说清你的讨论主题"></div>',
+          '<div class="field"><label for="publish-content">内容</label><textarea id="publish-content" required placeholder="描述你的问题、攻略、战术、题解或复盘。"></textarea></div>',
+          '</div>',
+          '<div class="form-actions"><button class="btn" type="button" data-action="home">取消</button><button class="btn btn-primary" type="submit">发布帖子</button></div>',
+          '</form>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderAuth(mode) {
+        var isLogin = mode === "login";
+        return [
+          '<section class="auth-page">',
+          '<div class="auth-head">',
+          '<p class="section-kicker">' + (isLogin ? "Login" : "Join") + '</p>',
+          '<h1 class="section-title">' + (isLogin ? "登录账号" : "注册账号") + '</h1>',
+          '<p class="section-desc">' + (isLogin ? "登录后可以发帖、评论和投票。" : "创建账号后加入 YXB GameBase。") + '</p>',
+          '</div>',
+          '<form class="auth-body" id="' + (isLogin ? "login-form" : "signup-form") + '">',
+          '<div class="form-grid">',
+          '<div class="field"><label for="auth-username">用户名</label><input id="auth-username" required autocomplete="username"></div>',
+          '<div class="field"><label for="auth-password">密码</label><input id="auth-password" type="password" required autocomplete="' + (isLogin ? "current-password" : "new-password") + '"></div>',
+          isLogin ? '' : '<div class="field"><label for="auth-repassword">确认密码</label><input id="auth-repassword" type="password" required autocomplete="new-password"></div>',
+          '</div>',
+          '<div class="form-actions">',
+          '<button class="btn" type="button" data-action="' + (isLogin ? "signup" : "login") + '">' + (isLogin ? "去注册" : "去登录") + '</button>',
+          '<button class="btn btn-primary" type="submit">' + (isLogin ? "登录" : "注册") + '</button>',
+          '</div>',
+          '</form>',
+          '</section>'
+        ].join("");
+      }
+
+      function bindEvents() {
+        app.querySelectorAll("[data-action]").forEach(function (el) {
+          el.addEventListener("click", handleAction);
         });
-      }
-
-      function showVoteMessage(message) {
-        if (!message) {
-          return;
-        }
-        window.alert(message);
-      }
-
-      function handleVoteClick(icon, direction) {
-        var listItem = icon.closest(".c-l-item");
-        if (!listItem) {
-          return;
-        }
-        var postId = listItem.dataset.postId;
-        if (!postId) {
-          refreshHomePostList().then(function (posts) {
-            var items = getHomePostItems();
-            var index = items.indexOf(listItem);
-            if (index === -1 || !posts[index]) {
-              showVoteMessage("未找到对应帖子，刷新后重试");
-              return;
-            }
-            submitVote(String(posts[index].id), direction);
+        app.querySelectorAll("[data-community-id]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            state.selectedCommunityID = normalizeID(el.getAttribute("data-community-id"));
+            navigate("/");
           });
-          return;
+        });
+        app.querySelectorAll("[data-order]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            state.order = el.getAttribute("data-order") || "time";
+            loadPosts();
+          });
+        });
+        app.querySelectorAll("[data-open-post]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            navigate("/post/" + encodeURIComponent(el.getAttribute("data-open-post")));
+          });
+        });
+        app.querySelectorAll("[data-vote]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            vote(el.getAttribute("data-post-id"), Number(el.getAttribute("data-vote")));
+          });
+        });
+
+        var search = document.getElementById("global-search");
+        if (search) {
+          search.addEventListener("input", function () {
+            state.query = search.value;
+            render();
+            focusSearchAtEnd();
+          });
         }
-        submitVote(postId, direction);
+
+        var publishForm = document.getElementById("publish-form");
+        if (publishForm) {
+          publishForm.addEventListener("submit", submitPost);
+        }
+        var loginForm = document.getElementById("login-form");
+        if (loginForm) {
+          loginForm.addEventListener("submit", submitLogin);
+        }
+        var signupForm = document.getElementById("signup-form");
+        if (signupForm) {
+          signupForm.addEventListener("submit", submitSignup);
+        }
       }
 
-      function submitVote(postId, direction, options) {
-        options = options || {};
-        postId = String(postId);
-        var loginResult = getLoginResult();
-        if (!loginResult || !loginResult.token) {
-          showVoteMessage("请先登录后再投票");
-          return;
+      function handleAction(event) {
+        var action = event.currentTarget.getAttribute("data-action");
+        if (action === "home") {
+          navigate("/");
+        } else if (action === "publish") {
+          navigate("/publish");
+        } else if (action === "login") {
+          navigate("/login");
+        } else if (action === "signup") {
+          navigate("/signup");
+        } else if (action === "logout") {
+          logout();
+        } else if (action === "comment") {
+          submitComment();
+        } else if (action === "delete-post") {
+          deletePost(event.currentTarget.getAttribute("data-post-id"));
+        } else if (action === "ask") {
+          askAssistant();
         }
-        if (votePendingByPost[postId]) {
-          return;
-        }
+      }
 
-        var knownDirection = getKnownVoteDirection(postId);
-        var submitDirection = options.overrideDirection;
-        if (typeof submitDirection !== "number") {
-          submitDirection = knownDirection === direction ? 0 : direction;
-        }
-
-        votePendingByPost[postId] = true;
-
-        sendVoteRequest(postId, submitDirection)
-          .then(function (resp) {
-            if (resp && resp.code === 1000) {
-              setKnownVoteDirection(postId, submitDirection);
-              refreshHomePostList({ preserveLoaded: true });
-              bindDynamicSidebar(true);
-              return;
-            }
-
-            if (!options.isRetry && submitDirection !== 0 && isRepeatedVoteResponse(resp)) {
-              votePendingByPost[postId] = false;
-              submitVote(postId, direction, {
-                overrideDirection: 0,
-                isRetry: true
-              });
-              return;
-            }
-
-            showVoteMessage(resp && resp.msg ? resp.msg : "投票失败，请稍后重试");
+      function loadCommunities() {
+        return requestJSON("/community")
+          .then(function (data) {
+            state.communities = (data && data.length ? data : DEFAULT_DOMAINS).map(function (item) {
+              return {
+                id: normalizeID(item.id),
+                name: item.name,
+                introduction: item.introduction || ""
+              };
+            }).sort(sortCommunities);
           })
           .catch(function () {
-            showVoteMessage("投票失败，请稍后重试");
+            state.communities = DEFAULT_DOMAINS.slice();
+          });
+      }
+
+      function sortCommunities(a, b) {
+        var order = { "LOL": 1, "CF": 2, "力扣": 3, "leetcode": 3, "LeetCode": 3 };
+        var left = order[a.name] || 99;
+        var right = order[b.name] || 99;
+        if (left !== right) {
+          return left - right;
+        }
+        return normalizeID(a.id) - normalizeID(b.id);
+      }
+
+      function loadPosts() {
+        state.loading = true;
+        render();
+        var params = new URLSearchParams({
+          page: "1",
+          size: "30",
+          order: state.order
+        });
+        if (state.selectedCommunityID) {
+          params.set("community_id", String(state.selectedCommunityID));
+        }
+        return requestJSON("/posts2?" + params.toString())
+          .then(function (data) {
+            state.posts = data || [];
+          })
+          .catch(function (err) {
+            state.posts = [];
+            toast(err.message || "加载帖子失败");
           })
           .finally(function () {
-            votePendingByPost[postId] = false;
+            state.loading = false;
+            render();
           });
       }
 
-      function bindVoteActions() {
-        if (document.body.dataset.voteBound === "1") {
+      function loadDetail(id) {
+        state.loading = true;
+        state.post = null;
+        state.comments = [];
+        render();
+        requestJSON("/post/" + encodeURIComponent(id))
+          .then(function (data) {
+            state.post = data;
+            return requestJSON("/post/" + encodeURIComponent(id) + "/comments");
+          })
+          .then(function (comments) {
+            state.comments = comments || [];
+          })
+          .catch(function (err) {
+            toast(err.message || "加载详情失败");
+          })
+          .finally(function () {
+            state.loading = false;
+            render();
+          });
+      }
+
+      function loadRouteData() {
+        if (state.route.name === "home") {
+          loadPosts();
+        } else if (state.route.name === "detail") {
+          loadDetail(state.route.id);
+        }
+      }
+
+      function vote(postID, direction) {
+        if (!(state.auth && state.auth.token)) {
+          toast("请先登录后再投票");
+          navigate("/login");
           return;
         }
-        document.body.dataset.voteBound = "1";
-        document.addEventListener("click", function (event) {
-          var upIcon = event.target.closest(".c-l-list .icon-up");
-          if (upIcon) {
-            event.preventDefault();
-            event.stopPropagation();
-            handleVoteClick(upIcon, 1);
-            return;
+        requestJSON("/vote", {
+          method: "POST",
+          body: JSON.stringify({ post_id: String(postID), direction: String(direction) })
+        }).then(function () {
+          toast("投票已更新");
+          if (state.route.name === "detail") {
+            loadDetail(postID);
+          } else {
+            loadPosts();
           }
-
-          var downIcon = event.target.closest(".c-l-list .icon-down");
-          if (downIcon) {
-            event.preventDefault();
-            event.stopPropagation();
-            handleVoteClick(downIcon, -1);
-          }
-        }, true);
+        }).catch(function (err) {
+          toast(err.message || "投票失败");
+        });
       }
 
-      ready(function () {
-        var fab = document.getElementById("rag-fab");
-        var header = document.getElementById("rag-header");
-        var close = document.getElementById("rag-close");
-        var minimize = document.getElementById("rag-minimize");
-        var assistantInput = document.getElementById("rag-input");
-        var assistantSend = document.getElementById("rag-send");
-        loadAssistantState();
-        normalizeAssistantStaticCopy();
-        renderAssistantThread();
-        applyAssistantLayout();
-        updateAssistantBadge();
-        if (fab) {
-          fab.addEventListener("pointerdown", function (event) {
-            beginAssistantDrag(event, "fab");
-          });
+      function submitPost(event) {
+        event.preventDefault();
+        var communityID = normalizeID(document.getElementById("publish-community").value);
+        var title = document.getElementById("publish-title").value.trim();
+        var content = document.getElementById("publish-content").value.trim();
+        if (!communityID || !title || !content) {
+          toast("请完整填写领域、标题和内容");
+          return;
         }
-        if (header) {
-          header.addEventListener("pointerdown", function (event) {
-            if (event.target.closest("button")) {
-              return;
-            }
-            beginAssistantDrag(event, "header");
-          });
-        }
-        window.addEventListener("pointermove", moveAssistantDrag);
-        window.addEventListener("pointerup", endAssistantDrag);
-        window.addEventListener("pointercancel", endAssistantDrag);
-        window.addEventListener("resize", function () {
-          applyAssistantLayout();
+        requestJSON("/post", {
+          method: "POST",
+          body: JSON.stringify({ community_id: communityID, title: title, content: content })
+        }).then(function () {
+          state.selectedCommunityID = communityID;
+          toast("帖子已发布");
+          navigate("/");
+        }).catch(function (err) {
+          toast(err.message || "发布失败");
         });
-        if (close) {
-          close.addEventListener("click", hidePanel);
-        }
-        if (minimize) {
-          minimize.addEventListener("click", hidePanel);
-        }
-        if (assistantSend && assistantInput) {
-          assistantSend.addEventListener("click", function () {
-            executeAssistantStream(assistantInput);
-          });
-        }
-        if (assistantInput) {
-          assistantInput.addEventListener("keydown", function (event) {
-            if (event.key !== "Enter" || event.shiftKey) {
-              return;
-            }
-            event.preventDefault();
-            executeAssistantStream(assistantInput);
-          });
-        }
+      }
 
-        document.addEventListener("click", function (event) {
-          var panel = document.getElementById("rag-panel");
-          var input = document.querySelector(".s-input");
-          var search = document.querySelector(".search");
-          var fabButton = document.getElementById("rag-fab");
-          if (!panel || !panel.classList.contains("show")) {
+      function focusSearchAtEnd() {
+        requestAnimationFrame(function () {
+          var nextSearch = document.getElementById("global-search");
+          if (!nextSearch) {
             return;
           }
-          if (panel.contains(event.target) || (fabButton && fabButton.contains(event.target)) || (input && input.contains(event.target)) || (search && search.contains(event.target))) {
-            return;
+          nextSearch.focus();
+          var end = nextSearch.value.length;
+          if (typeof nextSearch.setSelectionRange === "function") {
+            nextSearch.setSelectionRange(end, end);
           }
-          hidePanel();
         });
+      }
 
-        bindSearch();
-        bindDynamicSidebar();
-        bindHomeFeedActions();
-        bindVoteActions();
-        syncPostDetail();
-        refreshHomePostList({ reset: true });
-        var timer = setInterval(function () {
-          bindSearch();
-          bindDynamicSidebar(needsSidebarReplacement(document.querySelector('.content .right[data-v-2baf73fc]')));
-          bindHomeFeedActions();
-          syncPostDetail();
-        }, 800);
-        window.addEventListener("beforeunload", function () {
-          clearInterval(timer);
+      function submitLogin(event) {
+        event.preventDefault();
+        var username = document.getElementById("auth-username").value.trim();
+        var password = document.getElementById("auth-password").value;
+        requestJSON("/login", {
+          method: "POST",
+          body: JSON.stringify({ username: username, password: password })
+        }).then(function (data) {
+          setLogin(data);
+          toast("登录成功");
+          navigate("/");
+        }).catch(function (err) {
+          toast(err.message || "登录失败");
         });
+      }
+
+      function submitSignup(event) {
+        event.preventDefault();
+        var username = document.getElementById("auth-username").value.trim();
+        var password = document.getElementById("auth-password").value;
+        var rePassword = document.getElementById("auth-repassword").value;
+        requestJSON("/signup", {
+          method: "POST",
+          body: JSON.stringify({ username: username, password: password, re_password: rePassword })
+        }).then(function () {
+          toast("注册成功，请登录");
+          navigate("/login");
+        }).catch(function (err) {
+          toast(err.message || "注册失败");
+        });
+      }
+
+      function submitComment() {
+        if (!(state.post && state.post.id)) {
+          return;
+        }
+        var input = document.getElementById("comment-input");
+        var content = input ? input.value.trim() : "";
+        if (!content) {
+          toast("评论内容不能为空");
+          return;
+        }
+        requestJSON("/comment", {
+          method: "POST",
+          body: JSON.stringify({ post_id: String(state.post.id), content: content })
+        }).then(function () {
+          toast("评论已发布");
+          loadDetail(state.post.id);
+        }).catch(function (err) {
+          toast(err.message || "评论失败");
+        });
+      }
+
+      function deletePost(postID) {
+        if (!window.confirm("确认删除这篇帖子吗？")) {
+          return;
+        }
+        requestJSON("/post/" + encodeURIComponent(postID), { method: "DELETE" })
+          .then(function () {
+            toast("帖子已删除");
+            navigate("/");
+          })
+          .catch(function (err) {
+            toast(err.message || "删除失败");
+          });
+      }
+
+      function askAssistant() {
+        var input = document.getElementById("assistant-input");
+        var question = input ? input.value.trim() : "";
+        if (!question) {
+          toast("请输入问题");
+          return;
+        }
+        state.assistantAnswer = "正在检索知识库...";
+        render();
+        fetch(API + "/rag/chat/stream", {
+          method: "POST",
+          headers: authHeaders(),
+          body: JSON.stringify({ question: question, top_k: 4 })
+        }).then(function (resp) {
+          if (!resp.ok || !resp.body) {
+            throw new Error("问答服务暂不可用");
+          }
+          var reader = resp.body.getReader();
+          var decoder = new TextDecoder("utf-8");
+          var buffer = "";
+          state.assistantAnswer = "";
+          function read() {
+            return reader.read().then(function (result) {
+              if (result.done) {
+                render();
+                return;
+              }
+              buffer += decoder.decode(result.value, { stream: true });
+              var parts = buffer.split("\n\n");
+              buffer = parts.pop() || "";
+              parts.forEach(handleSSEBlock);
+              read();
+            });
+          }
+          return read();
+        }).catch(function (err) {
+          state.assistantAnswer = err.message || "问答失败";
+          render();
+        });
+      }
+
+      function handleSSEBlock(block) {
+        var event = "";
+        var data = "";
+        block.split("\n").forEach(function (line) {
+          if (line.indexOf("event:") === 0) {
+            event = line.slice(6).trim();
+          } else if (line.indexOf("data:") === 0) {
+            data += line.slice(5).trim();
+          }
+        });
+        if (!data) {
+          return;
+        }
+        try {
+          var payload = JSON.parse(data);
+          if (event === "chunk" && payload.delta) {
+            state.assistantAnswer += payload.delta;
+            var output = document.getElementById("assistant-output");
+            if (output) {
+              output.textContent = state.assistantAnswer;
+              output.scrollTop = output.scrollHeight;
+            }
+          } else if (event === "error") {
+            state.assistantAnswer = payload.message || "问答失败";
+          } else if (event === "done" && payload.answer) {
+            state.assistantAnswer = payload.answer;
+          }
+        } catch (err) {
+          return;
+        }
+      }
+
+      window.addEventListener("popstate", function () {
+        state.route = parseRoute();
+        render();
+        loadRouteData();
+      });
+
+      loadCommunities().then(function () {
+        render();
+        loadRouteData();
       });
     })();
   </script>
 </body>
 </html>
-
-
-
-

@@ -43,6 +43,20 @@ func GetPostList(page, size int64) (posts []*models.Post, err error) {
 	return
 }
 
+// GetPostListByCommunityID 按社区和分页参数查询帖子列表。
+func GetPostListByCommunityID(communityID, page, size int64) (posts []*models.Post, err error) {
+	sqlStr := `select
+	post_id, title, content, author_id, community_id, create_time
+	from post
+	where community_id = ?
+	order by create_time desc
+	limit ?,?
+	`
+	posts = make([]*models.Post, 0, size)
+	err = db.Select(&posts, sqlStr, communityID, (page-1)*size, size)
+	return
+}
+
 // GetPostListByIDs 根据给定的id列表查询帖子数据
 func GetPostListByIDs(ids []string) (postList []*models.Post, err error) {
 	sqlStr := `select post_id, title, content, author_id, community_id, create_time
