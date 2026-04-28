@@ -952,7 +952,8 @@
       var DEFAULT_DOMAINS = [
         { id: 1, name: "LOL", introduction: "英雄联盟开黑、版本理解、英雄攻略与赛事讨论" },
         { id: 2, name: "CF", introduction: "穿越火线枪法、地图点位、战术配合与活动交流" },
-        { id: 3, name: "力扣", introduction: "算法刷题、面试准备、题解复盘与学习路线" }
+        { id: 3, name: "力扣", introduction: "算法刷题、面试准备、题解复盘与学习路线" },
+        { id: 4, name: "云顶之弈", introduction: "阵容搭配、运营节奏、版本答案与上分复盘" }
       ];
 
       var state = {
@@ -1096,6 +1097,9 @@
 
       function domainInitial(name) {
         name = String(name || "");
+        if (/云顶|金铲铲|tft/i.test(name)) {
+          return "TFT";
+        }
         if (/leetcode/i.test(name) || name === "力扣") {
           return "LC";
         }
@@ -1237,7 +1241,7 @@
           '</div>',
           '<div class="stat-grid">',
           '<div class="stat"><span class="stat-value">' + count + '</span><span class="stat-label">当前帖子</span></div>',
-          '<div class="stat"><span class="stat-value">' + state.communities.length + '</span><span class="stat-label">领域</span></div>',
+          '<div class="stat"><span class="stat-value">' + state.communities.length + '</span><span class="stat-label">板块数</span></div>',
           '<div class="stat"><span class="stat-value">' + (state.order === "score" ? "热度" : "最新") + '</span><span class="stat-label">排序</span></div>',
           '</div>',
           '</section>',
@@ -1287,7 +1291,7 @@
           '<div>',
           '<p class="section-kicker">Explore</p>',
           '<h1 class="section-title">' + escapeHTML(active ? active.name : "全部领域") + '</h1>',
-          '<p class="section-desc">' + escapeHTML(active ? active.introduction : "选择 LOL、CF、力扣等领域，快速进入你关心的讨论。") + '</p>',
+          '<p class="section-desc">' + escapeHTML(active ? active.introduction : "选择 LOL、云顶之弈、CF、力扣等领域，快速进入你关心的讨论。") + '</p>',
           '</div>',
           '<div class="segmented" aria-label="帖子排序">',
           '<button class="' + (state.order === "time" ? "is-active" : "") + '" data-order="time">最新</button>',
@@ -1525,7 +1529,19 @@
       }
 
       function sortCommunities(a, b) {
-        var order = { "LOL": 1, "CF": 2, "力扣": 3, "leetcode": 3, "LeetCode": 3 };
+        var order = {
+          "LOL": 1,
+          "英雄联盟": 1,
+          "云顶之弈": 2,
+          "云顶之奕": 2,
+          "TFT": 2,
+          "金铲铲": 2,
+          "CF": 3,
+          "穿越火线": 3,
+          "力扣": 4,
+          "leetcode": 4,
+          "LeetCode": 4
+        };
         var left = order[a.name] || 99;
         var right = order[b.name] || 99;
         if (left !== right) {

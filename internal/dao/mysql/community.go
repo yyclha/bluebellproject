@@ -13,8 +13,10 @@ func GetCommunityList() (communityList []*models.Community, err error) {
 	from community
 	order by case community_name
 		when 'LOL' then 1
-		when 'CF' then 2
-		when '力扣' then 3
+		when '云顶之弈' then 2
+		when '云顶之奕' then 2
+		when 'CF' then 3
+		when '力扣' then 4
 		else 99
 	end, community_id`
 	if err := db.Select(&communityList, sqlStr); err != nil {
@@ -55,6 +57,11 @@ func InitDefaultCommunities() error {
 			Name:         "LOL",
 			Introduction: "英雄联盟开黑、版本理解、英雄攻略与赛事讨论",
 			Aliases:      []string{"英雄联盟"},
+		},
+		{
+			Name:         "云顶之弈",
+			Introduction: "阵容搭配、运营节奏、版本答案与上分复盘",
+			Aliases:      []string{"云顶之奕", "TFT", "金铲铲"},
 		},
 		{
 			Name:         "CF",
