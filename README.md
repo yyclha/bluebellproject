@@ -1,65 +1,69 @@
-# Bluebell
+# Bluebell GameBase
 
-Bluebell 是一个基于 Go + Gin 的社区项目，包含用户登录注册、帖子列表、帖子详情、点赞、评论，以及基于向量检索的 RAG 搜索能力。
+Bluebell GameBase 是一个基于 Go + Gin 的游戏与刷题社区项目，支持用户登录注册、社区分区、帖子发布、投票、评论、图片上传，以及基于 Embedding + Milvus 的 RAG 检索问答能力。
 
-当前仓库已经接入：
-- MySQL 持久化帖子、用户、评论等业务数据
-- Redis 存储投票等缓存数据
-- Milvus 存储帖子分片后的向量数据
-- DashScope 兼容接口生成 Embedding
+![Bluebell GameBase 首页](docs/images/bluebell-home.png)
 
-## 功能概览
+## 功能特性
 
-- 用户注册、登录、JWT 鉴权
-- 社区列表、帖子发布、帖子详情
-- 点赞投票
-- 帖子评论
-- RAG 检索
-- RAG 重建索引 `reindex`
+- 用户注册、登录与 JWT 鉴权
+- 社区分区浏览，支持 LOL、CF、力扣、云顶之弈等板块
+- 帖子发布、列表、详情、删除
+- 帖子图片上传到腾讯云 COS，发布页支持图片预览
+- 帖子列表首图缩略图，详情页真实图片渲染
+- 点赞/反对投票与热度排序
+- 评论发布与评论列表
+- 基于帖子内容的 RAG 搜索与流式问答
+- 帖子发布后可异步进行 AI 质量评分并影响排序
+- 单页模板前端，支持中文搜索输入法组合输入
 
 ## 技术栈
 
-- Go
+- Go 1.23+
 - Gin
 - MySQL
 - Redis
 - Milvus
+- Tencent COS SDK
+- DashScope 兼容 OpenAI 接口
 - Swagger
 - Docker Compose
 
 ## 项目结构
 
 ```text
-bluebell/
-├─ controller/    HTTP 入口
-├─ logic/         业务逻辑
-├─ dao/           MySQL / Redis / Milvus 数据访问
-├─ models/        数据结构定义
-├─ router/        路由注册
-├─ setting/       配置加载
-├─ templates/     页面模板
-├─ static/        前端静态资源
-├─ conf/          配置文件
-└─ main.go        程序入口
+.
+├─ cmd/                  命令行工具：重建 RAG、重算评分、探测评分等
+├─ conf/                 示例配置
+├─ docs/                 Swagger 文档与 README 图片
+├─ internal/
+│  ├─ controller/        HTTP handler
+│  ├─ dao/               MySQL / Redis / Milvus 数据访问
+│  ├─ logic/             业务逻辑
+│  ├─ middlewares/       鉴权与限流中间件
+│  ├─ models/            数据模型
+│  ├─ router/            路由注册
+│  └─ setting/           配置加载
+├─ pkg/                  JWT、Embedding、RAG Chat、AI 评分等通用包
+├─ static/               前端静态资源
+├─ templates/            当前单页应用模板
+├─ docker-compose.yml
+├─ main.go
+└─ README.md
 ```
 
-## 本地环境要求
+## 快速开始
 
-- Go 1.23.x
-- MySQL 8.x
-- Redis 5.x 或更高
-- Milvus 2.4.x
-- Docker / Docker Compose
-
-## 配置说明
-
-程序默认读取：
+### 1. 克隆项目
 
 ```bash
-./conf/config.yaml
+git clone https://github.com/yyclha/bluebellproject.git
+cd bluebellproject
 ```
 
-当前仓库为了避免泄露密钥，没有提交 `conf/config.yaml`。你可以基于 `conf/dev.yml` 自行新建一份：
+### 2. 准备配置
+
+仓库不会提交真实运行配置 `conf/config.yaml`，避免泄露数据库密码、模型 Key、COS 密钥等敏感信息。请从示例配置复制一份：
 
 ```bash
 cp conf/dev.yml conf/config.yaml
@@ -71,80 +75,61 @@ Windows PowerShell:
 Copy-Item .\conf\dev.yml .\conf\config.yaml
 ```
 
-需要重点修改这些配置项：
+然后按你的本地环境修改 `conf/config.yaml`：
 
 ```yaml
 mysql:
   host: 127.0.0.1
   port: 3306
-  user: root
-  password: "你的密码"
+  user: "root"
+  password: "your_mysql_password"
   dbname: "bluebell"
 
 redis:
   host: 127.0.0.1
   port: 6379
   password: ""
-  db: 6
-
-milvus:
-  enabled: true
-  address: "127.0.0.1:19530"
-  collection: "post_rag_chunk_1024"
-  dimension: 1024
-  chunk_size: 300
-  chunk_overlap: 60
-  top_k: 5
-  metric_type: "COSINE"
-  index_type: "HNSW"
-  hnsw_m: 16
-  hnsw_ef_construction: 200
-  search_ef: 64
+  db: 0
 
 embedding:
-  enabled: true
+  enabled: false
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-  api_key: "你的 DashScope Key"
+  api_key: ""
   model: "text-embedding-v4"
-  timeout_seconds: 30
 
 post_score:
-  enabled: true
+  enabled: false
   base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
-  api_key: "你的 DashScope Key"
+  api_key: ""
   model: "qvq-max-2025-03-25"
-  timeout_seconds: 30
-  score_weight: 20
+
+rag_chat:
+  enabled: false
+  base_url: "https://dashscope.aliyuncs.com/compatible-mode/v1"
+  api_key: ""
+  model: "qvq-max-2025-03-25"
+
+cos:
+  enabled: false
+  bucket_url: ""
+  secret_id: ""
+  secret_key: ""
+  public_base_url: ""
+  upload_prefix: "bluebell/posts"
+  max_image_mb: 5
 ```
 
-`post_score` 用于在发帖后调用大模型给帖子打一个 0-100 的质量分，并把分数按 `score_weight` 折算后叠加到 Redis 的帖子排序分里。  
-例如 `score_weight: 20` 时，模型打 `82` 分，会额外给帖子增加约 `1640` 的排序分。
+需要启用 RAG、AI 评分或图片上传时，再把对应模块的 `enabled` 改为 `true` 并填入自己的服务配置。`conf/config.yaml` 已在 `.gitignore` 中，不会被提交。
 
-服务启动时会自动创建 `post_ai_score` 表，用来记录：
-- 帖子 ID
-- 使用的模型
-- 大模型原始评分
-- 当前权重
-- 最终叠加到排序分里的增量
-- 模型原始返回文本
+### 3. 初始化数据库
 
-## 数据库初始化
-
-先创建数据库：
+创建数据库：
 
 ```sql
-CREATE DATABASE IF NOT EXISTS bluebell;
+CREATE DATABASE IF NOT EXISTS bluebell DEFAULT CHARACTER SET utf8mb4;
 ```
 
-项目启动时会自动初始化评论表，但帖子、用户、社区等基础表你需要提前导入。
-
-可用的 SQL 文件：
-
-- `bluebell_user.sql`
-- `bluebell_community.sql`
-- `bluebell_post.sql`
-
-导入示例：
+导入基础表：
 
 ```bash
 mysql -uroot -p bluebell < bluebell_user.sql
@@ -160,33 +145,35 @@ Get-Content .\bluebell_community.sql | mysql -uroot -p bluebell
 Get-Content .\bluebell_post.sql | mysql -uroot -p bluebell
 ```
 
+评论表和帖子 AI 评分表会在服务启动时自动创建。
+
+### 4. 启动服务
+
+```bash
+go run -buildvcs=false ./main.go ./conf/config.yaml
+```
+
+访问：
+
+- 首页: `http://127.0.0.1:8084/`
+- 发帖页: `http://127.0.0.1:8084/publish`
+- 健康检查: `http://127.0.0.1:8084/ping`
+- Swagger: `http://127.0.0.1:8084/swagger/index.html`
+
 ## 使用 Docker Compose 启动依赖
 
-仓库内提供了 `docker-compose.yml`，包含：
-
-- MySQL
-- Redis
-- etcd
-- MinIO
-- Milvus
-- bluebell_app
-
-启动：
+仓库提供了 `docker-compose.yml`，包含 MySQL、Redis、etcd、MinIO、Milvus 和应用服务。
 
 ```bash
 docker compose up -d
-```
-
-查看状态：
-
-```bash
 docker compose ps
+docker compose logs -f
 ```
 
-查看日志：
+如果只想启动依赖：
 
 ```bash
-docker compose logs -f
+docker compose up -d mysql8019 redis507 etcd minio milvus-standalone
 ```
 
 停止：
@@ -195,49 +182,66 @@ docker compose logs -f
 docker compose down
 ```
 
-如果只想启动依赖，不启动应用，可以按服务名单独起：
+## 图片上传
 
-```bash
-docker compose up -d mysql8019 redis507 etcd minio milvus-standalone
+图片上传接口：
+
+```text
+POST /api/v1/upload/image
 ```
 
-## 本地启动项目
+前端发布页会把上传成功的图片放入预览区，不会把图片 Markdown 原文暴露在编辑框里。发布时图片地址会随帖子内容一起保存；列表页提取首张图作为缩略图，详情页渲染为真实图片。
 
-安装依赖并启动：
+启用 COS 示例：
 
-```bash
-go run -buildvcs=false ./main.go ./conf/config.yaml
+```yaml
+cos:
+  enabled: true
+  bucket_url: "https://<bucket>-<appid>.cos.<region>.myqcloud.com"
+  secret_id: ""
+  secret_key: ""
+  public_base_url: ""
+  upload_prefix: "bluebell/posts"
+  max_image_mb: 5
 ```
 
-或使用 Makefile：
+也可以通过环境变量提供腾讯云密钥，避免写入配置文件：
 
-```bash
-make run
+```powershell
+$env:TENCENT_COS_SECRET_ID="your_secret_id"
+$env:TENCENT_COS_SECRET_KEY="your_secret_key"
 ```
 
-构建：
+## RAG 与 AI 评分
+
+RAG 索引流程：
+
+1. 将帖子标题和正文拼接为原始文本。
+2. 按 `chunk_size` 和 `chunk_overlap` 切分片段。
+3. 调用 Embedding 接口生成向量。
+4. 将向量写入 Milvus。
+5. 查询时检索相关 chunk，并用于 RAG 问答。
+
+相关代码：
+
+- `internal/logic/rag_chunk.go`
+- `internal/logic/rag.go`
+- `internal/dao/milvus/milvus.go`
+- `pkg/embedder/embedder.go`
+- `pkg/ragchat/ragchat.go`
+
+重建 RAG 索引：
 
 ```bash
-make build
+curl -X POST http://127.0.0.1:8084/api/v1/rag/reindex \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d "{\"limit\":1000}"
 ```
 
-代码检查：
+帖子 AI 评分由 `post_score` 模块控制。启用后，发帖成功会异步调用模型给帖子打分，并把分数按 `score_weight` 折算后叠加到 Redis 排序分。
 
-```bash
-make gotool
-```
-
-## 访问地址
-
-- 首页: `http://127.0.0.1:8084/`
-- 健康检查: `http://127.0.0.1:8084/ping`
-- Swagger: `http://127.0.0.1:8084/swagger/index.html`
-
-如果通过 Docker Compose 启动 `bluebell_app`，映射端口是：
-
-- `http://127.0.0.1:8888/`
-
-## 常用接口示例
+## 常用接口
 
 注册：
 
@@ -255,22 +259,16 @@ curl -X POST http://127.0.0.1:8084/api/v1/login \
   -d "{\"username\":\"test1\",\"password\":\"123456\"}"
 ```
 
-获取帖子列表：
+帖子列表：
 
 ```bash
-curl "http://127.0.0.1:8084/api/v1/posts?page=1&size=10&order=score"
+curl "http://127.0.0.1:8084/api/v1/posts2?page=1&size=10&order=time"
 ```
 
-获取帖子详情：
+帖子详情：
 
 ```bash
 curl "http://127.0.0.1:8084/api/v1/post/1"
-```
-
-获取评论列表：
-
-```bash
-curl "http://127.0.0.1:8084/api/v1/post/1/comments"
 ```
 
 发表评论：
@@ -282,169 +280,39 @@ curl -X POST http://127.0.0.1:8084/api/v1/comment \
   -d "{\"post_id\":\"1\",\"content\":\"这是一条评论\"}"
 ```
 
-## RAG 说明
-
-### 分片切分规则
-
-帖子进入 RAG 时，会先把标题和正文拼接成一段文本，再进行分片：
-
-```text
-title + "\n" + content
-```
-
-默认切分参数：
-
-- `chunk_size = 300`
-- `chunk_overlap = 60`
-
-切分规则：
-
-- 先做轻量清洗，去掉多余空行和首尾空白
-- 按字符窗口滑动切片
-- 相邻 chunk 保留 overlap 重叠
-- 尽量优先在换行、标点、空格等自然边界截断
-- 每个 chunk 单独生成 embedding 并写入 Milvus
-
-对应代码位置：
-
-- [logic/rag_chunk.go](E:\BaiduNetdiskDownload\bluebell\logic\rag_chunk.go)
-- [logic/rag.go](E:\BaiduNetdiskDownload\bluebell\logic\rag.go)
-- [dao/milvus/milvus.go](E:\BaiduNetdiskDownload\bluebell\dao\milvus\milvus.go)
-
-### RAG 查询接口
-
-```bash
-curl "http://127.0.0.1:8084/api/v1/rag/search?query=gin%E6%A1%86%E6%9E%B6&top_k=5"
-```
-
-### RAG 重建索引
-
-接口：
-
-```bash
-curl -X POST http://127.0.0.1:8084/api/v1/rag/reindex \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d "{\"limit\":1000}"
-```
-
-如果你已经改过 Milvus 的 schema，或者之前 collection 不兼容 chunk 模式，建议直接换一个新的 collection 名称，例如：
-
-```yaml
-milvus:
-  collection: "post_rag_chunk_1024"
-```
-
-然后重启服务，再执行 `reindex`。
-
-### 浏览器里直接执行 reindex
-
-如果你在浏览器控制台里调接口，要注意：
-
-- 必须带 JWT token
-- 当前接口需要登录鉴权
-- `localhost` 和 `127.0.0.1` 会被浏览器当成不同源
-- 如果页面来自 `http://localhost:8084`，请求也尽量发到 `http://localhost:8084`
-
-示例：
-
-```javascript
-fetch("http://localhost:8084/api/v1/rag/reindex", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization": "Bearer " + localStorage.getItem("token")
-  },
-  body: JSON.stringify({ limit: 1000 })
-}).then(r => r.json()).then(console.log)
-```
-
-如果你的 token 不在 `localStorage`，就把实际 token 直接替换进去。
-
-## 常用开发命令
-
-格式化与静态检查：
+## 开发命令
 
 ```bash
 go fmt ./...
 go vet ./...
-```
-
-运行测试：
-
-```bash
 go test ./...
-```
-
-只编译不运行：
-
-```bash
 go build -buildvcs=false ./...
 ```
 
-查看 Git 状态：
+Makefile：
 
 ```bash
-git status
-```
-
-提交代码：
-
-```bash
-git add .
-git commit -m "feat: update project"
-git push origin master
+make run
+make build
+make gotool
 ```
 
 ## 常见问题
 
-### 1. RAG reindex 时报 CORS
+### RAG 或问答不可用
 
-如果你在浏览器里请求：
+确认 `embedding.enabled`、`rag_chat.enabled`、Milvus 地址、模型 Key 和模型名称是否正确。默认示例配置里这些功能是关闭的，避免没有外部依赖时启动失败。
 
-```text
-http://127.0.0.1:8084/api/v1/rag/reindex
-```
+### 图片上传失败
 
-但页面本身来自：
+确认 `cos.enabled` 为 `true`，`bucket_url`、SecretId、SecretKey 正确，且 COS bucket 允许外部访问上传后的对象。
 
-```text
-http://localhost:8084
-```
+### 浏览器请求接口跨域
 
-浏览器会把它当成跨域请求。最简单的处理方式不是立刻改后端，而是统一使用同一个 host。
+开发时尽量统一使用同一个 host，例如都使用 `http://127.0.0.1:8084`，不要页面用 `localhost` 而接口用 `127.0.0.1`。
 
-优先使用：
+## 安全说明
 
-```text
-http://localhost:8084
-```
-
-或者统一改成：
-
-```text
-http://127.0.0.1:8084
-```
-
-### 2. Milvus collection schema 不兼容
-
-如果以前的 collection 不是按 chunk 结构建的，会报 schema 不匹配。解决方式：
-
-- 新建一个新的 collection 名称
-- 修改 `conf/config.yaml`
-- 重启服务
-- 执行 `reindex`
-
-### 3. 启动时报 embedding 初始化失败
-
-通常是以下原因：
-
-- `embedding.api_key` 没填
-- `base_url` 不可达
-- `model` 名称不正确
-
-## 说明
-
-- 仓库默认未提交 `conf/config.yaml`，避免敏感配置泄露
-- 评论表会在启动时自动初始化
-- RAG 功能依赖 Embedding 和 Milvus，任一不可用时不会正常建立向量索引
+- 不要提交 `conf/config.yaml`。
+- 不要把 DashScope Key、腾讯云 SecretId / SecretKey、数据库密码提交到仓库。
+- `conf/dev.yml` 只保留可公开的示例配置。

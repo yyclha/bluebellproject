@@ -543,6 +543,40 @@
       -webkit-line-clamp: 3;
     }
 
+    .post-thumb {
+      position: relative;
+      display: block;
+      width: min(260px, 100%);
+      margin-top: 12px;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+      cursor: pointer;
+      aspect-ratio: 16 / 9;
+    }
+
+    .post-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .post-thumb span {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.78);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
     .post-actions {
       display: flex;
       align-items: center;
@@ -672,6 +706,16 @@
       white-space: pre-wrap;
     }
 
+    .detail-text img {
+      display: block;
+      max-width: 100%;
+      max-height: 640px;
+      margin: 14px 0;
+      border-radius: 8px;
+      object-fit: contain;
+      box-shadow: var(--shadow-sm);
+    }
+
     .detail-actions {
       display: flex;
       align-items: center;
@@ -772,6 +816,98 @@
       justify-content: flex-end;
       gap: 10px;
       margin-top: 18px;
+    }
+
+    .upload-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .upload-hint {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .upload-preview:empty {
+      display: none;
+    }
+
+    .upload-preview {
+      display: grid;
+      gap: 10px;
+    }
+
+    .upload-preview-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .upload-preview-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(112px, 1fr));
+      gap: 10px;
+    }
+
+    .upload-preview-item {
+      position: relative;
+      min-width: 0;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface-soft);
+    }
+
+    .upload-preview-item img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      object-fit: cover;
+    }
+
+    .upload-remove {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.68);
+      border-radius: 999px;
+      background: rgba(17, 24, 39, 0.72);
+      color: #fff;
+      cursor: pointer;
+    }
+
+    .upload-name {
+      display: block;
+      padding: 8px;
+      overflow: hidden;
+      color: var(--muted-strong);
+      font-size: 12px;
+      font-weight: 800;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
 
     .auth-page {
@@ -968,6 +1104,8 @@
         loading: false,
         assistantLoading: false,
         assistantAnswer: "",
+        publishImages: [],
+        searchComposing: false,
         auth: readLogin()
       };
 
@@ -978,11 +1116,13 @@
         var paths = {
           search: '<path d="M21 21l-4.3-4.3"></path><circle cx="11" cy="11" r="7"></circle>',
           plus: '<path d="M12 5v14"></path><path d="M5 12h14"></path>',
+          image: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="m21 15-5-5L5 21"></path>',
           send: '<path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4Z"></path>',
           up: '<path d="m18 15-6-6-6 6"></path>',
           down: '<path d="m6 9 6 6 6-6"></path>',
           back: '<path d="m15 18-6-6 6-6"></path>',
-          trash: '<path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path>'
+          trash: '<path d="M3 6h18"></path><path d="M8 6V4h8v2"></path><path d="M6 6l1 14h10l1-14"></path>',
+          x: '<path d="M18 6 6 18"></path><path d="m6 6 12 12"></path>'
         };
         return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || "") + "</svg>";
       }
@@ -1008,6 +1148,9 @@
       function navigate(path) {
         window.history.pushState({}, "", path);
         state.route = parseRoute();
+        if (state.route.name !== "publish") {
+          state.publishImages = [];
+        }
         render();
         loadRouteData();
       }
@@ -1073,6 +1216,40 @@
           .replace(/'/g, "&#039;");
       }
 
+      function imageMarkdownRegExp() {
+        return /!\[([^\]\n]*)\]\((https?:\/\/[^\s)]+)\)/g;
+      }
+
+      function extractImages(value) {
+        var images = [];
+        var text = String(value == null ? "" : value);
+        var imageRe = imageMarkdownRegExp();
+        var match;
+        while ((match = imageRe.exec(text)) !== null) {
+          images.push({ name: match[1] || "帖子图片", url: match[2] });
+        }
+        return images;
+      }
+
+      function stripImageMarkdown(value) {
+        return String(value == null ? "" : value).replace(imageMarkdownRegExp(), " ");
+      }
+
+      function renderContent(value) {
+        var text = String(value == null ? "" : value);
+        var imageRe = imageMarkdownRegExp();
+        var html = "";
+        var lastIndex = 0;
+        var match;
+        while ((match = imageRe.exec(text)) !== null) {
+          html += escapeHTML(text.slice(lastIndex, match.index));
+          html += '<img src="' + escapeHTML(match[2]) + '" alt="' + escapeHTML(match[1] || "帖子图片") + '" loading="lazy">';
+          lastIndex = imageRe.lastIndex;
+        }
+        html += escapeHTML(text.slice(lastIndex));
+        return html;
+      }
+
       function normalizeID(value) {
         if (value == null || value === "") {
           return 0;
@@ -1130,7 +1307,7 @@
       }
 
       function excerpt(text) {
-        text = String(text || "").replace(/\s+/g, " ").trim();
+        text = stripImageMarkdown(text).replace(/\s+/g, " ").trim();
         return text.length > 180 ? text.slice(0, 180) + "..." : text;
       }
 
@@ -1311,6 +1488,8 @@
 
       function renderPostCard(post) {
         var community = post.community || {};
+        var images = extractImages(post.content);
+        var cleanExcerpt = excerpt(post.content);
         return [
           '<article class="post-card">',
           '<div class="vote-box">',
@@ -1325,12 +1504,25 @@
           '<span>' + escapeHTML(formatDate(post.create_time)) + '</span>',
           '</div>',
           '<h2 class="post-title"><button data-open-post="' + escapeHTML(post.id) + '">' + escapeHTML(post.title || "未命名帖子") + '</button></h2>',
-          '<p class="post-excerpt">' + escapeHTML(excerpt(post.content)) + '</p>',
+          cleanExcerpt ? '<p class="post-excerpt">' + escapeHTML(cleanExcerpt) + '</p>' : '',
+          renderPostThumb(post.id, images),
           '<div class="post-actions">',
           '<button class="link-btn" data-open-post="' + escapeHTML(post.id) + '">查看详情</button>',
           '</div>',
           '</div>',
           '</article>'
+        ].join("");
+      }
+
+      function renderPostThumb(postID, images) {
+        if (!images.length) {
+          return "";
+        }
+        return [
+          '<button class="post-thumb" data-open-post="' + escapeHTML(postID) + '" aria-label="查看帖子图片">',
+          '<img src="' + escapeHTML(images[0].url) + '" alt="' + escapeHTML(images[0].name || "帖子图片") + '" loading="lazy">',
+          images.length > 1 ? '<span>+' + escapeHTML(images.length - 1) + '</span>' : '',
+          '</button>'
         ].join("");
       }
 
@@ -1358,7 +1550,7 @@
           '</div>',
           '</div>',
           '<div class="detail-content">',
-          '<p class="detail-text">' + escapeHTML(post.content || "") + '</p>',
+          '<div class="detail-text">' + renderContent(post.content || "") + '</div>',
           renderComments(isAuth),
           '</div>',
           '</article>'
@@ -1409,11 +1601,41 @@
           }).join(""),
           '</select></div>',
           '<div class="field"><label for="publish-title">标题</label><input id="publish-title" maxlength="128" required placeholder="一句话说清你的讨论主题"></div>',
-          '<div class="field"><label for="publish-content">内容</label><textarea id="publish-content" required placeholder="描述你的问题、攻略、战术、题解或复盘。"></textarea></div>',
+          '<div class="field"><label for="publish-content">内容</label><textarea id="publish-content" placeholder="描述你的问题、攻略、战术、题解或复盘。图片会在下方预览。"></textarea></div>',
+          '<div class="upload-row">',
+          '<input class="sr-only" id="publish-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif">',
+          '<button class="btn" type="button" data-action="choose-image">' + icon("image") + '<span>上传图片</span></button>',
+          '<span class="upload-hint">支持 jpg、png、webp、gif，大小限制由后端配置控制。</span>',
+          '</div>',
+          renderPublishImagePreview(),
           '</div>',
           '<div class="form-actions"><button class="btn" type="button" data-action="home">取消</button><button class="btn btn-primary" type="submit">发布帖子</button></div>',
           '</form>',
           '</section>'
+        ].join("");
+      }
+
+      function renderPublishImagePreview() {
+        return '<div class="upload-preview" id="publish-image-preview">' + renderPublishImagePreviewContent() + '</div>';
+      }
+
+      function renderPublishImagePreviewContent() {
+        if (!state.publishImages.length) {
+          return "";
+        }
+        return [
+          '<div class="upload-preview-head"><span>已上传图片</span><span>' + escapeHTML(state.publishImages.length) + ' 张</span></div>',
+          '<div class="upload-preview-list">',
+          state.publishImages.map(function (image, index) {
+            return [
+              '<div class="upload-preview-item">',
+              '<img src="' + escapeHTML(image.url) + '" alt="' + escapeHTML(image.name || "已上传图片") + '">',
+              '<button class="upload-remove" type="button" data-remove-image-index="' + index + '" aria-label="移除图片">' + icon("x") + '</button>',
+              '<span class="upload-name">' + escapeHTML(image.name || "图片") + '</span>',
+              '</div>'
+            ].join("");
+          }).join(""),
+          '</div>'
         ].join("");
       }
 
@@ -1467,11 +1689,28 @@
             vote(el.getAttribute("data-post-id"), Number(el.getAttribute("data-vote")));
           });
         });
+        app.querySelectorAll("[data-remove-image-index]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            removePublishImage(Number(el.getAttribute("data-remove-image-index")));
+          });
+        });
 
         var search = document.getElementById("global-search");
         if (search) {
+          search.addEventListener("compositionstart", function () {
+            state.searchComposing = true;
+          });
+          search.addEventListener("compositionend", function () {
+            state.searchComposing = false;
+            state.query = search.value;
+            render();
+            focusSearchAtEnd();
+          });
           search.addEventListener("input", function () {
             state.query = search.value;
+            if (state.searchComposing) {
+              return;
+            }
             render();
             focusSearchAtEnd();
           });
@@ -1488,6 +1727,10 @@
         var signupForm = document.getElementById("signup-form");
         if (signupForm) {
           signupForm.addEventListener("submit", submitSignup);
+        }
+        var imageInput = document.getElementById("publish-image");
+        if (imageInput) {
+          imageInput.addEventListener("change", uploadPublishImage);
         }
       }
 
@@ -1509,6 +1752,11 @@
           deletePost(event.currentTarget.getAttribute("data-post-id"));
         } else if (action === "ask") {
           askAssistant();
+        } else if (action === "choose-image") {
+          var imageInput = document.getElementById("publish-image");
+          if (imageInput) {
+            imageInput.click();
+          }
         }
       }
 
@@ -1630,9 +1878,10 @@
         event.preventDefault();
         var communityID = normalizeID(document.getElementById("publish-community").value);
         var title = document.getElementById("publish-title").value.trim();
-        var content = document.getElementById("publish-content").value.trim();
+        var textContent = document.getElementById("publish-content").value.trim();
+        var content = buildPostContent(textContent);
         if (!communityID || !title || !content) {
-          toast("请完整填写领域、标题和内容");
+          toast("请完整填写领域、标题和内容，或至少上传一张图片");
           return;
         }
         requestJSON("/post", {
@@ -1640,11 +1889,106 @@
           body: JSON.stringify({ community_id: communityID, title: title, content: content })
         }).then(function () {
           state.selectedCommunityID = communityID;
+          state.publishImages = [];
           toast("帖子已发布");
           navigate("/");
         }).catch(function (err) {
           toast(err.message || "发布失败");
         });
+      }
+
+      function uploadPublishImage(event) {
+        var input = event.currentTarget;
+        var file = input.files && input.files[0];
+        if (!file) {
+          return;
+        }
+        if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
+          toast("仅支持 jpg、png、webp、gif 图片");
+          input.value = "";
+          return;
+        }
+        var form = new FormData();
+        form.append("image", file);
+        toast("正在上传图片...");
+        fetch(API + "/upload/image", {
+          method: "POST",
+          headers: authTokenHeader(),
+          body: form
+        })
+          .then(function (resp) { return resp.json(); })
+          .then(function (payload) {
+            if (!payload || payload.code !== 1000) {
+              throw new Error(payload && payload.msg ? formatMsg(payload.msg) : "上传失败");
+            }
+            addPublishImage(payload.data && payload.data.url, file.name);
+            toast("图片已上传");
+          })
+          .catch(function (err) {
+            toast(err.message || "上传失败");
+          })
+          .finally(function () {
+            input.value = "";
+          });
+      }
+
+      function authTokenHeader() {
+        var headers = {};
+        if (state.auth && state.auth.token) {
+          headers.Authorization = "Bearer " + state.auth.token;
+        }
+        return headers;
+      }
+
+      function addPublishImage(url, name) {
+        if (!url) {
+          return;
+        }
+        state.publishImages.push({
+          url: url,
+          name: cleanImageName(name)
+        });
+        refreshPublishImagePreview();
+      }
+
+      function removePublishImage(index) {
+        if (index < 0 || index >= state.publishImages.length) {
+          return;
+        }
+        state.publishImages.splice(index, 1);
+        refreshPublishImagePreview();
+      }
+
+      function refreshPublishImagePreview() {
+        var preview = document.getElementById("publish-image-preview");
+        if (!preview) {
+          return;
+        }
+        preview.innerHTML = renderPublishImagePreviewContent();
+        preview.querySelectorAll("[data-remove-image-index]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            removePublishImage(Number(el.getAttribute("data-remove-image-index")));
+          });
+        });
+      }
+
+      function buildPostContent(textContent) {
+        var imageContent = state.publishImages.map(function (image) {
+          return formatImageMarkdown(image);
+        }).join("\n");
+        return [textContent, imageContent].filter(Boolean).join("\n\n").trim();
+      }
+
+      function formatImageMarkdown(image) {
+        if (!(image && image.url)) {
+          return "";
+        }
+        return "![图片-" + cleanImageName(image.name) + "](" + image.url + ")";
+      }
+
+      function cleanImageName(name) {
+        var label = String(name || "图片").replace(/\.[^.]+$/, "") || "图片";
+        return label.replace(/[\[\]\n\r]/g, "").trim() || "图片";
       }
 
       function focusSearchAtEnd() {
@@ -1803,6 +2147,9 @@
 
       window.addEventListener("popstate", function () {
         state.route = parseRoute();
+        if (state.route.name !== "publish") {
+          state.publishImages = [];
+        }
         render();
         loadRouteData();
       });

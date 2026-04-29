@@ -24,6 +24,7 @@ type AppConfig struct {
 	*EmbeddingConfig `mapstructure:"embedding"`
 	*PostScoreConfig `mapstructure:"post_score"`
 	*RAGChatConfig   `mapstructure:"rag_chat"`
+	*COSConfig       `mapstructure:"cos"`
 }
 
 type MySQLConfig struct {
@@ -94,6 +95,16 @@ type RAGChatConfig struct {
 	TopK            int     `mapstructure:"top_k"`
 	MaxContextChars int     `mapstructure:"max_context_chars"`
 	Temperature     float64 `mapstructure:"temperature"`
+}
+
+type COSConfig struct {
+	Enabled       bool   `mapstructure:"enabled"`
+	BucketURL     string `mapstructure:"bucket_url"`
+	SecretID      string `mapstructure:"secret_id"`
+	SecretKey     string `mapstructure:"secret_key"`
+	PublicBaseURL string `mapstructure:"public_base_url"`
+	UploadPrefix  string `mapstructure:"upload_prefix"`
+	MaxImageMB    int64  `mapstructure:"max_image_mb"`
 }
 
 // Init 初始化当前模块。

@@ -55,6 +55,7 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.POST("/comment", controller.CreateCommentHandler)
 		v1.POST("/vote", controller.PostVoteController)
 		v1.POST("/rag/reindex", controller.RAGReindexHandler)
+		v1.POST("/upload/image", controller.UploadImageHandler)
 	}
 
 	pprof.Register(r)
