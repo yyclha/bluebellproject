@@ -1393,6 +1393,423 @@
       background: rgba(8, 13, 24, 0.96);
     }
 
+    .tft-hero {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 250px;
+      gap: 18px;
+      min-height: 292px;
+      margin-bottom: 14px;
+      padding: 26px;
+      overflow: hidden;
+      border: 1px solid rgba(250, 204, 21, 0.26);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(100deg, rgba(15, 8, 45, 0.96) 0%, rgba(28, 18, 72, 0.88) 48%, rgba(9, 13, 31, 0.78) 100%),
+        url("https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1600&q=80") center / cover;
+      box-shadow: var(--shadow-sm);
+      isolation: isolate;
+    }
+
+    .tft-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      background:
+        linear-gradient(90deg, rgba(250, 204, 21, 0.24) 0 1px, transparent 1px),
+        linear-gradient(0deg, rgba(250, 204, 21, 0.12) 0 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.4), transparent 72%);
+    }
+
+    .tft-hero::after {
+      content: "";
+      position: absolute;
+      left: 26px;
+      right: 26px;
+      bottom: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #fde047, #a78bfa, #22d3ee);
+    }
+
+    .tft-hero-main {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      min-width: 0;
+    }
+
+    .tft-title {
+      max-width: 720px;
+      margin: 0;
+      color: #fff9d6;
+      font-size: 44px;
+      line-height: 1.08;
+      font-weight: 900;
+      letter-spacing: 0;
+      text-shadow: 0 12px 34px rgba(0, 0, 0, 0.44);
+    }
+
+    .tft-subtitle {
+      max-width: 640px;
+      margin: 12px 0 0;
+      color: #d8d7ff;
+      font-size: 15px;
+    }
+
+    .tft-hero-actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .tft-season-card {
+      align-self: end;
+      min-height: 190px;
+      padding: 18px;
+      border: 1px solid rgba(250, 204, 21, 0.34);
+      border-radius: 8px;
+      background: rgba(14, 10, 40, 0.74);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 18px 44px rgba(0, 0, 0, 0.34);
+      backdrop-filter: blur(12px);
+    }
+
+    .tft-season-card strong,
+    .tft-season-card span {
+      display: block;
+    }
+
+    .tft-season-label {
+      width: max-content;
+      min-height: 28px;
+      padding: 4px 10px;
+      border: 1px solid rgba(250, 204, 21, 0.38);
+      border-radius: 999px;
+      color: #fde68a;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tft-season-card strong {
+      margin-top: 16px;
+      color: #fff;
+      font-size: 25px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .tft-season-card strong + span {
+      margin-top: 8px;
+      color: #bdb8eb;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .tft-rank-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 20px;
+    }
+
+    .tft-rank-strip span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border: 1px solid rgba(250, 204, 21, 0.3);
+      border-radius: 7px;
+      background: rgba(250, 204, 21, 0.1);
+      color: #fef3c7;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tft-nav {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 8px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: var(--radius);
+      background: rgba(13, 9, 35, 0.86);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tft-nav-item {
+      display: grid;
+      min-width: 0;
+      min-height: 58px;
+      padding: 9px 10px;
+      border: 1px solid rgba(250, 204, 21, 0.14);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--text);
+      text-align: left;
+      transition: border-color 0.16s ease, background 0.16s ease, transform 0.16s ease;
+    }
+
+    .tft-nav-item:hover {
+      transform: translateY(-1px);
+      border-color: rgba(250, 204, 21, 0.48);
+      background: rgba(250, 204, 21, 0.1);
+    }
+
+    .tft-nav-item span {
+      overflow: hidden;
+      color: #fff7c2;
+      font-size: 13px;
+      font-weight: 900;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tft-nav-item small {
+      overflow: hidden;
+      color: #a9a3d8;
+      font-size: 11px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tft-dashboard {
+      margin-bottom: 14px;
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(18, 12, 47, 0.94), rgba(12, 18, 34, 0.94));
+      box-shadow: var(--shadow-sm);
+    }
+
+    .tft-dashboard-head,
+    .feed-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .feed-title {
+      margin: 0;
+      color: var(--text);
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .tft-update-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 0 11px;
+      border: 1px solid rgba(250, 204, 21, 0.28);
+      border-radius: 999px;
+      background: rgba(250, 204, 21, 0.1);
+      color: #fde68a;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tft-insight-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .tft-insight,
+    .tft-wiki-grid article {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 8px;
+      background: rgba(8, 13, 24, 0.58);
+    }
+
+    .tft-insight span,
+    .tft-wiki-grid span {
+      display: block;
+      color: #9fb0d1;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .tft-insight strong,
+    .tft-wiki-grid strong {
+      display: block;
+      margin-top: 5px;
+      color: #fff7c2;
+      font-size: 18px;
+      line-height: 1.2;
+      font-weight: 900;
+    }
+
+    .tft-insight p,
+    .tft-wiki-grid p,
+    .tft-comp-info p {
+      margin: 8px 0 0;
+      color: #9ca9c4;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .tft-comp-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tft-comp-row {
+      display: grid;
+      grid-template-columns: minmax(230px, 1fr) minmax(150px, 220px) minmax(120px, 170px) 70px;
+      gap: 12px;
+      align-items: center;
+      min-height: 104px;
+      padding: 14px;
+      border: 1px solid rgba(124, 58, 237, 0.28);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(67, 34, 131, 0.34), rgba(12, 17, 34, 0.78)),
+        rgba(8, 13, 24, 0.68);
+    }
+
+    .tft-comp-titleline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .tft-comp-titleline h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 16px;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .tft-tier,
+    .tft-badge,
+    .tft-token-row span,
+    .tft-item-row span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .tft-tier {
+      min-width: 42px;
+      border: 1px solid rgba(250, 204, 21, 0.5);
+      background: rgba(250, 204, 21, 0.16);
+      color: #fef3c7;
+    }
+
+    .tft-tier-ss {
+      border-color: rgba(250, 204, 21, 0.72);
+      background: linear-gradient(135deg, #facc15, #f97316);
+      color: #160b2d;
+    }
+
+    .tft-badge {
+      padding: 0 9px;
+      border: 1px solid rgba(34, 211, 238, 0.28);
+      background: rgba(34, 211, 238, 0.08);
+      color: #67e8f9;
+    }
+
+    .tft-token-row,
+    .tft-item-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .tft-token-row span {
+      padding: 0 8px;
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      background: rgba(167, 139, 250, 0.1);
+      color: #c4b5fd;
+    }
+
+    .tft-unit-row {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tft-unit-row span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 2px solid rgba(250, 204, 21, 0.46);
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(167, 139, 250, 0.22));
+      color: #fff;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .tft-item-row {
+      margin-top: 0;
+    }
+
+    .tft-item-row span {
+      padding: 0 8px;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+      background: rgba(34, 211, 238, 0.08);
+      color: #bae6fd;
+    }
+
+    .tft-score {
+      display: grid;
+      justify-items: center;
+      gap: 2px;
+      padding: 10px 6px;
+      border-left: 1px solid rgba(148, 163, 184, 0.18);
+      color: #9fb0d1;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .tft-score strong {
+      color: #fde68a;
+      font-size: 24px;
+      line-height: 1;
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tft-wiki-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .tft-community-feed {
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(18, 24, 39, 0.9), rgba(13, 19, 32, 0.9));
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 14px;
+    }
+
     @media (max-width: 820px) {
       body {
         overflow-x: hidden;
@@ -1435,6 +1852,45 @@
       .post-thumb {
         width: 100%;
       }
+
+      .tft-hero {
+        grid-template-columns: 1fr;
+        min-height: 0;
+        padding: 20px;
+      }
+
+      .tft-title {
+        font-size: 34px;
+      }
+
+      .tft-season-card {
+        min-height: 0;
+      }
+
+      .tft-nav {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .tft-dashboard-head,
+      .feed-head {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .tft-insight-grid,
+      .tft-wiki-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .tft-comp-row {
+        grid-template-columns: 1fr;
+      }
+
+      .tft-score {
+        justify-items: start;
+        border-left: 0;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+      }
     }
   </style>
 </head>
@@ -1456,6 +1912,51 @@
         { id: 2, name: "CF", introduction: "穿越火线枪法、地图点位、战术配合与活动交流" },
         { id: 3, name: "力扣", introduction: "算法刷题、面试准备、题解复盘与学习路线" },
         { id: 4, name: "云顶之弈", introduction: "阵容搭配、运营节奏、版本答案与上分复盘" }
+      ];
+      var TFT_NAV_ITEMS = [
+        { id: "tft-version", title: "当前版本", desc: "版本节奏与开局方向" },
+        { id: "tft-comps", title: "阵容推荐", desc: "强势阵容与变阵" },
+        { id: "tft-traits", title: "羁绊/棋子", desc: "核心羁绊与主 C" },
+        { id: "tft-items", title: "装备推荐", desc: "主 C 神装与散件" },
+        { id: "tft-discussions", title: "社区讨论", desc: "复盘、提问和作业" }
+      ];
+      var TFT_COMPS = [
+        {
+          tier: "SS",
+          title: "星神狙神战队",
+          badge: "高手进阶",
+          tempo: "4-2 上八，5-1 找二星核心",
+          traits: ["星神", "狙神", "堡垒"],
+          carries: ["烬", "霞", "洛", "艾希", "璐璐"],
+          items: ["无尽", "轻语", "巨杀"],
+          score: 98
+        },
+        {
+          tier: "S",
+          title: "重装法师转九五",
+          badge: "稳定上分",
+          tempo: "前期连胜保血，中期补前排",
+          traits: ["重装", "法师", "秘术"],
+          carries: ["瑞兹", "妮蔻", "塔姆", "拉克丝"],
+          items: ["青龙刀", "法爆", "科技枪"],
+          score: 92
+        },
+        {
+          tier: "S",
+          title: "低费赌射手",
+          badge: "新手推荐",
+          tempo: "3-1 慢 D 三星，六级补羁绊",
+          traits: ["射手", "斗士", "迅捷"],
+          carries: ["金克丝", "蔚", "布隆", "璐璐"],
+          items: ["羊刀", "破防者", "正义"],
+          score: 88
+        }
+      ];
+      var TFT_INSIGHTS = [
+        { label: "版本主题", value: "S17 星神", text: "围绕高费运营、连胜过渡和主 C 装备优先级整理讨论。" },
+        { label: "推荐开局", value: "弓 / 大剑", text: "优先保证物理主 C 成型，法系局可转眼泪和大棒。" },
+        { label: "上分节奏", value: "4-2 拉八", text: "经济健康时提速找核心，血量低时先补二星前排。" },
+        { label: "社区共创", value: "复盘沉淀", text: "发帖记录实战站位、克制关系和变阵选择。" }
       ];
 
       var state = {
@@ -1636,6 +2137,10 @@
         return state.communities.find(function (item) {
           return normalizeID(item.id) === state.selectedCommunityID;
         }) || null;
+      }
+
+      function isTFTCommunity(community) {
+        return !!(community && /云顶|金铲铲|tft/i.test(String(community.name || "")));
       }
 
       function domainInitial(name) {
@@ -1829,6 +2334,9 @@
       function renderHome() {
         var active = getActiveCommunity();
         var posts = visiblePosts();
+        if (isTFTCommunity(active)) {
+          return renderTFTHome(active, posts);
+        }
         return [
           '<section class="main-toolbar">',
           '<div>',
@@ -1842,6 +2350,126 @@
           '</div>',
           '</section>',
           state.loading ? '<div class="loading">正在加载帖子...</div>' : renderPostList(posts)
+        ].join("");
+      }
+
+      function renderTFTHome(active, posts) {
+        return [
+          renderTFTHero(active, posts),
+          renderTFTNav(),
+          renderTFTDashboard(posts),
+          '<section class="tft-community-feed" id="tft-discussions">',
+          '<div class="feed-head">',
+          '<div>',
+          '<p class="section-kicker">Community Lab</p>',
+          '<h2 class="feed-title">玩家复盘与阵容讨论</h2>',
+          '<p class="section-desc">把实战站位、过渡节奏、装备分配和克制关系沉淀成可检索的社区内容。</p>',
+          '</div>',
+          '<div class="segmented" aria-label="帖子排序">',
+          '<button class="' + (state.order === "time" ? "is-active" : "") + '" data-order="time">新帖</button>',
+          '<button class="' + (state.order === "score" ? "is-active" : "") + '" data-order="score">热榜</button>',
+          '</div>',
+          '</div>',
+          '</section>',
+          state.loading ? '<div class="loading">正在加载帖子...</div>' : renderPostList(posts)
+        ].join("");
+      }
+
+      function renderTFTHero(active, posts) {
+        var count = posts.length || state.posts.length;
+        return [
+          '<section class="tft-hero">',
+          '<div class="tft-hero-main">',
+          '<p class="section-kicker">TFT Strategy Hub</p>',
+          '<h1 class="tft-title">' + escapeHTML(active.name) + '主题站</h1>',
+          '<p class="tft-subtitle">' + escapeHTML(active.introduction || "阵容搭配、运营节奏、版本答案与上分复盘") + '</p>',
+          '<div class="tft-hero-actions">',
+          '<button class="btn btn-primary" data-action="publish">' + icon("plus") + '<span>发布阵容复盘</span></button>',
+          '<button class="btn" data-scroll-target="tft-comps">查看热门阵容</button>',
+          '</div>',
+          '</div>',
+          '<div class="tft-season-card" aria-label="云顶版本概览">',
+          '<span class="tft-season-label">Set 17</span>',
+          '<strong>星神开幕</strong>',
+          '<span>社区热度 ' + escapeHTML(count) + ' 篇</span>',
+          '<div class="tft-rank-strip"><span>SS</span><span>S</span><span>A</span><span>B</span></div>',
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
+      function renderTFTNav() {
+        return [
+          '<nav class="tft-nav" aria-label="云顶资料导航">',
+          TFT_NAV_ITEMS.map(function (item) {
+            return [
+              '<button class="tft-nav-item" data-scroll-target="' + escapeHTML(item.id) + '">',
+              '<span>' + escapeHTML(item.title) + '</span>',
+              '<small>' + escapeHTML(item.desc) + '</small>',
+              '</button>'
+            ].join("");
+          }).join(""),
+          '</nav>'
+        ].join("");
+      }
+
+      function renderTFTDashboard(posts) {
+        return [
+          '<section class="tft-dashboard" id="tft-version">',
+          '<div class="tft-dashboard-head">',
+          '<div>',
+          '<p class="section-kicker">Patch Board</p>',
+          '<h2 class="feed-title">版本资料面板</h2>',
+          '</div>',
+          '<span class="tft-update-pill">社区共创数据</span>',
+          '</div>',
+          '<div class="tft-insight-grid">',
+          TFT_INSIGHTS.map(renderTFTInsight).join(""),
+          '</div>',
+          '<div class="tft-comp-list" id="tft-comps">',
+          TFT_COMPS.map(renderTFTComp).join(""),
+          '</div>',
+          renderTFTWikiGrid(),
+          '</section>'
+        ].join("");
+      }
+
+      function renderTFTInsight(item) {
+        return [
+          '<article class="tft-insight">',
+          '<span>' + escapeHTML(item.label) + '</span>',
+          '<strong>' + escapeHTML(item.value) + '</strong>',
+          '<p>' + escapeHTML(item.text) + '</p>',
+          '</article>'
+        ].join("");
+      }
+
+      function renderTFTComp(comp) {
+        return [
+          '<article class="tft-comp-row">',
+          '<div class="tft-comp-info">',
+          '<div class="tft-comp-titleline">',
+          '<span class="tft-tier tft-tier-' + escapeHTML(comp.tier.toLowerCase()) + '">' + escapeHTML(comp.tier) + '</span>',
+          '<h3>' + escapeHTML(comp.title) + '</h3>',
+          '<span class="tft-badge">' + escapeHTML(comp.badge) + '</span>',
+          '</div>',
+          '<p>' + escapeHTML(comp.tempo) + '</p>',
+          '<div class="tft-token-row">' + comp.traits.map(function (trait) { return '<span>' + escapeHTML(trait) + '</span>'; }).join("") + '</div>',
+          '</div>',
+          '<div class="tft-unit-row" aria-label="核心棋子">' + comp.carries.map(function (carry) { return '<span title="' + escapeHTML(carry) + '">' + escapeHTML(carry.slice(0, 1)) + '</span>'; }).join("") + '</div>',
+          '<div class="tft-item-row">' + comp.items.map(function (item) { return '<span>' + escapeHTML(item) + '</span>'; }).join("") + '</div>',
+          '<div class="tft-score"><strong>' + escapeHTML(comp.score) + '</strong><span>强度</span></div>',
+          '</article>'
+        ].join("");
+      }
+
+      function renderTFTWikiGrid() {
+        return [
+          '<div class="tft-wiki-grid" id="tft-traits">',
+          '<article><span>羁绊速查</span><strong>星神 / 狙神 / 重装</strong><p>把热门羁绊、转职优先级和开局方向放在同一屏扫描。</p></article>',
+          '<article id="tft-items"><span>装备理解</span><strong>主 C 装优先</strong><p>按物理、法系、坦克三类记录散件消化和替代装。</p></article>',
+          '<article><span>运营节奏</span><strong>连胜保血</strong><p>用帖子复盘沉淀什么时候提速、慢 D、上九和换站位。</p></article>',
+          '</div>'
         ].join("");
       }
 
@@ -2049,6 +2677,14 @@
         app.querySelectorAll("[data-open-post]").forEach(function (el) {
           el.addEventListener("click", function () {
             navigate("/post/" + encodeURIComponent(el.getAttribute("data-open-post")));
+          });
+        });
+        app.querySelectorAll("[data-scroll-target]").forEach(function (el) {
+          el.addEventListener("click", function () {
+            var target = document.getElementById(el.getAttribute("data-scroll-target"));
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
           });
         });
         app.querySelectorAll("[data-vote]").forEach(function (el) {
