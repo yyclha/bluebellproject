@@ -636,36 +636,232 @@
       font-weight: 700;
     }
 
-    .assistant-box {
-      padding: 14px;
+    .assistant-fab {
+      position: fixed;
+      left: var(--assistant-fab-left, auto);
+      top: var(--assistant-fab-top, auto);
+      right: var(--assistant-fab-right, 22px);
+      bottom: var(--assistant-fab-bottom, 22px);
+      z-index: 85;
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      min-height: 48px;
+      padding: 0 16px;
+      border: 1px solid var(--primary);
+      border-radius: 999px;
+      background: var(--primary);
+      color: #fff;
+      font-weight: 900;
+      box-shadow: var(--shadow);
+      touch-action: none;
+      user-select: none;
     }
 
-    .assistant-output {
-      min-height: 92px;
-      max-height: 220px;
-      margin-bottom: 10px;
-      padding: 12px;
-      overflow: auto;
+    .assistant-fab.is-dragging {
+      cursor: grabbing;
+    }
+
+    .assistant-fab svg,
+    .assistant-icon-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .assistant-scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 86;
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .assistant-scrim.is-open {
+      display: block;
+    }
+
+    .assistant-drawer {
+      position: fixed;
+      top: var(--assistant-top, calc(var(--header-h) + 14px));
+      left: var(--assistant-left, auto);
+      right: var(--assistant-right, 18px);
+      bottom: auto;
+      z-index: 90;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      width: min(420px, calc(100vw - 36px));
+      height: min(720px, calc(100dvh - var(--assistant-top, calc(var(--header-h) + 14px)) - 18px));
+      max-height: calc(100dvh - 24px);
+      overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--surface-soft);
-      color: var(--muted-strong);
-      font-size: 13px;
-      white-space: pre-wrap;
+      background: var(--surface);
+      box-shadow: var(--shadow);
     }
 
-    .assistant-row {
+    .assistant-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-strong);
+    }
+
+    .assistant-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+      cursor: move;
+      user-select: none;
+      touch-action: none;
+    }
+
+    .assistant-title.is-dragging {
+      cursor: grabbing;
+    }
+
+    .assistant-mark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: var(--green-soft);
+      color: var(--primary-strong);
+    }
+
+    .assistant-title h2 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .assistant-title p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .assistant-tools {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .assistant-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--muted-strong);
+    }
+
+    .assistant-messages {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      min-height: 0;
+      padding: 14px;
+      overflow-y: auto;
+      background: var(--surface-soft);
+    }
+
+    .assistant-empty {
+      padding: 14px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      color: var(--muted-strong);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .assistant-message {
+      display: grid;
+      gap: 5px;
+      max-width: 88%;
+    }
+
+    .assistant-message.is-user {
+      justify-self: end;
+    }
+
+    .assistant-message.is-assistant {
+      justify-self: start;
+    }
+
+    .assistant-role {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .assistant-bubble {
+      padding: 11px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .assistant-message.is-user .assistant-bubble {
+      border-color: rgba(15, 118, 110, 0.32);
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .assistant-message.is-error .assistant-bubble {
+      border-color: rgba(194, 65, 58, 0.28);
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .assistant-composer {
+      display: grid;
+      gap: 9px;
+      padding: 12px;
+      border-top: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .assistant-input-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
       gap: 8px;
     }
 
-    .assistant-row input {
+    .assistant-input {
       min-width: 0;
-      height: 40px;
-      padding: 0 11px;
+      min-height: 44px;
+      max-height: 120px;
+      padding: 10px 11px;
       border: 1px solid var(--line);
       border-radius: 8px;
+      background: var(--surface);
+      color: var(--text);
+      resize: vertical;
+    }
+
+    .assistant-hint {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .detail,
@@ -915,6 +1111,47 @@
       margin: 0 auto;
     }
 
+    .auth-body {
+      position: relative;
+    }
+
+    .auth-error {
+      display: none;
+      margin: 0 0 14px;
+      padding: 10px 12px;
+      border: 1px solid rgba(194, 65, 58, 0.3);
+      border-radius: 8px;
+      background: var(--red-soft);
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .auth-error.show {
+      display: block;
+    }
+
+    @media (min-width: 1080px) {
+      .auth-error {
+        position: absolute;
+        top: 22px;
+        left: calc(100% + 14px);
+        display: block;
+        width: 240px;
+        margin: 0;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(-6px);
+        transition: opacity 0.16s ease, transform 0.16s ease;
+      }
+
+      .auth-error.show {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
     .toast {
       position: fixed;
       right: 20px;
@@ -973,6 +1210,11 @@
 
       .rightbar {
         display: none;
+      }
+
+      .assistant-drawer {
+        top: 16px;
+        height: min(720px, calc(100dvh - 32px));
       }
     }
 
@@ -1069,6 +1311,17 @@
       .form-actions .btn {
         width: 100%;
       }
+
+      .assistant-fab {
+        right: var(--assistant-fab-right, 14px);
+        bottom: var(--assistant-fab-bottom, 14px);
+      }
+
+      .assistant-drawer {
+        inset: 12px;
+        width: auto;
+        height: auto;
+      }
     }
     /* Game forum redesign */
     :root {
@@ -1143,7 +1396,7 @@
     }
 
     .search-input,
-    .assistant-row input,
+    .assistant-input,
     .comment-form textarea,
     .field textarea,
     .field input,
@@ -1155,7 +1408,7 @@
     }
 
     .search-input::placeholder,
-    .assistant-row input::placeholder,
+    .assistant-input::placeholder,
     .comment-form textarea::placeholder,
     .field textarea::placeholder,
     .field input::placeholder {
@@ -1322,7 +1575,8 @@
 
     .vote-box,
     .stat,
-    .assistant-output,
+    .assistant-empty,
+    .assistant-bubble,
     .comment-item,
     .upload-preview-item {
       border-color: rgba(148, 163, 184, 0.18);
@@ -1969,8 +2223,21 @@
         post: null,
         comments: [],
         loading: false,
+        authError: "",
+        authForm: {
+          username: "",
+          password: "",
+          rePassword: ""
+        },
         assistantLoading: false,
-        assistantAnswer: "",
+        assistantOpen: false,
+        assistantPosition: readAssistantPosition(),
+        assistantFabPosition: readAssistantFabPosition(),
+        assistantDrag: null,
+        assistantFabDrag: null,
+        assistantFabSuppressClick: false,
+        assistantDraft: "",
+        assistantMessages: readAssistantMessages(),
         publishImages: [],
         searchComposing: false,
         auth: readLogin()
@@ -1983,6 +2250,7 @@
         var paths = {
           search: '<path d="M21 21l-4.3-4.3"></path><circle cx="11" cy="11" r="7"></circle>',
           plus: '<path d="M12 5v14"></path><path d="M5 12h14"></path>',
+          bot: '<path d="M12 8V4"></path><rect x="5" y="8" width="14" height="11" rx="2"></rect><path d="M8 12h.01"></path><path d="M16 12h.01"></path><path d="M9 16h6"></path>',
           image: '<rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10" r="1.5"></circle><path d="m21 15-5-5L5 21"></path>',
           send: '<path d="M22 2 11 13"></path><path d="m22 2-7 20-4-9-9-4Z"></path>',
           up: '<path d="m18 15-6-6-6 6"></path>',
@@ -2013,13 +2281,22 @@
       }
 
       function navigate(path) {
+        var prevRouteName = state.route.name;
         window.history.pushState({}, "", path);
         state.route = parseRoute();
+        state.authError = "";
+        if (!isAuthRoute(state.route.name) || (isAuthRoute(prevRouteName) && prevRouteName !== state.route.name)) {
+          clearAuthForm();
+        }
         if (state.route.name !== "publish") {
           state.publishImages = [];
         }
         render();
         loadRouteData();
+      }
+
+      function isAuthRoute(name) {
+        return name === "login" || name === "signup";
       }
 
       function readLogin() {
@@ -2030,9 +2307,76 @@
         }
       }
 
+      function readAssistantMessages() {
+        try {
+          var messages = JSON.parse(localStorage.getItem("bluebellAssistantMessages")) || [];
+          return Array.isArray(messages) ? messages.filter(isAssistantMessage).slice(-20) : [];
+        } catch (err) {
+          return [];
+        }
+      }
+
+      function isAssistantMessage(message) {
+        return message &&
+          (message.role === "user" || message.role === "assistant" || message.role === "error") &&
+          typeof message.content === "string";
+      }
+
+      function saveAssistantMessages() {
+        localStorage.setItem("bluebellAssistantMessages", JSON.stringify(state.assistantMessages.slice(-20)));
+      }
+
+      function readAssistantPosition() {
+        try {
+          var position = JSON.parse(localStorage.getItem("bluebellAssistantPosition")) || null;
+          if (!position || typeof position.left !== "number" || typeof position.top !== "number") {
+            return null;
+          }
+          return position;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function saveAssistantPosition() {
+        if (!state.assistantPosition) {
+          localStorage.removeItem("bluebellAssistantPosition");
+          return;
+        }
+        localStorage.setItem("bluebellAssistantPosition", JSON.stringify(state.assistantPosition));
+      }
+
+      function readAssistantFabPosition() {
+        try {
+          var position = JSON.parse(localStorage.getItem("bluebellAssistantFabPosition")) || null;
+          if (!position || typeof position.left !== "number" || typeof position.top !== "number") {
+            return null;
+          }
+          return position;
+        } catch (err) {
+          return null;
+        }
+      }
+
+      function saveAssistantFabPosition() {
+        if (!state.assistantFabPosition) {
+          localStorage.removeItem("bluebellAssistantFabPosition");
+          return;
+        }
+        localStorage.setItem("bluebellAssistantFabPosition", JSON.stringify(state.assistantFabPosition));
+      }
+
       function setLogin(data) {
         localStorage.setItem("loginResult", JSON.stringify(data));
         state.auth = data;
+      }
+
+      function clearAuthForm() {
+        state.authForm = {
+          username: "",
+          password: "",
+          rePassword: ""
+        };
       }
 
       function logout() {
@@ -2040,6 +2384,129 @@
         state.auth = null;
         toast("已退出登录");
         navigate("/");
+      }
+
+      function toggleAssistant(force) {
+        if (typeof force === "boolean") {
+          state.assistantOpen = force;
+        } else {
+          state.assistantOpen = !state.assistantOpen;
+        }
+        render();
+        if (state.assistantOpen) {
+          requestAnimationFrame(positionAssistantWithinViewport);
+          requestAnimationFrame(focusAssistantInput);
+          scrollAssistantToBottom();
+        }
+      }
+
+      function assistantStyleAttr() {
+        if (isCompactViewport() || !state.assistantPosition) {
+          return "";
+        }
+        return ' style="--assistant-left:' + Math.round(state.assistantPosition.left) + 'px;--assistant-top:' + Math.round(state.assistantPosition.top) + 'px;--assistant-right:auto;"';
+      }
+
+      function assistantFabStyleAttr() {
+        if (!state.assistantFabPosition) {
+          return "";
+        }
+        return ' style="--assistant-fab-left:' + Math.round(state.assistantFabPosition.left) + 'px;--assistant-fab-top:' + Math.round(state.assistantFabPosition.top) + 'px;--assistant-fab-right:auto;--assistant-fab-bottom:auto;"';
+      }
+
+      function isCompactViewport() {
+        return window.innerWidth <= 560;
+      }
+
+      function positionAssistantWithinViewport() {
+        if (isCompactViewport()) {
+          return;
+        }
+        var drawer = document.querySelector(".assistant-drawer");
+        if (!drawer) {
+          return;
+        }
+        var rect = drawer.getBoundingClientRect();
+        var next = clampAssistantPosition(
+          state.assistantPosition ? state.assistantPosition.left : rect.left,
+          state.assistantPosition ? state.assistantPosition.top : rect.top,
+          rect.width,
+          rect.height
+        );
+        if (!state.assistantPosition || next.left !== state.assistantPosition.left || next.top !== state.assistantPosition.top) {
+          state.assistantPosition = next;
+          saveAssistantPosition();
+          drawer.style.setProperty("--assistant-left", Math.round(next.left) + "px");
+          drawer.style.setProperty("--assistant-top", Math.round(next.top) + "px");
+          drawer.style.setProperty("--assistant-right", "auto");
+        }
+      }
+
+      function clampAssistantPosition(left, top, width, height) {
+        var margin = 12;
+        var maxLeft = Math.max(margin, window.innerWidth - width - margin);
+        var maxTop = Math.max(margin, window.innerHeight - height - margin);
+        return {
+          left: Math.min(Math.max(left, margin), maxLeft),
+          top: Math.min(Math.max(top, margin), maxTop)
+        };
+      }
+
+      function positionAssistantFabWithinViewport() {
+        var fab = document.querySelector(".assistant-fab");
+        if (!fab) {
+          return;
+        }
+        var rect = fab.getBoundingClientRect();
+        var next = clampAssistantPosition(
+          state.assistantFabPosition ? state.assistantFabPosition.left : rect.left,
+          state.assistantFabPosition ? state.assistantFabPosition.top : rect.top,
+          rect.width,
+          rect.height
+        );
+        if (!state.assistantFabPosition || next.left !== state.assistantFabPosition.left || next.top !== state.assistantFabPosition.top) {
+          state.assistantFabPosition = next;
+          saveAssistantFabPosition();
+          fab.style.setProperty("--assistant-fab-left", Math.round(next.left) + "px");
+          fab.style.setProperty("--assistant-fab-top", Math.round(next.top) + "px");
+          fab.style.setProperty("--assistant-fab-right", "auto");
+          fab.style.setProperty("--assistant-fab-bottom", "auto");
+        }
+      }
+
+      function focusAssistantInput() {
+        var input = document.getElementById("assistant-input");
+        if (input) {
+          input.focus();
+        }
+      }
+
+      function scrollAssistantToBottom() {
+        requestAnimationFrame(function () {
+          var pane = document.getElementById("assistant-messages");
+          if (pane) {
+            pane.scrollTop = pane.scrollHeight;
+          }
+        });
+      }
+
+      function addAssistantMessage(role, content) {
+        state.assistantMessages.push({
+          role: role,
+          content: String(content || "")
+        });
+        state.assistantMessages = state.assistantMessages.slice(-20);
+        saveAssistantMessages();
+      }
+
+      function setLastAssistantMessage(content) {
+        for (var i = state.assistantMessages.length - 1; i >= 0; i--) {
+          if (state.assistantMessages[i].role === "assistant") {
+            state.assistantMessages[i].content = String(content || "");
+            saveAssistantMessages();
+            return;
+          }
+        }
       }
 
       function authHeaders() {
@@ -2216,7 +2683,8 @@
           '<aside class="sidebar">' + renderDomainPanel() + '</aside>',
           '<main class="main" id="main">' + renderMain() + '</main>',
           '<aside class="rightbar">' + renderRightbar() + '</aside>',
-          '</div>'
+          '</div>',
+          renderAssistant()
         ].join("");
         bindEvents();
       }
@@ -2292,27 +2760,61 @@
           '<div class="stat"><span class="stat-value">' + state.communities.length + '</span><span class="stat-label">频道</span></div>',
           '<div class="stat"><span class="stat-value">' + (state.order === "score" ? "热榜" : "新帖") + '</span><span class="stat-label">排序</span></div>',
           '</div>',
-          '</section>',
-          renderAssistant()
+          '</section>'
         ].join("");
       }
 
       function renderAssistant() {
+        var open = state.assistantOpen;
+        var lastMessage = state.assistantMessages[state.assistantMessages.length - 1];
+        var status = state.assistantLoading ? "正在回答..." : (lastMessage ? "已保留本轮上下文" : "可连续追问");
         return [
-          '<section class="panel">',
-          '<div class="panel-head">',
-          '<h2 class="panel-title">AI 攻略检索</h2>',
-          '<p class="panel-desc">从帖子知识库里快速找打法、阵容和题解。</p>',
+          open ? '<div class="assistant-scrim is-open" data-action="assistant-close" aria-hidden="true"></div>' : '',
+          open ? renderAssistantDrawer(status) : '<button class="assistant-fab" data-action="assistant-open" ' + assistantFabStyleAttr() + ' aria-label="打开 AI 助手">' + icon("bot") + '<span>AI 助手</span></button>'
+        ].join("");
+      }
+
+      function renderAssistantDrawer(status) {
+        return [
+          '<section class="assistant-drawer"' + assistantStyleAttr() + ' aria-label="AI 悬浮助手">',
+          '<div class="assistant-head">',
+          '<div class="assistant-title" data-assistant-drag-handle title="拖动移动助手">',
+          '<span class="assistant-mark">' + icon("bot") + '</span>',
+          '<span><h2>AI 攻略助手</h2><p>' + escapeHTML(status) + '</p></span>',
           '</div>',
-          '<div class="assistant-box">',
-          '<div class="assistant-output" id="assistant-output">' + escapeHTML(state.assistantAnswer || "输入一个问题，AI 会从社区帖子里检索线索并生成回答。") + '</div>',
-          '<div class="assistant-row">',
-          '<input id="assistant-input" type="text" placeholder="例如：云顶当前阵容怎么运营？">',
-          '<button class="btn btn-primary btn-icon" data-action="ask" aria-label="发送问题">' + icon("send") + '</button>',
+          '<div class="assistant-tools">',
+          '<button class="assistant-icon-btn" data-action="assistant-clear" aria-label="清空对话">' + icon("trash") + '</button>',
+          '<button class="assistant-icon-btn" data-action="assistant-close" aria-label="关闭助手">' + icon("x") + '</button>',
           '</div>',
           '</div>',
+          '<div class="assistant-messages" id="assistant-messages" aria-live="polite">',
+          renderAssistantMessages(),
+          '</div>',
+          '<form class="assistant-composer" id="assistant-form">',
+          '<div class="assistant-input-row">',
+          '<textarea class="assistant-input" id="assistant-input" rows="2" placeholder="继续追问，例如：那前期怎么过渡？">' + escapeHTML(state.assistantDraft) + '</textarea>',
+          '<button class="btn btn-primary btn-icon" type="submit" aria-label="发送问题" ' + (state.assistantLoading ? "disabled" : "") + '>' + icon("send") + '</button>',
+          '</div>',
+          '<div class="assistant-hint">助手会带上最近对话和帖子知识库一起回答。</div>',
+          '</form>',
           '</section>'
         ].join("");
+      }
+
+      function renderAssistantMessages() {
+        if (!state.assistantMessages.length) {
+          return '<div class="assistant-empty">输入一个问题，AI 会从社区帖子中检索线索并生成回答。连续追问时会自动带上前面的上下文。</div>';
+        }
+        return state.assistantMessages.map(function (message) {
+          var isUser = message.role === "user";
+          var isError = message.role === "error";
+          return [
+            '<div class="assistant-message ' + (isUser ? "is-user" : "is-assistant") + (isError ? " is-error" : "") + '">',
+            '<span class="assistant-role">' + (isUser ? "你" : "AI") + '</span>',
+            '<div class="assistant-bubble">' + escapeHTML(message.content || (state.assistantLoading ? "正在整理答案..." : "")) + '</div>',
+            '</div>'
+          ].join("");
+        }).join("");
       }
 
       function renderMain() {
@@ -2644,10 +3146,11 @@
           '<p class="section-desc">' + (isLogin ? "登录后可以发帖、评论和投票。" : "创建账号后加入 YXB GameBase。") + '</p>',
           '</div>',
           '<form class="auth-body" id="' + (isLogin ? "login-form" : "signup-form") + '">',
+          '<div class="auth-error' + (state.authError ? " show" : "") + '" id="auth-error" role="alert">' + escapeHTML(state.authError) + '</div>',
           '<div class="form-grid">',
-          '<div class="field"><label for="auth-username">用户名</label><input id="auth-username" required autocomplete="username"></div>',
-          '<div class="field"><label for="auth-password">密码</label><input id="auth-password" type="password" required autocomplete="' + (isLogin ? "current-password" : "new-password") + '"></div>',
-          isLogin ? '' : '<div class="field"><label for="auth-repassword">确认密码</label><input id="auth-repassword" type="password" required autocomplete="new-password"></div>',
+          '<div class="field"><label for="auth-username">用户名</label><input id="auth-username" required autocomplete="username" value="' + escapeHTML(state.authForm.username) + '"></div>',
+          '<div class="field"><label for="auth-password">密码</label><input id="auth-password" type="password" required autocomplete="' + (isLogin ? "current-password" : "new-password") + '" value="' + escapeHTML(state.authForm.password) + '"></div>',
+          isLogin ? '' : '<div class="field"><label for="auth-repassword">确认密码</label><input id="auth-repassword" type="password" required autocomplete="new-password" value="' + escapeHTML(state.authForm.rePassword) + '"></div>',
           '</div>',
           '<div class="form-actions">',
           '<button class="btn" type="button" data-action="' + (isLogin ? "signup" : "login") + '">' + (isLogin ? "去注册" : "去登录") + '</button>',
@@ -2731,13 +3234,39 @@
         if (signupForm) {
           signupForm.addEventListener("submit", submitSignup);
         }
+        bindAuthInputs();
         var imageInput = document.getElementById("publish-image");
         if (imageInput) {
           imageInput.addEventListener("change", uploadPublishImage);
         }
+        var assistantForm = document.getElementById("assistant-form");
+        if (assistantForm) {
+          assistantForm.addEventListener("submit", askAssistant);
+        }
+        var assistantInput = document.getElementById("assistant-input");
+        if (assistantInput) {
+          assistantInput.addEventListener("input", function () {
+            state.assistantDraft = assistantInput.value;
+          });
+          assistantInput.addEventListener("keydown", function (event) {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              askAssistant(event);
+            }
+          });
+        }
+        bindAssistantDrag();
+        bindAssistantFabDrag();
+        if (!state.assistantOpen) {
+          requestAnimationFrame(positionAssistantFabWithinViewport);
+        }
       }
 
       function handleAction(event) {
+        if (state.assistantFabSuppressClick) {
+          state.assistantFabSuppressClick = false;
+          return;
+        }
         var action = event.currentTarget.getAttribute("data-action");
         if (action === "home") {
           navigate("/");
@@ -2753,14 +3282,180 @@
           submitComment();
         } else if (action === "delete-post") {
           deletePost(event.currentTarget.getAttribute("data-post-id"));
-        } else if (action === "ask") {
-          askAssistant();
+        } else if (action === "assistant-open") {
+          toggleAssistant(true);
+        } else if (action === "assistant-close") {
+          toggleAssistant(false);
+        } else if (action === "assistant-clear") {
+          clearAssistant();
         } else if (action === "choose-image") {
           var imageInput = document.getElementById("publish-image");
           if (imageInput) {
             imageInput.click();
           }
         }
+      }
+
+      function bindAuthInputs() {
+        var username = document.getElementById("auth-username");
+        var password = document.getElementById("auth-password");
+        var rePassword = document.getElementById("auth-repassword");
+        if (username) {
+          username.addEventListener("input", function () {
+            state.authForm.username = username.value;
+          });
+        }
+        if (password) {
+          password.addEventListener("input", function () {
+            state.authForm.password = password.value;
+          });
+        }
+        if (rePassword) {
+          rePassword.addEventListener("input", function () {
+            state.authForm.rePassword = rePassword.value;
+          });
+        }
+      }
+
+      function bindAssistantDrag() {
+        var handle = document.querySelector("[data-assistant-drag-handle]");
+        var drawer = document.querySelector(".assistant-drawer");
+        if (!handle || !drawer || isCompactViewport()) {
+          return;
+        }
+
+        var onMove = null;
+        var onUp = null;
+
+        handle.addEventListener("pointerdown", function (event) {
+          if (event.button !== 0) {
+            return;
+          }
+          event.preventDefault();
+          drawer.setPointerCapture(event.pointerId);
+          var rect = drawer.getBoundingClientRect();
+          var offsetX = event.clientX - rect.left;
+          var offsetY = event.clientY - rect.top;
+          state.assistantDrag = {
+            pointerId: event.pointerId,
+            offsetX: offsetX,
+            offsetY: offsetY
+          };
+          handle.classList.add("is-dragging");
+          state.assistantPosition = {
+            left: rect.left,
+            top: rect.top
+          };
+          saveAssistantPosition();
+
+          onMove = function (moveEvent) {
+            if (!state.assistantDrag || moveEvent.pointerId !== state.assistantDrag.pointerId) {
+              return;
+            }
+            var width = rect.width;
+            var height = rect.height;
+            var next = clampAssistantPosition(
+              moveEvent.clientX - state.assistantDrag.offsetX,
+              moveEvent.clientY - state.assistantDrag.offsetY,
+              width,
+              height
+            );
+            state.assistantPosition = next;
+            drawer.style.setProperty("--assistant-left", Math.round(next.left) + "px");
+            drawer.style.setProperty("--assistant-top", Math.round(next.top) + "px");
+            drawer.style.setProperty("--assistant-right", "auto");
+            saveAssistantPosition();
+          };
+
+          onUp = function (upEvent) {
+            if (!state.assistantDrag || upEvent.pointerId !== state.assistantDrag.pointerId) {
+              return;
+            }
+            drawer.releasePointerCapture(upEvent.pointerId);
+            state.assistantDrag = null;
+            handle.classList.remove("is-dragging");
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+            window.removeEventListener("pointercancel", onUp);
+          };
+
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+          window.addEventListener("pointercancel", onUp);
+        });
+      }
+
+      function bindAssistantFabDrag() {
+        var fab = document.querySelector(".assistant-fab");
+        if (!fab) {
+          return;
+        }
+
+        var onMove = null;
+        var onUp = null;
+
+        fab.addEventListener("pointerdown", function (event) {
+          if (event.button !== 0) {
+            return;
+          }
+          var rect = fab.getBoundingClientRect();
+          state.assistantFabDrag = {
+            pointerId: event.pointerId,
+            startX: event.clientX,
+            startY: event.clientY,
+            offsetX: event.clientX - rect.left,
+            offsetY: event.clientY - rect.top,
+            moved: false
+          };
+          fab.setPointerCapture(event.pointerId);
+          fab.classList.add("is-dragging");
+
+          onMove = function (moveEvent) {
+            if (!state.assistantFabDrag || moveEvent.pointerId !== state.assistantFabDrag.pointerId) {
+              return;
+            }
+            var dx = moveEvent.clientX - state.assistantFabDrag.startX;
+            var dy = moveEvent.clientY - state.assistantFabDrag.startY;
+            if (Math.abs(dx) + Math.abs(dy) > 5) {
+              state.assistantFabDrag.moved = true;
+            }
+            if (!state.assistantFabDrag.moved) {
+              return;
+            }
+            moveEvent.preventDefault();
+            var next = clampAssistantPosition(
+              moveEvent.clientX - state.assistantFabDrag.offsetX,
+              moveEvent.clientY - state.assistantFabDrag.offsetY,
+              rect.width,
+              rect.height
+            );
+            state.assistantFabPosition = next;
+            fab.style.setProperty("--assistant-fab-left", Math.round(next.left) + "px");
+            fab.style.setProperty("--assistant-fab-top", Math.round(next.top) + "px");
+            fab.style.setProperty("--assistant-fab-right", "auto");
+            fab.style.setProperty("--assistant-fab-bottom", "auto");
+            saveAssistantFabPosition();
+          };
+
+          onUp = function (upEvent) {
+            if (!state.assistantFabDrag || upEvent.pointerId !== state.assistantFabDrag.pointerId) {
+              return;
+            }
+            fab.releasePointerCapture(upEvent.pointerId);
+            fab.classList.remove("is-dragging");
+            if (state.assistantFabDrag.moved) {
+              state.assistantFabSuppressClick = true;
+            }
+            state.assistantFabDrag = null;
+            window.removeEventListener("pointermove", onMove);
+            window.removeEventListener("pointerup", onUp);
+            window.removeEventListener("pointercancel", onUp);
+          };
+
+          window.addEventListener("pointermove", onMove);
+          window.addEventListener("pointerup", onUp);
+          window.addEventListener("pointercancel", onUp);
+        });
       }
 
       function loadCommunities() {
@@ -3010,33 +3705,53 @@
 
       function submitLogin(event) {
         event.preventDefault();
+        state.authError = "";
         var username = document.getElementById("auth-username").value.trim();
         var password = document.getElementById("auth-password").value;
+        state.authForm.username = username;
+        state.authForm.password = password;
         requestJSON("/login", {
           method: "POST",
           body: JSON.stringify({ username: username, password: password })
         }).then(function (data) {
           setLogin(data);
+          clearAuthForm();
           toast("登录成功");
           navigate("/");
         }).catch(function (err) {
-          toast(err.message || "登录失败");
+          showAuthError(err.message || "登录失败");
         });
       }
 
       function submitSignup(event) {
         event.preventDefault();
+        state.authError = "";
         var username = document.getElementById("auth-username").value.trim();
         var password = document.getElementById("auth-password").value;
         var rePassword = document.getElementById("auth-repassword").value;
+        state.authForm.username = username;
+        state.authForm.password = password;
+        state.authForm.rePassword = rePassword;
         requestJSON("/signup", {
           method: "POST",
           body: JSON.stringify({ username: username, password: password, re_password: rePassword })
         }).then(function () {
+          clearAuthForm();
           toast("注册成功，请登录");
           navigate("/login");
         }).catch(function (err) {
-          toast(err.message || "注册失败");
+          showAuthError(err.message || "注册失败");
+        });
+      }
+
+      function showAuthError(message) {
+        state.authError = message;
+        render();
+        requestAnimationFrame(function () {
+          var el = document.getElementById("auth-error");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "nearest" });
+          }
         });
       }
 
@@ -3075,19 +3790,44 @@
           });
       }
 
-      function askAssistant() {
+      function clearAssistant() {
+        if (state.assistantLoading) {
+          toast("回答生成中，稍后再清空");
+          return;
+        }
+        state.assistantMessages = [];
+        state.assistantDraft = "";
+        saveAssistantMessages();
+        render();
+        focusAssistantInput();
+      }
+
+      function askAssistant(event) {
+        if (event) {
+          event.preventDefault();
+        }
+        if (state.assistantLoading) {
+          return;
+        }
         var input = document.getElementById("assistant-input");
         var question = input ? input.value.trim() : "";
         if (!question) {
           toast("请输入问题");
           return;
         }
-        state.assistantAnswer = "正在检索知识库...";
+        var history = state.assistantMessages
+          .filter(function (message) { return message.role === "user" || message.role === "assistant"; })
+          .slice(-8);
+        state.assistantDraft = "";
+        state.assistantLoading = true;
+        addAssistantMessage("user", question);
+        addAssistantMessage("assistant", "正在检索知识库...");
         render();
+        scrollAssistantToBottom();
         fetch(API + "/rag/chat/stream", {
           method: "POST",
           headers: authHeaders(),
-          body: JSON.stringify({ question: question, top_k: 4 })
+          body: JSON.stringify({ question: question, top_k: 4, messages: history })
         }).then(function (resp) {
           if (!resp.ok || !resp.body) {
             throw new Error("问答服务暂不可用");
@@ -3095,11 +3835,14 @@
           var reader = resp.body.getReader();
           var decoder = new TextDecoder("utf-8");
           var buffer = "";
-          state.assistantAnswer = "";
+          setLastAssistantMessage("");
+          render();
           function read() {
             return reader.read().then(function (result) {
               if (result.done) {
+                state.assistantLoading = false;
                 render();
+                scrollAssistantToBottom();
                 return;
               }
               buffer += decoder.decode(result.value, { stream: true });
@@ -3111,8 +3854,10 @@
           }
           return read();
         }).catch(function (err) {
-          state.assistantAnswer = err.message || "问答失败";
+          state.assistantLoading = false;
+          setLastAssistantMessage(err.message || "问答失败");
           render();
+          scrollAssistantToBottom();
         });
       }
 
@@ -3132,20 +3877,37 @@
         try {
           var payload = JSON.parse(data);
           if (event === "chunk" && payload.delta) {
-            state.assistantAnswer += payload.delta;
-            var output = document.getElementById("assistant-output");
-            if (output) {
-              output.textContent = state.assistantAnswer;
-              output.scrollTop = output.scrollHeight;
+            var current = "";
+            for (var i = state.assistantMessages.length - 1; i >= 0; i--) {
+              if (state.assistantMessages[i].role === "assistant") {
+                current = state.assistantMessages[i].content || "";
+                state.assistantMessages[i].content = current + payload.delta;
+                break;
+              }
             }
+            saveAssistantMessages();
+            renderAssistantStream();
           } else if (event === "error") {
-            state.assistantAnswer = payload.message || "问答失败";
+            state.assistantLoading = false;
+            setLastAssistantMessage(payload.message || "问答失败");
+            render();
           } else if (event === "done" && payload.answer) {
-            state.assistantAnswer = payload.answer;
+            state.assistantLoading = false;
+            setLastAssistantMessage(payload.answer);
+            render();
           }
         } catch (err) {
           return;
         }
+      }
+
+      function renderAssistantStream() {
+        var pane = document.getElementById("assistant-messages");
+        if (!pane) {
+          return;
+        }
+        pane.innerHTML = renderAssistantMessages();
+        pane.scrollTop = pane.scrollHeight;
       }
 
       window.addEventListener("popstate", function () {

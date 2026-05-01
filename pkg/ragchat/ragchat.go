@@ -83,8 +83,8 @@ func MaxContextChars() int {
 	return cfg.MaxContextChars
 }
 
-// StreamAnswerQuestion 基于检索结果流式生成问答答案。
-func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RAGHit, onChunk func(string) error) (string, error) {
+// StreamAnswerQuestion 基于检索结果和最近对话流式生成问答答案。
+func StreamAnswerQuestion(ctx context.Context, question string, history []models.RAGChatMessage, hits []models.RAGHit, onChunk func(string) error) (string, error) {
 	if !Enabled() {
 		return "", errors.New("rag chat is disabled")
 	}
@@ -95,9 +95,10 @@ func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RA
 	messages := []*schema.Message{
 		schema.SystemMessage("You are a concise community knowledge assistant. " +
 			"Answer the user's question only using the provided knowledge snippets. " +
+			"Use the recent conversation only to resolve context and references. " +
 			"If the snippets are insufficient, say the knowledge base does not contain enough information. " +
 			"Do not fabricate facts. Do not expose internal IDs or backend field names. Use plain Chinese."),
-		schema.UserMessage(buildPrompt(question, hits)),
+		schema.UserMessage(buildPrompt(question, history, hits)),
 	}
 
 	stream, err := chatModel.Stream(ctx, messages)
@@ -156,8 +157,12 @@ func StreamAnswerQuestion(ctx context.Context, question string, hits []models.RA
 }
 
 // buildPrompt 构建发给模型的提示词内容。
-func buildPrompt(question string, hits []models.RAGHit) string {
+func buildPrompt(question string, history []models.RAGChatMessage, hits []models.RAGHit) string {
 	var builder strings.Builder
+	builder.WriteString("Recent conversation:\n")
+	writeHistory(&builder, history)
+	builder.WriteString("\n")
+
 	builder.WriteString("Question:\n")
 	builder.WriteString(strings.TrimSpace(question))
 	builder.WriteString("\n\nKnowledge snippets:\n")
@@ -193,6 +198,51 @@ func buildPrompt(question string, hits []models.RAGHit) string {
 	builder.WriteString("3. When using a snippet, mention the related post title naturally in the answer.\n")
 	builder.WriteString("4. Do not expose internal post IDs, raw identifiers, or backend field names in the answer.\n")
 	return builder.String()
+}
+
+func writeHistory(builder *strings.Builder, history []models.RAGChatMessage) {
+	start := len(history) - 8
+	if start < 0 {
+		start = 0
+	}
+	wrote := false
+	for _, msg := range history[start:] {
+		role := normalizeRole(msg.Role)
+		content := strings.TrimSpace(msg.Content)
+		if role == "" || content == "" {
+			continue
+		}
+		builder.WriteString(role)
+		builder.WriteString(": ")
+		builder.WriteString(truncateRunes(content, 500))
+		builder.WriteString("\n")
+		wrote = true
+	}
+	if !wrote {
+		builder.WriteString("No prior conversation.\n")
+	}
+}
+
+func normalizeRole(role string) string {
+	switch strings.ToLower(strings.TrimSpace(role)) {
+	case "user":
+		return "User"
+	case "assistant":
+		return "Assistant"
+	default:
+		return ""
+	}
+}
+
+func truncateRunes(value string, limit int) string {
+	if limit <= 0 {
+		return ""
+	}
+	runes := []rune(value)
+	if len(runes) <= limit {
+		return value
+	}
+	return string(runes[:limit])
 }
 
 // temperature 返回当前问答模型的采样温度。

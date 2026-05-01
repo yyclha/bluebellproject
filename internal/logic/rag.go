@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 // SearchPostByRAG 执行 RAG 检索并返回命中的帖子片段。
@@ -103,14 +104,14 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 	}
 
 	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
-		Query: p.Question,
+		Query: buildContextualQuery(p.Question, p.Messages),
 		TopK:  topK,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("rag retrieval failed: %w", err)
 	}
 
-	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, searchResult.Hits, onChunk)
+	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, p.Messages, searchResult.Hits, onChunk)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
@@ -124,6 +125,35 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 		Model:    ragchat.ModelName(),
 		Hits:     searchResult.Hits,
 	}, nil
+}
+
+// buildContextualQuery 把最近对话拼进检索查询，帮助 RAG 理解追问里的指代。
+func buildContextualQuery(question string, messages []models.RAGChatMessage) string {
+	parts := make([]string, 0, 7)
+	start := len(messages) - 6
+	if start < 0 {
+		start = 0
+	}
+	for _, msg := range messages[start:] {
+		content := strings.TrimSpace(msg.Content)
+		if content == "" {
+			continue
+		}
+		parts = append(parts, truncateRunes(content, 260))
+	}
+	parts = append(parts, strings.TrimSpace(question))
+	return strings.TrimSpace(strings.Join(parts, "\n"))
+}
+
+func truncateRunes(value string, limit int) string {
+	if limit <= 0 {
+		return ""
+	}
+	runes := []rune(value)
+	if len(runes) <= limit {
+		return value
+	}
+	return string(runes[:limit])
 }
 
 // IndexPostToRAG 将单篇帖子切块、向量化并写入 RAG 索引。
