@@ -2237,6 +2237,7 @@
         assistantFabDrag: null,
         assistantFabSuppressClick: false,
         assistantDraft: "",
+        assistantSessionId: readAssistantSessionId(),
         assistantMessages: readAssistantMessages(),
         publishImages: [],
         searchComposing: false,
@@ -2320,6 +2321,32 @@
         return message &&
           (message.role === "user" || message.role === "assistant" || message.role === "error") &&
           typeof message.content === "string";
+      }
+
+      function readAssistantSessionId() {
+        try {
+          var value = localStorage.getItem("bluebellAssistantSessionId") || "";
+          return typeof value === "string" ? value.trim() : "";
+        } catch (err) {
+          return "";
+        }
+      }
+
+      function saveAssistantSessionId() {
+        if (!state.assistantSessionId) {
+          localStorage.removeItem("bluebellAssistantSessionId");
+          return;
+        }
+        localStorage.setItem("bluebellAssistantSessionId", state.assistantSessionId);
+      }
+
+      function ensureAssistantSessionId() {
+        if (state.assistantSessionId) {
+          return state.assistantSessionId;
+        }
+        state.assistantSessionId = "asst_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 10);
+        saveAssistantSessionId();
+        return state.assistantSessionId;
       }
 
       function saveAssistantMessages() {
@@ -3797,6 +3824,8 @@
         }
         state.assistantMessages = [];
         state.assistantDraft = "";
+        state.assistantSessionId = "";
+        saveAssistantSessionId();
         saveAssistantMessages();
         render();
         focusAssistantInput();
@@ -3815,9 +3844,7 @@
           toast("请输入问题");
           return;
         }
-        var history = state.assistantMessages
-          .filter(function (message) { return message.role === "user" || message.role === "assistant"; })
-          .slice(-8);
+        var sessionId = ensureAssistantSessionId();
         state.assistantDraft = "";
         state.assistantLoading = true;
         addAssistantMessage("user", question);
@@ -3827,7 +3854,7 @@
         fetch(API + "/rag/chat/stream", {
           method: "POST",
           headers: authHeaders(),
-          body: JSON.stringify({ question: question, top_k: 4, messages: history })
+          body: JSON.stringify({ session_id: sessionId, question: question, top_k: 4 })
         }).then(function (resp) {
           if (!resp.ok || !resp.body) {
             throw new Error("问答服务暂不可用");

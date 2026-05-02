@@ -2,6 +2,7 @@ package ragchat
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,25 +13,121 @@ import (
 	"bluebell/internal/models"
 	"bluebell/internal/setting"
 
-	"github.com/cloudwego/eino-ext/components/model/qwen"
-	einomodel "github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/adk"
+	"github.com/cloudwego/eino/components/model"
+	"github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
+	"github.com/cloudwego/eino-ext/components/model/qwen"
 )
 
 var (
-	cfg       *setting.RAGChatConfig
-	chatModel einomodel.BaseChatModel
+	cfg          *setting.RAGChatConfig
+	chatModel    model.BaseChatModel
+	chatAgent    *adk.ChatModelAgent
+	instruction  = "你是一个简洁的社区知识助手。你必须优先调用 retrieve_posts 工具检索帖子知识片段，再基于检索结果回答。只使用工具返回的知识内容回答。若知识不足，请明确说明知识库信息不足。不要编造事实，不要暴露内部 ID、后端字段名或系统实现细节，使用自然中文回答。"
+	toolNameRAG  = "retrieve_posts"
+	sessionKeyQ  = "user_question"
+	sessionKeyH  = "conversation_history"
+	sessionKeyTK = "top_k"
+	sessionKeyA  = "agent_answer"
 )
 
-// Init 初始化当前模块。
-func Init(c *setting.RAGChatConfig) error {
+type retrievePostsArgs struct {
+	Query string `json:"query"`
+	TopK  int    `json:"top_k"`
+}
+
+type retrievePostsResult struct {
+	Query string           `json:"query"`
+	Hits  []models.RAGHit  `json:"hits"`
+}
+
+type searchPostsFunc func(ctx context.Context, query string, topK int) (*models.RAGSearchResult, error)
+
+type retrievePostsTool struct {
+	search searchPostsFunc
+}
+
+func (t *retrievePostsTool) Info(context.Context) (*schema.ToolInfo, error) {
+	return &schema.ToolInfo{
+		Name: toolNameRAG,
+		Desc: "检索社区帖子知识库，返回与问题相关的帖子标题和内容片段。回答前必须先调用这个工具。",
+		ParamsOneOf: schema.NewParamsOneOfByParams(map[string]*schema.ParameterInfo{
+			"query": {
+				Desc:     "用于检索的查询语句，应结合当前用户问题和必要的上下文指代。",
+				Required: true,
+				Type:     schema.String,
+			},
+			"top_k": {
+				Desc:     "返回的相关帖子数量上限。",
+				Required: false,
+				Type:     schema.Integer,
+			},
+		}),
+	}, nil
+}
+
+func (t *retrievePostsTool) InvokableRun(ctx context.Context, argumentsInJSON string, _ ...tool.Option) (string, error) {
+	if t == nil || t.search == nil {
+		return "", errors.New("retrieve_posts tool is not initialized")
+	}
+
+	args := &retrievePostsArgs{}
+	if err := json.Unmarshal([]byte(argumentsInJSON), args); err != nil {
+		return "", err
+	}
+
+	query := strings.TrimSpace(args.Query)
+	if query == "" {
+		values := adk.GetSessionValues(ctx)
+		if raw, ok := values[sessionKeyQ].(string); ok {
+			query = strings.TrimSpace(raw)
+		}
+	}
+
+	topK := args.TopK
+	if topK <= 0 {
+		values := adk.GetSessionValues(ctx)
+		switch value := values[sessionKeyTK].(type) {
+		case int:
+			topK = value
+		case float64:
+			topK = int(value)
+		}
+	}
+	if topK <= 0 {
+		topK = TopK()
+	}
+
+	result, err := t.search(ctx, query, topK)
+	if err != nil {
+		return "", err
+	}
+
+	payload := &retrievePostsResult{
+		Query: query,
+		Hits:  result.Hits,
+	}
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return "", err
+	}
+	return string(raw), nil
+}
+
+func Init(c *setting.RAGChatConfig, search searchPostsFunc) error {
 	cfg = c
 	chatModel = nil
+	chatAgent = nil
 	if cfg == nil || !cfg.Enabled {
 		return nil
 	}
 	if cfg.BaseURL == "" || cfg.Model == "" {
 		return errors.New("rag_chat base_url/model is empty")
+	}
+	if search == nil {
+		return errors.New("rag_chat search func is nil")
 	}
 
 	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
@@ -38,7 +135,7 @@ func Init(c *setting.RAGChatConfig) error {
 		timeout = 45 * time.Second
 	}
 
-	model, err := qwen.NewChatModel(context.Background(), &qwen.ChatModelConfig{
+	m, err := qwen.NewChatModel(context.Background(), &qwen.ChatModelConfig{
 		BaseURL:     normalizeBaseURL(cfg.BaseURL),
 		APIKey:      cfg.APIKey,
 		Timeout:     timeout,
@@ -50,16 +147,40 @@ func Init(c *setting.RAGChatConfig) error {
 		return fmt.Errorf("init rag chat model failed: %w", err)
 	}
 
-	chatModel = model
+	agent, err := adk.NewChatModelAgent(context.Background(), &adk.ChatModelAgentConfig{
+		Name:        "rag_assistant",
+		Description: "基于社区帖子知识库进行检索问答的助手。",
+		Instruction: instruction,
+		Model:       m,
+		ToolsConfig: adk.ToolsConfig{
+			ToolsNodeConfig: compose.ToolsNodeConfig{
+				Tools: []tool.BaseTool{
+					&retrievePostsTool{search: search},
+				},
+			},
+		},
+		OutputKey:      sessionKeyA,
+		MaxIterations: 4,
+	})
+	if err != nil {
+		return fmt.Errorf("init rag chat agent failed: %w", err)
+	}
+
+	chatModel = m
+	chatAgent = agent
 	return nil
 }
 
-// Enabled 返回当前组件是否已启用且可正常使用。
-func Enabled() bool {
-	return cfg != nil && cfg.Enabled && chatModel != nil
+func WrapSearchFunc(fn func(ctx context.Context, p *models.ParamRAGSearch) (*models.RAGSearchResult, error)) searchPostsFunc {
+	return func(ctx context.Context, query string, topK int) (*models.RAGSearchResult, error) {
+		return fn(ctx, &models.ParamRAGSearch{Query: query, TopK: topK})
+	}
 }
 
-// ModelName 返回当前使用的模型名称。
+func Enabled() bool {
+	return cfg != nil && cfg.Enabled && chatModel != nil && chatAgent != nil
+}
+
 func ModelName() string {
 	if cfg == nil {
 		return ""
@@ -67,7 +188,6 @@ func ModelName() string {
 	return cfg.Model
 }
 
-// TopK 返回 RAG 检索使用的默认 TopK。
 func TopK() int {
 	if cfg == nil || cfg.TopK <= 0 {
 		return 4
@@ -75,7 +195,6 @@ func TopK() int {
 	return cfg.TopK
 }
 
-// MaxContextChars 返回问答上下文允许的最大字符数。
 func MaxContextChars() int {
 	if cfg == nil || cfg.MaxContextChars <= 0 {
 		return 3600
@@ -83,8 +202,7 @@ func MaxContextChars() int {
 	return cfg.MaxContextChars
 }
 
-// StreamAnswerQuestion 基于检索结果和最近对话流式生成问答答案。
-func StreamAnswerQuestion(ctx context.Context, question string, history []models.RAGChatMessage, hits []models.RAGHit, onChunk func(string) error) (string, error) {
+func StreamAnswerQuestion(ctx context.Context, question string, history []models.RAGChatMessage, _ []models.RAGHit, onChunk func(string) error) (string, error) {
 	if !Enabled() {
 		return "", errors.New("rag chat is disabled")
 	}
@@ -92,146 +210,145 @@ func StreamAnswerQuestion(ctx context.Context, question string, history []models
 		return "", errors.New("question is empty")
 	}
 
-	messages := []*schema.Message{
-		schema.SystemMessage("You are a concise community knowledge assistant. " +
-			"Answer the user's question only using the provided knowledge snippets. " +
-			"Use the recent conversation only to resolve context and references. " +
-			"If the snippets are insufficient, say the knowledge base does not contain enough information. " +
-			"Do not fabricate facts. Do not expose internal IDs or backend field names. Use plain Chinese."),
-		schema.UserMessage(buildPrompt(question, history, hits)),
-	}
+	runner := adk.NewRunner(ctx, adk.RunnerConfig{Agent: chatAgent, EnableStreaming: true})
 
-	stream, err := chatModel.Stream(ctx, messages)
+	sessionValues, err := buildSessionValues(question, history)
 	if err != nil {
 		return "", err
 	}
 
-	defer stream.Close()
+	iter := runner.Run(ctx, buildAgentMessages(question, history), adk.WithSessionValues(sessionValues))
 
 	var answerBuilder strings.Builder
-	var reasoningBuilder strings.Builder
-
 	for {
-		msg, recvErr := stream.Recv()
-		if recvErr != nil {
-			if errors.Is(recvErr, io.EOF) {
-				break
+		event, ok := iter.Next()
+		if !ok {
+			break
+		}
+		if event == nil {
+			continue
+		}
+		if event.Err != nil {
+			return "", event.Err
+		}
+		if event.Output == nil || event.Output.MessageOutput == nil {
+			continue
+		}
+
+		output := event.Output.MessageOutput
+		if output.Role != schema.Assistant {
+			continue
+		}
+
+		if output.IsStreaming && output.MessageStream != nil {
+			for {
+				msg, recvErr := output.MessageStream.Recv()
+				if recvErr != nil {
+					if errors.Is(recvErr, io.EOF) {
+						break
+					}
+					return "", recvErr
+				}
+				if msg == nil || msg.Content == "" {
+					continue
+				}
+				answerBuilder.WriteString(msg.Content)
+				if onChunk != nil {
+					if err := onChunk(msg.Content); err != nil {
+						return "", err
+					}
+				}
 			}
-			return "", recvErr
-		}
-		if msg == nil {
 			continue
 		}
 
-		if msg.ReasoningContent != "" {
-			reasoningBuilder.WriteString(msg.ReasoningContent)
-		}
-		if msg.Content == "" {
-			continue
-		}
-
-		answerBuilder.WriteString(msg.Content)
-		if onChunk != nil {
-			if err := onChunk(msg.Content); err != nil {
-				return "", err
+		if output.Message != nil && output.Message.Content != "" {
+			answerBuilder.WriteString(output.Message.Content)
+			if onChunk != nil {
+				if err := onChunk(output.Message.Content); err != nil {
+					return "", err
+				}
 			}
 		}
 	}
 
 	answer := strings.TrimSpace(answerBuilder.String())
-	if answer != "" {
-		return answer, nil
-	}
-
-	reasoning := strings.TrimSpace(reasoningBuilder.String())
-	if reasoning != "" {
-		if onChunk != nil {
-			if err := onChunk(reasoning); err != nil {
-				return "", err
-			}
+	if answer == "" {
+		if value, ok := sessionValues[sessionKeyA].(string); ok {
+			answer = strings.TrimSpace(value)
 		}
-		return reasoning, nil
 	}
-
-	return "", errors.New("rag chat response is empty")
+	if answer == "" {
+		return "", errors.New("rag chat response is empty")
+	}
+	return answer, nil
 }
 
-// buildPrompt 构建发给模型的提示词内容。
-func buildPrompt(question string, history []models.RAGChatMessage, hits []models.RAGHit) string {
-	var builder strings.Builder
-	builder.WriteString("Recent conversation:\n")
-	writeHistory(&builder, history)
-	builder.WriteString("\n")
-
-	builder.WriteString("Question:\n")
-	builder.WriteString(strings.TrimSpace(question))
-	builder.WriteString("\n\nKnowledge snippets:\n")
-
-	remaining := MaxContextChars()
-	if len(hits) == 0 {
-		builder.WriteString("No knowledge snippets found.\n")
-		return builder.String()
-	}
-
-	for index, hit := range hits {
-		if remaining <= 0 {
-			break
-		}
-		snippet := strings.TrimSpace(hit.ChunkText)
-		if snippet == "" {
-			snippet = strings.TrimSpace(hit.Content)
-		}
-		if snippet == "" {
-			continue
-		}
-		if len(snippet) > remaining {
-			snippet = snippet[:remaining]
-		}
-		builder.WriteString(fmt.Sprintf("[%d] Title: %s\n", index+1, strings.TrimSpace(hit.Title)))
-		builder.WriteString(fmt.Sprintf("[%d] Content: %s\n\n", index+1, snippet))
-		remaining -= len(snippet)
-	}
-
-	builder.WriteString("Requirements:\n")
-	builder.WriteString("1. Answer directly in Chinese.\n")
-	builder.WriteString("2. If the knowledge is insufficient, state that clearly.\n")
-	builder.WriteString("3. When using a snippet, mention the related post title naturally in the answer.\n")
-	builder.WriteString("4. Do not expose internal post IDs, raw identifiers, or backend field names in the answer.\n")
-	return builder.String()
-}
-
-func writeHistory(builder *strings.Builder, history []models.RAGChatMessage) {
+func buildAgentMessages(question string, history []models.RAGChatMessage) []*schema.Message {
+	messages := make([]*schema.Message, 0, len(history)+1)
 	start := len(history) - 8
 	if start < 0 {
 		start = 0
 	}
-	wrote := false
-	for _, msg := range history[start:] {
-		role := normalizeRole(msg.Role)
-		content := strings.TrimSpace(msg.Content)
-		if role == "" || content == "" {
+	for _, item := range history[start:] {
+		role := strings.ToLower(strings.TrimSpace(item.Role))
+		content := strings.TrimSpace(item.Content)
+		if content == "" {
 			continue
 		}
-		builder.WriteString(role)
-		builder.WriteString(": ")
-		builder.WriteString(truncateRunes(content, 500))
-		builder.WriteString("\n")
-		wrote = true
+		switch role {
+		case "user":
+			messages = append(messages, schema.UserMessage(content))
+		case "assistant":
+			messages = append(messages, schema.AssistantMessage(content, nil))
+		}
 	}
-	if !wrote {
-		builder.WriteString("No prior conversation.\n")
-	}
+	messages = append(messages, schema.UserMessage(strings.TrimSpace(question)))
+	return messages
 }
 
-func normalizeRole(role string) string {
-	switch strings.ToLower(strings.TrimSpace(role)) {
-	case "user":
-		return "User"
-	case "assistant":
-		return "Assistant"
-	default:
+func buildSessionValues(question string, history []models.RAGChatMessage) (map[string]interface{}, error) {
+	historyText := buildHistoryText(history)
+	values := map[string]interface{}{
+		sessionKeyQ:  strings.TrimSpace(question),
+		sessionKeyH:  historyText,
+		sessionKeyTK: TopK(),
+	}
+	return values, nil
+}
+
+func buildHistoryText(history []models.RAGChatMessage) string {
+	var builder strings.Builder
+	start := len(history) - 8
+	if start < 0 {
+		start = 0
+	}
+	for _, item := range history[start:] {
+		role := strings.ToLower(strings.TrimSpace(item.Role))
+		content := strings.TrimSpace(item.Content)
+		if content == "" {
+			continue
+		}
+		switch role {
+		case "user":
+			builder.WriteString("User: ")
+		case "assistant":
+			builder.WriteString("Assistant: ")
+		default:
+			continue
+		}
+		builder.WriteString(truncateRunes(content, 500))
+		builder.WriteString("\n")
+	}
+	return strings.TrimSpace(builder.String())
+}
+
+func normalizeBaseURL(baseURL string) string {
+	baseURL = strings.TrimSpace(baseURL)
+	if baseURL == "" {
 		return ""
 	}
+	return strings.TrimRight(baseURL, "/")
 }
 
 func truncateRunes(value string, limit int) string {
@@ -245,7 +362,6 @@ func truncateRunes(value string, limit int) string {
 	return string(runes[:limit])
 }
 
-// temperature 返回当前问答模型的采样温度。
 func temperature() float64 {
 	if cfg == nil {
 		return 0.2
@@ -259,17 +375,6 @@ func temperature() float64 {
 	return cfg.Temperature
 }
 
-// normalizeBaseURL 规范化模型服务基础地址。
-func normalizeBaseURL(baseURL string) string {
-	baseURL = strings.TrimRight(strings.TrimSpace(baseURL), "/")
-	baseURL = strings.TrimSuffix(baseURL, "/chat/completions")
-	if strings.HasSuffix(baseURL, "/v1") {
-		return baseURL
-	}
-	return baseURL + "/v1"
-}
-
-// float32Ptr 返回 float32 值的指针。
 func float32Ptr(v float32) *float32 {
 	return &v
 }

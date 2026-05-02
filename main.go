@@ -6,6 +6,7 @@ import (
 	"bluebell/internal/dao/mysql"
 	"bluebell/internal/dao/redis"
 	"bluebell/internal/logger"
+	"bluebell/internal/logic"
 	"bluebell/internal/router"
 	"bluebell/internal/setting"
 	"bluebell/pkg/embedder"
@@ -71,7 +72,7 @@ func main() {
 		fmt.Printf("init post score failed, err:%v\n", err)
 		return
 	}
-	if err := ragchat.Init(setting.Conf.RAGChatConfig); err != nil {
+	if err := ragchat.Init(setting.Conf.RAGChatConfig, ragchat.WrapSearchFunc(logic.SearchPostByRAG)); err != nil {
 		fmt.Printf("init rag chat failed, err:%v\n", err)
 		return
 	}

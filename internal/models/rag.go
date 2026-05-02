@@ -10,9 +10,10 @@ type ParamRAGReindex struct {
 }
 
 type ParamRAGChat struct {
-	Question string           `json:"question" form:"question" binding:"required"`
-	TopK     int              `json:"top_k" form:"top_k"`
-	Messages []RAGChatMessage `json:"messages"`
+	SessionID string           `json:"session_id" form:"session_id"`
+	Question  string           `json:"question" form:"question" binding:"required"`
+	TopK      int              `json:"top_k" form:"top_k"`
+	Messages  []RAGChatMessage `json:"messages"`
 }
 
 type RAGChatMessage struct {

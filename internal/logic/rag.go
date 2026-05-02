@@ -3,6 +3,7 @@ package logic
 import (
 	"bluebell/internal/dao/milvus"
 	"bluebell/internal/dao/mysql"
+	"bluebell/internal/dao/redis"
 	"bluebell/internal/models"
 	"bluebell/internal/setting"
 	"bluebell/pkg/embedder"
@@ -98,25 +99,34 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 		return nil, errors.New("rag chat is disabled")
 	}
 
+	history, err := resolveRAGChatHistory(p)
+	if err != nil {
+		return nil, fmt.Errorf("resolve rag chat history failed: %w", err)
+	}
+
 	topK := p.TopK
 	if topK <= 0 {
 		topK = ragchat.TopK()
 	}
 
 	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
-		Query: buildContextualQuery(p.Question, p.Messages),
+		Query: buildContextualQuery(p.Question, history),
 		TopK:  topK,
 	})
 	if err != nil {
 		return nil, fmt.Errorf("rag retrieval failed: %w", err)
 	}
 
-	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, p.Messages, searchResult.Hits, onChunk)
+	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, history, searchResult.Hits, onChunk)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
 		}
 		return nil, fmt.Errorf("llm answer stage failed: %w", err)
+	}
+
+	if err := persistRAGChatHistory(p.SessionID, history, p.Question, answer); err != nil {
+		return nil, fmt.Errorf("persist rag chat history failed: %w", err)
 	}
 
 	return &models.RAGChatResult{
@@ -128,6 +138,76 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 }
 
 // buildContextualQuery 把最近对话拼进检索查询，帮助 RAG 理解追问里的指代。
+func resolveRAGChatHistory(p *models.ParamRAGChat) ([]models.RAGChatMessage, error) {
+	if p == nil {
+		return nil, nil
+	}
+	if strings.TrimSpace(p.SessionID) == "" {
+		return compactRAGChatMessages(p.Messages), nil
+	}
+
+	stored, err := redis.GetAssistantSessionMessages(strings.TrimSpace(p.SessionID))
+	if err != nil {
+		return nil, err
+	}
+	if len(stored) == 0 {
+		return compactRAGChatMessages(p.Messages), nil
+	}
+
+	history := make([]models.RAGChatMessage, 0, len(stored))
+	for _, item := range stored {
+		history = append(history, models.RAGChatMessage{
+			Role:    item.Role,
+			Content: item.Content,
+		})
+	}
+	return compactRAGChatMessages(history), nil
+}
+
+func persistRAGChatHistory(sessionID string, history []models.RAGChatMessage, question string, answer string) error {
+	sessionID = strings.TrimSpace(sessionID)
+	if sessionID == "" {
+		return nil
+	}
+
+	next := make([]models.RAGChatMessage, 0, len(history)+2)
+	next = append(next, compactRAGChatMessages(history)...)
+	next = append(next, models.RAGChatMessage{Role: "user", Content: strings.TrimSpace(question)})
+	next = append(next, models.RAGChatMessage{Role: "assistant", Content: strings.TrimSpace(answer)})
+	next = compactRAGChatMessages(next)
+
+	stored := make([]redis.AssistantSessionMessage, 0, len(next))
+	for _, item := range next {
+		stored = append(stored, redis.AssistantSessionMessage{
+			Role:    item.Role,
+			Content: item.Content,
+		})
+	}
+	return redis.SaveAssistantSessionMessages(sessionID, stored)
+}
+
+func compactRAGChatMessages(messages []models.RAGChatMessage) []models.RAGChatMessage {
+	compacted := make([]models.RAGChatMessage, 0, len(messages))
+	for _, msg := range messages {
+		role := strings.ToLower(strings.TrimSpace(msg.Role))
+		content := strings.TrimSpace(msg.Content)
+		if content == "" {
+			continue
+		}
+		if role != "user" && role != "assistant" {
+			continue
+		}
+		compacted = append(compacted, models.RAGChatMessage{
+			Role:    role,
+			Content: content,
+		})
+	}
+	if len(compacted) > 20 {
+		compacted = compacted[len(compacted)-20:]
+	}
+	return compacted
+}
+
 func buildContextualQuery(question string, messages []models.RAGChatMessage) string {
 	parts := make([]string, 0, 7)
 	start := len(messages) - 6

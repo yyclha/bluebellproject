@@ -316,6 +316,32 @@ AI 评分相关代码：
 - `cmd/post_score_probe/main.go`
 - `cmd/rebuild_post_score/main.go`
 
+## Eino ADK 助手流程
+
+当前 AI 助手已经改造成基于 Eino ADK 的单 Agent 架构，核心链路如下：
+
+1. 前端为悬浮助手生成 `session_id`，请求 `/api/v1/rag/chat/stream` 时只传 `session_id`、`question` 和 `top_k`
+2. 后端根据 `session_id` 从 Redis 读取最近对话历史，作为本轮会话上下文
+3. `pkg/ragchat` 在启动时初始化 Eino `ChatModelAgent`
+4. Agent 挂载一个 `retrieve_posts` 工具，用于检索社区帖子知识库
+5. Runner 接收用户问题后，把最近对话和当前问题一并交给 Agent
+6. Agent 优先调用 `retrieve_posts`
+7. `retrieve_posts` 工具内部复用现有 RAG 检索链路：
+   - Embedding 向量化
+   - Milvus 相似度检索
+   - MySQL 补全帖子标题与正文
+8. 工具结果作为 ADK 的 tool message 回流给 Agent
+9. Agent 基于工具结果生成最终中文回答
+10. Runner 以流式事件输出回答，Gin 控制器继续通过 SSE 推送给前端
+11. 回答完成后，后端把本轮 user / assistant 对话写回 Redis，会话可持续追问
+
+相关代码入口：
+
+- `pkg/ragchat/ragchat.go`
+- `internal/logic/rag.go`
+- `internal/dao/redis/assistant_session.go`
+- `templates/index.html`
+
 ## 常用开发命令
 
 ```bash
