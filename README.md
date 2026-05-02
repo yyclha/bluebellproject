@@ -1,8 +1,8 @@
-# Bluebell GameBase
+# GameBase
 
-Bluebell GameBase 是一个基于 Go + Gin 的游戏与刷题社区项目，支持用户登录注册、社区分区、帖子发布、投票、评论、图片上传，以及基于 Embedding + Milvus 的 RAG 检索问答能力。
+ GameBase 是一个基于 Go + Gin 的游戏与刷题社区项目，支持用户登录注册、社区分区、帖子发布、投票、评论、图片上传，以及基于 Embedding + Milvus 的 RAG 检索问答能力。
 
-![Bluebell GameBase 首页](docs/images/bluebell-home.png)
+! GameBase 首页](docs/images/bluebell-home.png)
 
 ## 功能特性
 
