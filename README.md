@@ -1,95 +1,242 @@
 # GameBase
 
- GameBase 是一个基于 Go + Gin 的游戏与刷题社区项目，支持用户登录注册、社区分区、帖子发布、投票、评论、图片上传，以及基于 Embedding + Milvus 的 RAG 检索问答能力。
+GameBase 是一个基于 Go + Gin 的社区论坛项目，提供用户注册登录、社区分类、帖子发布、评论、投票、图片上传、Swagger API 文档，以及围绕帖子内容构建的 RAG 检索与 AI 问答能力。
 
-! GameBase 首页](docs/images/bluebell-home.png)
+项目当前已经集成以下扩展能力：
 
-## 功能特性
+- 基于 JWT 的登录鉴权
+- 帖子、社区、评论、投票等基础论坛能力
+- Swagger 接口文档
+- 腾讯云 COS 图片上传
+- 基于 Embedding + Milvus 的帖子向量检索
+- 基于大模型的帖子 AI 评分
+- 基于检索结果的流式 RAG 问答
+- Docker Compose 本地联调环境
 
-- 用户注册、登录与 JWT 鉴权
-- 社区分区浏览，支持 LOL、CF、力扣、云顶之弈等板块
-- 帖子发布、列表、详情、删除
-- 帖子图片上传到腾讯云 COS，发布页支持图片预览
-- 帖子列表首图缩略图，详情页真实图片渲染
-- 点赞/反对投票与热度排序
-- 评论发布与评论列表
-- 基于帖子内容的 RAG 搜索与流式问答
-- 帖子发布后可异步进行 AI 质量评分并影响排序
-- 单页模板前端，支持中文搜索输入法组合输入
+首页预览：
+
+![GameBase 首页截图](docs/images/bluebell-home.png)
 
 ## 技术栈
 
-- Go 1.23+
+- Go 1.14
 - Gin
 - MySQL
 - Redis
 - Milvus
+- Swagger
 - Tencent COS SDK
 - DashScope 兼容 OpenAI 接口
-- Swagger
 - Docker Compose
 
 ## 项目结构
 
 ```text
 .
-├─ cmd/                  命令行工具：重建 RAG、重算评分、探测评分等
-├─ conf/                 示例配置
-├─ docs/                 Swagger 文档与 README 图片
-├─ internal/
-│  ├─ controller/        HTTP handler
-│  ├─ dao/               MySQL / Redis / Milvus 数据访问
-│  ├─ logic/             业务逻辑
-│  ├─ middlewares/       鉴权与限流中间件
-│  ├─ models/            数据模型
-│  ├─ router/            路由注册
-│  └─ setting/           配置加载
-├─ pkg/                  JWT、Embedding、RAG Chat、AI 评分等通用包
-├─ static/               前端静态资源
-├─ templates/            当前单页应用模板
-├─ docker-compose.yml
-├─ main.go
-└─ README.md
+├── cmd/                     辅助命令行工具
+│   ├── post_score_probe/    AI 评分调试工具
+│   ├── rag_rebuild/         RAG 索引重建工具
+│   ├── rebuild_post_score/  帖子 AI 分数重建工具
+│   └── tft_crawler/         游戏内容采集工具
+├── conf/                    配置文件
+├── docs/                    Swagger 文档与 README 图片资源
+├── internal/
+│   ├── controller/          HTTP 处理层
+│   ├── dao/                 MySQL / Redis / Milvus 数据访问层
+│   ├── logger/              日志模块
+│   ├── logic/               业务逻辑层
+│   ├── middlewares/         中间件
+│   ├── models/              数据模型
+│   ├── router/              路由注册
+│   └── setting/             配置加载
+├── pkg/                     通用能力封装
+├── static/                  前端静态资源
+├── templates/               HTML 模板
+├── docker-compose.yml       本地依赖编排
+├── Dockerfile               应用镜像构建文件
+├── main.go                  程序入口
+└── README.md
 ```
 
-## 快速开始
+## 功能概览
+
+### 基础论坛功能
+
+- 用户注册与登录
+- 社区列表与社区详情
+- 帖子列表、帖子详情、发帖、删帖
+- 评论列表与发表评论
+- 帖子投票
+
+### AI 与检索增强
+
+- 发布帖子后可异步生成 AI 初始评分
+- 帖子内容可按分块写入 Milvus 向量索引
+- 支持基于帖子内容的 RAG 检索
+- 支持结合检索结果进行流式 RAG 问答
+
+### 媒体能力
+
+- 支持上传帖子图片到腾讯云 COS
+
+## 主要接口
+
+公开接口：
+
+- `POST /api/v1/signup`
+- `POST /api/v1/login`
+- `GET /api/v1/posts`
+- `GET /api/v1/posts2`
+- `GET /api/v1/community`
+- `GET /api/v1/community/:id`
+- `GET /api/v1/post/:id`
+- `GET /api/v1/post/:id/comments`
+- `GET /api/v1/rag/search`
+- `GET /api/v1/rag/chat/stream`
+- `POST /api/v1/rag/chat/stream`
+
+需要登录的接口：
+
+- `POST /api/v1/post`
+- `DELETE /api/v1/post/:id`
+- `POST /api/v1/comment`
+- `POST /api/v1/vote`
+- `POST /api/v1/rag/reindex`
+- `POST /api/v1/upload/image`
+
+## 本地运行
 
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/yyclha/bluebellproject.git
-cd bluebellproject
+git clone https://github.com/yyclha/GameBase.git
+cd GameBase
 ```
 
-### 2. 准备配置
+### 2. 准备配置文件
 
-仓库不会提交真实运行配置 `conf/config.yaml`，避免泄露数据库密码、模型 Key、COS 密钥等敏感信息。请从示例配置复制一份：
+项目会默认读取 `./conf/config.yaml`。仓库里已经包含这个文件，也可以用 `conf/dev.yml` 作为参考模板进行覆盖。
 
-```bash
-cp conf/dev.yml conf/config.yaml
-```
-
-Windows PowerShell:
+示例：
 
 ```powershell
 Copy-Item .\conf\dev.yml .\conf\config.yaml
 ```
 
-然后按你的本地环境修改 `conf/config.yaml`：
+当前开发配置里默认端口是 `8084`。
+
+### 3. 准备 MySQL 与 Redis
+
+先创建数据库：
+
+```sql
+CREATE DATABASE IF NOT EXISTS bluebell DEFAULT CHARACTER SET utf8mb4;
+```
+
+然后导入初始化 SQL：
+
+```bash
+mysql -uroot -p bluebell < bluebell_user.sql
+mysql -uroot -p bluebell < bluebell_community.sql
+mysql -uroot -p bluebell < bluebell_post.sql
+```
+
+Windows PowerShell 示例：
+
+```powershell
+Get-Content .\bluebell_user.sql | mysql -uroot -p bluebell
+Get-Content .\bluebell_community.sql | mysql -uroot -p bluebell
+Get-Content .\bluebell_post.sql | mysql -uroot -p bluebell
+```
+
+### 4. 启动服务
+
+```bash
+go run -buildvcs=false ./main.go ./conf/config.yaml
+```
+
+启动后可访问：
+
+- 首页：`http://127.0.0.1:8084/`
+- 健康检查：`http://127.0.0.1:8084/ping`
+- Swagger：`http://127.0.0.1:8084/swagger/index.html`
+
+## Docker Compose
+
+项目提供了本地联调环境，包含：
+
+- MySQL 8
+- Redis 5
+- Etcd
+- MinIO
+- Milvus
+- GameBase 应用服务
+
+启动：
+
+```bash
+docker compose up -d
+docker compose ps
+```
+
+查看日志：
+
+```bash
+docker compose logs -f
+```
+
+只启动依赖服务：
+
+```bash
+docker compose up -d mysql8019 redis507 etcd minio milvus-standalone
+```
+
+停止并清理：
+
+```bash
+docker compose down
+```
+
+默认映射端口：
+
+- 应用：`8888 -> 8084`
+- MySQL：`33061 -> 3306`
+- Redis：`26379 -> 6379`
+- Milvus：`19530`
+- MinIO：`9001`
+
+## 配置说明
+
+`conf/config.yaml` 中的核心配置包括：
+
+- `mysql`：MySQL 连接信息
+- `redis`：Redis 连接信息
+- `milvus`：向量检索配置
+- `embedding`：Embedding 模型配置
+- `post_score`：帖子 AI 评分模型配置
+- `rag_chat`：RAG 问答模型配置
+- `cos`：腾讯云 COS 配置
+
+示例片段：
 
 ```yaml
 mysql:
   host: 127.0.0.1
-  port: 3306
+  port: 23306
   user: "root"
-  password: "your_mysql_password"
-  dbname: "bluebell"
+  password: "1234"
+  dbname: "gotest"
 
 redis:
   host: 127.0.0.1
   port: 6379
   password: ""
-  db: 0
+  db: 6
+
+milvus:
+  enabled: false
+  address: "127.0.0.1:19530"
+  collection: "post_rag_chunk_1024"
 
 embedding:
   enabled: false
@@ -119,80 +266,9 @@ cos:
   max_image_mb: 5
 ```
 
-需要启用 RAG、AI 评分或图片上传时，再把对应模块的 `enabled` 改为 `true` 并填入自己的服务配置。`conf/config.yaml` 已在 `.gitignore` 中，不会被提交。
+## 启用图片上传
 
-### 3. 初始化数据库
-
-创建数据库：
-
-```sql
-CREATE DATABASE IF NOT EXISTS bluebell DEFAULT CHARACTER SET utf8mb4;
-```
-
-导入基础表：
-
-```bash
-mysql -uroot -p bluebell < bluebell_user.sql
-mysql -uroot -p bluebell < bluebell_community.sql
-mysql -uroot -p bluebell < bluebell_post.sql
-```
-
-Windows PowerShell:
-
-```powershell
-Get-Content .\bluebell_user.sql | mysql -uroot -p bluebell
-Get-Content .\bluebell_community.sql | mysql -uroot -p bluebell
-Get-Content .\bluebell_post.sql | mysql -uroot -p bluebell
-```
-
-评论表和帖子 AI 评分表会在服务启动时自动创建。
-
-### 4. 启动服务
-
-```bash
-go run -buildvcs=false ./main.go ./conf/config.yaml
-```
-
-访问：
-
-- 首页: `http://127.0.0.1:8084/`
-- 发帖页: `http://127.0.0.1:8084/publish`
-- 健康检查: `http://127.0.0.1:8084/ping`
-- Swagger: `http://127.0.0.1:8084/swagger/index.html`
-
-## 使用 Docker Compose 启动依赖
-
-仓库提供了 `docker-compose.yml`，包含 MySQL、Redis、etcd、MinIO、Milvus 和应用服务。
-
-```bash
-docker compose up -d
-docker compose ps
-docker compose logs -f
-```
-
-如果只想启动依赖：
-
-```bash
-docker compose up -d mysql8019 redis507 etcd minio milvus-standalone
-```
-
-停止：
-
-```bash
-docker compose down
-```
-
-## 图片上传
-
-图片上传接口：
-
-```text
-POST /api/v1/upload/image
-```
-
-前端发布页会把上传成功的图片放入预览区，不会把图片 Markdown 原文暴露在编辑框里。发布时图片地址会随帖子内容一起保存；列表页提取首张图作为缩略图，详情页渲染为真实图片。
-
-启用 COS 示例：
+启用 COS 上传时，至少需要配置：
 
 ```yaml
 cos:
@@ -205,114 +281,67 @@ cos:
   max_image_mb: 5
 ```
 
-也可以通过环境变量提供腾讯云密钥，避免写入配置文件：
+也可以通过环境变量注入密钥：
 
 ```powershell
 $env:TENCENT_COS_SECRET_ID="your_secret_id"
 $env:TENCENT_COS_SECRET_KEY="your_secret_key"
 ```
 
-## RAG 与 AI 评分
+对应接口：
 
-RAG 索引流程：
+```text
+POST /api/v1/upload/image
+```
 
-1. 将帖子标题和正文拼接为原始文本。
-2. 按 `chunk_size` 和 `chunk_overlap` 切分片段。
-3. 调用 Embedding 接口生成向量。
-4. 将向量写入 Milvus。
-5. 查询时检索相关 chunk，并用于 RAG 问答。
+## 启用 RAG 与 AI 能力
 
-相关代码：
+如果要启用向量检索、RAG 问答和 AI 评分，需要：
 
-- `internal/logic/rag_chunk.go`
+1. 将 `milvus.enabled` 设置为 `true`
+2. 将 `embedding.enabled` 设置为 `true`
+3. 将 `post_score.enabled` 设置为 `true`
+4. 将 `rag_chat.enabled` 设置为 `true`
+5. 配置对应的模型地址、API Key 和模型名
+
+RAG 相关核心代码：
+
 - `internal/logic/rag.go`
+- `internal/logic/rag_chunk.go`
 - `internal/dao/milvus/milvus.go`
-- `pkg/embedder/embedder.go`
-- `pkg/ragchat/ragchat.go`
 
-重建 RAG 索引：
+AI 评分相关代码：
 
-```bash
-curl -X POST http://127.0.0.1:8084/api/v1/rag/reindex \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d "{\"limit\":1000}"
-```
+- `internal/logic/post_rag.go`
+- `cmd/post_score_probe/main.go`
+- `cmd/rebuild_post_score/main.go`
 
-帖子 AI 评分由 `post_score` 模块控制。启用后，发帖成功会异步调用模型给帖子打分，并把分数按 `score_weight` 折算后叠加到 Redis 排序分。
-
-## 常用接口
-
-注册：
+## 常用开发命令
 
 ```bash
-curl -X POST http://127.0.0.1:8084/api/v1/signup \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"test1\",\"password\":\"123456\",\"re_password\":\"123456\"}"
-```
-
-登录：
-
-```bash
-curl -X POST http://127.0.0.1:8084/api/v1/login \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"test1\",\"password\":\"123456\"}"
-```
-
-帖子列表：
-
-```bash
-curl "http://127.0.0.1:8084/api/v1/posts2?page=1&size=10&order=time"
-```
-
-帖子详情：
-
-```bash
-curl "http://127.0.0.1:8084/api/v1/post/1"
-```
-
-发表评论：
-
-```bash
-curl -X POST http://127.0.0.1:8084/api/v1/comment \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d "{\"post_id\":\"1\",\"content\":\"这是一条评论\"}"
-```
-
-## 开发命令
-
-```bash
-go fmt ./...
-go vet ./...
-go test ./...
-go build -buildvcs=false ./...
-```
-
-Makefile：
-
-```bash
-make run
-make build
 make gotool
+make build
+make run
 ```
 
-## 常见问题
+说明：
 
-### RAG 或问答不可用
+- `make gotool`：执行 `go fmt` 和 `go vet`
+- `make build`：构建 Linux AMD64 二进制到 `bin/bluebell`
+- `make run`：使用 `conf/config.yaml` 启动服务
 
-确认 `embedding.enabled`、`rag_chat.enabled`、Milvus 地址、模型 Key 和模型名称是否正确。默认示例配置里这些功能是关闭的，避免没有外部依赖时启动失败。
+## 说明
 
-### 图片上传失败
+仓库已忽略以下本地文件：
 
-确认 `cos.enabled` 为 `true`，`bucket_url`、SecretId、SecretKey 正确，且 COS bucket 允许外部访问上传后的对象。
+- `conf/config.yaml`
+- `bin/`
+- `web_app.log`
+- `.gocache/`
 
-### 浏览器请求接口跨域
+如果你要在生产环境部署，建议额外补充：
 
-开发时尽量统一使用同一个 host，例如都使用 `http://127.0.0.1:8084`，不要页面用 `localhost` 而接口用 `127.0.0.1`。
-
-## 安全说明
-
-- 不要提交 `conf/config.yaml`。
-- 不要把 DashScope Key、腾讯云 SecretId / SecretKey、数据库密码提交到仓库。
-- `conf/dev.yml` 只保留可公开的示例配置。
+- 完整的环境变量说明
+- 前后端部署方式
+- 初始化演示账号
+- API 调用示例
