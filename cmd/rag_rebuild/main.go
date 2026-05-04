@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bluebell/internal/dao/milvus"
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/logger"
-	"bluebell/internal/logic"
-	"bluebell/internal/setting"
-	"bluebell/pkg/embedder"
+	"gamebase/internal/dao/milvus"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/logger"
+	"gamebase/internal/logic"
+	"gamebase/internal/setting"
+	"gamebase/pkg/embedder"
 	"context"
 	"fmt"
 	"os"

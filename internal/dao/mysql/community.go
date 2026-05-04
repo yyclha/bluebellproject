@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"bluebell/internal/models"
+	"gamebase/internal/models"
 	"database/sql"
 
 	"go.uber.org/zap"

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"bluebell/internal/logic"
+	"gamebase/internal/logic"
 	"errors"
 
 	"github.com/gin-gonic/gin"

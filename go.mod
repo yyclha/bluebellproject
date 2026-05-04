@@ -1,4 +1,4 @@
-module bluebell
+module gamebase
 
 go 1.14
 

@@ -1,6 +1,6 @@
 package controller
 
-import "bluebell/internal/models"
+import "gamebase/internal/models"
 
 // _ResponsePostList 专门用于 Swagger 文档中的帖子列表响应模型。
 type _ResponsePostList struct {

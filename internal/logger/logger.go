@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"net"
 	"net/http"
 	"net/http/httputil"

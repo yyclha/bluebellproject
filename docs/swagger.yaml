@@ -73,9 +73,9 @@ info:
   contact:
     name: liwenzhou
     url: http://www.liwenzhou.com
-  description: Go web开发进阶项目实战课程bluebell
+  description: Go web开发进阶项目实战课程 GameBase
   license: {}
-  title: bluebell项目接口文档
+  title: GameBase 项目接口文档
   version: "1.0"
 paths:
   /posts2:

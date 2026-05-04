@@ -1,6 +1,6 @@
 package mysql
 
-import "bluebell/internal/models"
+import "gamebase/internal/models"
 
 // InitPostAIScoreTable 初始化帖子 AI 分数表结构。
 func InitPostAIScoreTable() error {

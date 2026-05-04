@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"fmt"
 
 	"github.com/go-redis/redis"

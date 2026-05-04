@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"context"
 	"fmt"
 	"os"
@@ -103,17 +103,17 @@ func main() {
 	}
 
 	pipeline := rdb.TxPipeline()
-	pipeline.Del("bluebell:post:score")
+	pipeline.Del("gamebase:post:score")
 
 	for _, post := range posts {
 		postIDStr := strconv.FormatInt(post.PostID, 10)
 
-		upVotes, err := rdb.ZCount("bluebell:post:voted:"+postIDStr, "1", "1").Result()
+		upVotes, err := rdb.ZCount("gamebase:post:voted:"+postIDStr, "1", "1").Result()
 		if err != nil && err != redis.Nil {
 			fmt.Printf("load up votes failed for %s, err:%v\n", postIDStr, err)
 			os.Exit(1)
 		}
-		downVotes, err := rdb.ZCount("bluebell:post:voted:"+postIDStr, "-1", "-1").Result()
+		downVotes, err := rdb.ZCount("gamebase:post:voted:"+postIDStr, "-1", "-1").Result()
 		if err != nil && err != redis.Nil {
 			fmt.Printf("load down votes failed for %s, err:%v\n", postIDStr, err)
 			os.Exit(1)
@@ -123,7 +123,7 @@ func main() {
 		score += float64(commentMap[post.PostID] * scorePerComment)
 		score += float64((upVotes - downVotes) * scorePerVote)
 
-		pipeline.ZAdd("bluebell:post:score", redis.Z{
+		pipeline.ZAdd("gamebase:post:score", redis.Z{
 			Score:  score,
 			Member: post.PostID,
 		})

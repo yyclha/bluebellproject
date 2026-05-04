@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
-	"bluebell/pkg/postscore"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
+	"gamebase/pkg/postscore"
 	"context"
 	"fmt"
 	"os"

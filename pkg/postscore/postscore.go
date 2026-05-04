@@ -1,8 +1,8 @@
 package postscore
 
 import (
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
 	"bufio"
 	"bytes"
 	"context"

@@ -1,8 +1,8 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "Go web开发进阶项目实战课程bluebell",
-        "title": "bluebell项目接口文档",
+        "description": "Go web开发进阶项目实战课程 GameBase",
+        "title": "GameBase 项目接口文档",
         "contact": {
             "name": "liwenzhou",
             "url": "http://www.liwenzhou.com"

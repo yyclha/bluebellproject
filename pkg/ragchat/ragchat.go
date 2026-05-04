@@ -10,8 +10,8 @@ import (
 	"strings"
 	"time"
 
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
 
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"

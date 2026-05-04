@@ -7,7 +7,7 @@ services:
     command: "--default-authentication-plugin=mysql_native_password --init-file /data/application/init.sql"
     environment:
       MYSQL_ROOT_PASSWORD: "root1234"
-      MYSQL_DATABASE: "bluebell"
+      MYSQL_DATABASE: "gamebase"
       MYSQL_PASSWORD: "root1234"
     volumes:
       - ./init.sql:/data/application/init.sql
@@ -52,9 +52,9 @@ services:
       - "19530:19530"
       - "9091:9091"
 
-  bluebell_app:
+  gamebase_app:
     build: .
-    command: sh -c "./wait-for.sh mysql8019:3306 redis507:6379 milvus-standalone:19530 -- ./bluebell_app ./conf/config.yaml"
+    command: sh -c "./wait-for.sh mysql8019:3306 redis507:6379 milvus-standalone:19530 -- ./gamebase_app ./conf/config.yaml"
     depends_on:
       - mysql8019
       - redis507

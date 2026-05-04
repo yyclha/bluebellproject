@@ -1,7 +1,7 @@
 package milvus
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"context"
 	"errors"
 	"fmt"
@@ -267,7 +267,7 @@ func ensureCollection(ctx context.Context) error {
 
 	schema := entity.NewSchema().
 		WithName(cfg.Collection).
-		WithDescription("bluebell rag chunks").
+		WithDescription("gamebase rag chunks").
 		WithAutoID(false).
 		WithField(entity.NewField().WithName(fieldChunkID).WithDataType(entity.FieldTypeVarChar).WithMaxLength(128).WithIsPrimaryKey(true).WithIsAutoID(false)).
 		WithField(entity.NewField().WithName(fieldPostID).WithDataType(entity.FieldTypeInt64)).

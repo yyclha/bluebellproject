@@ -1,9 +1,9 @@
 package main
 
 import (
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/setting"
-	"bluebell/pkg/snowflake"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/setting"
+	"gamebase/pkg/snowflake"
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
@@ -192,7 +192,7 @@ func fetchText(client *http.Client, rawURL string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "bluebell-tft-crawler/1.0 (+https://github.com/yyclha/bluebellproject)")
+	req.Header.Set("User-Agent", "gamebase-tft-crawler/1.0 (+https://github.com/yyclha/gamebaseproject)")
 
 	resp, err := client.Do(req)
 	if err != nil {

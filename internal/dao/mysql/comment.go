@@ -1,6 +1,6 @@
 package mysql
 
-import "bluebell/internal/models"
+import "gamebase/internal/models"
 
 // InitCommentTable 初始化评论表结构。
 func InitCommentTable() error {

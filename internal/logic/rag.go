@@ -1,13 +1,13 @@
 package logic
 
 import (
-	"bluebell/internal/dao/milvus"
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
-	"bluebell/pkg/embedder"
-	"bluebell/pkg/ragchat"
+	"gamebase/internal/dao/milvus"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
+	"gamebase/pkg/embedder"
+	"gamebase/pkg/ragchat"
 	"context"
 	"errors"
 	"fmt"

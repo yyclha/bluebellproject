@@ -17,8 +17,8 @@ RUN go mod download
 # 将代码复制到容器中
 COPY . .
 
-# 将我们的代码编译成二进制可执行文件 bluebell_app
-RUN go build -buildvcs=false -o bluebell_app .
+# 将我们的代码编译成二进制可执行文件 gamebase_app
+RUN go build -buildvcs=false -o gamebase_app .
 
 ###################
 # 接下来创建一个小镜像
@@ -30,10 +30,10 @@ COPY ./static /static
 COPY ./conf /conf
 
 # 从builder镜像中把/dist/app 拷贝到当前目录
-COPY --from=builder /build/bluebell_app /
+COPY --from=builder /build/gamebase_app /
 
 # 声明服务端口
 EXPOSE 8084
 
 # 需要运行的命令
-ENTRYPOINT ["/bluebell_app", "conf/config.yaml"]
+ENTRYPOINT ["/gamebase_app", "conf/config.yaml"]

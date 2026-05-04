@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"bluebell/internal/logic"
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
+	"gamebase/internal/logic"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
 	"context"
 	"encoding/json"
 	"fmt"

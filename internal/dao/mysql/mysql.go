@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"fmt"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -20,6 +20,9 @@ func Init(cfg *setting.MySQLConfig) (err error) {
 	}
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
 	db.SetMaxIdleConns(cfg.MaxIdleConns)
+	if err = InitUserProfileColumns(); err != nil {
+		return err
+	}
 	return
 }
 

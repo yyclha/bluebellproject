@@ -1,8 +1,8 @@
 package middlewares
 
 import (
-	"bluebell/internal/controller"
-	"bluebell/pkg/jwt"
+	"gamebase/internal/controller"
+	"gamebase/pkg/jwt"
 	"strings"
 
 	"github.com/gin-gonic/gin"

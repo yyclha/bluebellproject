@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"bluebell/internal/models"
+	"gamebase/internal/models"
 	"fmt"
 	"reflect"
 	"strings"

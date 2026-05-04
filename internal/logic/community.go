@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/models"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/models"
 )
 
 // GetCommunityList 获取社区列表数据。

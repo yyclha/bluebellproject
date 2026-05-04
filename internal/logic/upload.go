@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"bytes"
 	"context"
 	"crypto/rand"
@@ -110,7 +110,7 @@ func imageExt(contentType string) (string, bool) {
 func buildImageKey(prefix, ext string) string {
 	prefix = strings.Trim(prefix, "/")
 	if prefix == "" {
-		prefix = "bluebell/posts"
+		prefix = "gamebase/posts"
 	}
 	name := randomHex(16) + ext
 	return path.Join(prefix, time.Now().Format("20060102"), name)

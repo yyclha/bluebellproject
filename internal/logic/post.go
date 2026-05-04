@@ -1,11 +1,11 @@
 package logic
 
 import (
-	"bluebell/internal/dao/milvus"
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/models"
-	"bluebell/pkg/snowflake"
+	"gamebase/internal/dao/milvus"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/models"
+	"gamebase/pkg/snowflake"
 	"context"
 	"errors"
 	"strconv"

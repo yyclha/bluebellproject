@@ -1,7 +1,7 @@
 package embedder
 
 import (
-	"bluebell/internal/setting"
+	"gamebase/internal/setting"
 	"bytes"
 	"context"
 	"encoding/json"

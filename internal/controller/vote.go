@@ -3,9 +3,9 @@ package controller
 import (
 	"errors"
 
-	redisdao "bluebell/internal/dao/redis"
-	"bluebell/internal/logic"
-	"bluebell/internal/models"
+	redisdao "gamebase/internal/dao/redis"
+	"gamebase/internal/logic"
+	"gamebase/internal/models"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"

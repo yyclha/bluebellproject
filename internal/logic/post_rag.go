@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/models"
-	"bluebell/pkg/postscore"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/models"
+	"gamebase/pkg/postscore"
 	"context"
 	"math"
 	"time"

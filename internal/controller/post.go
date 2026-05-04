@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"bluebell/internal/logic"
-	"bluebell/internal/models"
+	"gamebase/internal/logic"
+	"gamebase/internal/models"
 	"errors"
 	"strconv"
 

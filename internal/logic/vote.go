@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/models"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/models"
 	"strconv"
 
 	"go.uber.org/zap"

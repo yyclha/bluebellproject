@@ -1,4 +1,4 @@
-name: "bluebell"
+name: "gamebase"
 mode: "dev"
 port: 8084
 version: "v0.0.1"
@@ -69,5 +69,5 @@ cos:
   secret_id: ""
   secret_key: ""
   public_base_url: ""
-  upload_prefix: "bluebell/posts"
+  upload_prefix: "gamebase/posts"
   max_image_mb: 5

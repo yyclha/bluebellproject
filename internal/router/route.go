@@ -1,13 +1,13 @@
 package router
 
 import (
-	"bluebell/internal/controller"
-	"bluebell/internal/logger"
-	"bluebell/internal/middlewares"
+	"gamebase/internal/controller"
+	"gamebase/internal/logger"
+	"gamebase/internal/middlewares"
 	"net/http"
 	"strings"
 
-	_ "bluebell/docs"
+	_ "gamebase/docs"
 
 	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
@@ -37,6 +37,7 @@ func SetupRouter(mode string) *gin.Engine {
 	v1 := r.Group("/api/v1")
 	v1.POST("/signup", controller.SignUpHandler)
 	v1.POST("/login", controller.LoginHandler)
+	v1.GET("/me", controller.GetCurrentUserHandler)
 
 	v1.GET("/posts2", controller.GetPostListHandler2)
 	v1.GET("/posts", controller.GetPostListHandler)
@@ -54,6 +55,8 @@ func SetupRouter(mode string) *gin.Engine {
 		v1.DELETE("/post/:id", controller.DeletePostHandler)
 		v1.POST("/comment", controller.CreateCommentHandler)
 		v1.POST("/vote", controller.PostVoteController)
+		v1.PATCH("/me/profile", controller.UpdateCurrentUserProfileHandler)
+		v1.PATCH("/me/password", controller.ChangeCurrentUserPasswordHandler)
 		v1.POST("/rag/reindex", controller.RAGReindexHandler)
 		v1.POST("/upload/image", controller.UploadImageHandler)
 	}

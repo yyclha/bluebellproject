@@ -1642,6 +1642,154 @@
       color: var(--text);
     }
 
+    .panel-divider {
+      height: 1px;
+      margin: 18px 0;
+      background: rgba(148, 163, 184, 0.16);
+    }
+
+    .mini-profile {
+      display: grid;
+      grid-template-columns: 52px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .mini-profile strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .mini-profile p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .mini-avatar,
+    .profile-avatar-fallback,
+    .profile-cover span {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+      background: linear-gradient(135deg, rgba(34, 211, 238, 0.18), rgba(37, 99, 235, 0.2));
+      color: var(--text);
+      font-weight: 800;
+    }
+
+    .mini-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+    }
+
+    .mini-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .profile-page {
+      display: grid;
+      gap: 18px;
+    }
+
+    .profile-hero,
+    .profile-card {
+      overflow: hidden;
+    }
+
+    .profile-hero {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr);
+      gap: 20px;
+      padding: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: var(--radius);
+      background: linear-gradient(135deg, rgba(8, 13, 24, 0.94), rgba(16, 24, 40, 0.94));
+      box-shadow: var(--shadow-sm);
+    }
+
+    .profile-avatar-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .profile-avatar {
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      object-fit: cover;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+      background: rgba(8, 13, 24, 0.9);
+    }
+
+    .profile-avatar-fallback {
+      width: 110px;
+      height: 110px;
+      border-radius: 28px;
+      font-size: 34px;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .profile-card {
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+    }
+
+    .profile-card.is-secondary {
+      border-color: rgba(148, 163, 184, 0.14);
+      background: linear-gradient(180deg, rgba(14, 20, 32, 0.9), rgba(11, 17, 28, 0.9));
+    }
+
+    .profile-cover {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 180px;
+      margin: 20px 22px 0;
+      border: 1px dashed rgba(148, 163, 184, 0.2);
+      border-radius: 20px;
+      background: rgba(8, 13, 24, 0.6);
+    }
+
+    .profile-cover img {
+      width: 112px;
+      height: 112px;
+      border-radius: 30px;
+      object-fit: cover;
+      border: 1px solid rgba(34, 211, 238, 0.24);
+    }
+
+    .profile-cover span {
+      width: 112px;
+      height: 112px;
+      border-radius: 30px;
+      font-size: 36px;
+    }
+
+    .field-full {
+      grid-column: 1 / -1;
+    }
+
+    .profile-security-actions,
+    .password-editor {
+      padding: 20px 22px 22px;
+    }
+
+    .password-editor {
+      border-top: 1px solid rgba(148, 163, 184, 0.16);
+    }
+
     .toast {
       border-color: rgba(34, 211, 238, 0.28);
       background: rgba(8, 13, 24, 0.96);
@@ -2240,6 +2388,12 @@
         assistantSessionId: readAssistantSessionId(),
         assistantMessages: readAssistantMessages(),
         publishImages: [],
+        profileAvatarUploading: false,
+        profileSaving: false,
+        passwordEditorOpen: false,
+        passwordSaving: false,
+        profileForm: createProfileForm(readLogin()),
+        passwordForm: createPasswordForm(),
         searchComposing: false,
         auth: readLogin()
       };
@@ -2278,6 +2432,9 @@
         if (path === "/signup") {
           return { name: "signup" };
         }
+        if (path === "/me") {
+          return { name: "profile" };
+        }
         return { name: "home" };
       }
 
@@ -2291,6 +2448,10 @@
         }
         if (state.route.name !== "publish") {
           state.publishImages = [];
+        }
+        if (state.route.name !== "profile") {
+          state.passwordEditorOpen = false;
+          state.passwordForm = createPasswordForm();
         }
         render();
         loadRouteData();
@@ -2310,7 +2471,7 @@
 
       function readAssistantMessages() {
         try {
-          var messages = JSON.parse(localStorage.getItem("bluebellAssistantMessages")) || [];
+          var messages = JSON.parse(localStorage.getItem("gamebaseAssistantMessages")) || [];
           return Array.isArray(messages) ? messages.filter(isAssistantMessage).slice(-20) : [];
         } catch (err) {
           return [];
@@ -2325,7 +2486,7 @@
 
       function readAssistantSessionId() {
         try {
-          var value = localStorage.getItem("bluebellAssistantSessionId") || "";
+          var value = localStorage.getItem("gamebaseAssistantSessionId") || "";
           return typeof value === "string" ? value.trim() : "";
         } catch (err) {
           return "";
@@ -2334,10 +2495,10 @@
 
       function saveAssistantSessionId() {
         if (!state.assistantSessionId) {
-          localStorage.removeItem("bluebellAssistantSessionId");
+          localStorage.removeItem("gamebaseAssistantSessionId");
           return;
         }
-        localStorage.setItem("bluebellAssistantSessionId", state.assistantSessionId);
+        localStorage.setItem("gamebaseAssistantSessionId", state.assistantSessionId);
       }
 
       function ensureAssistantSessionId() {
@@ -2350,12 +2511,12 @@
       }
 
       function saveAssistantMessages() {
-        localStorage.setItem("bluebellAssistantMessages", JSON.stringify(state.assistantMessages.slice(-20)));
+        localStorage.setItem("gamebaseAssistantMessages", JSON.stringify(state.assistantMessages.slice(-20)));
       }
 
       function readAssistantPosition() {
         try {
-          var position = JSON.parse(localStorage.getItem("bluebellAssistantPosition")) || null;
+          var position = JSON.parse(localStorage.getItem("gamebaseAssistantPosition")) || null;
           if (!position || typeof position.left !== "number" || typeof position.top !== "number") {
             return null;
           }
@@ -2367,15 +2528,15 @@
 
       function saveAssistantPosition() {
         if (!state.assistantPosition) {
-          localStorage.removeItem("bluebellAssistantPosition");
+          localStorage.removeItem("gamebaseAssistantPosition");
           return;
         }
-        localStorage.setItem("bluebellAssistantPosition", JSON.stringify(state.assistantPosition));
+        localStorage.setItem("gamebaseAssistantPosition", JSON.stringify(state.assistantPosition));
       }
 
       function readAssistantFabPosition() {
         try {
-          var position = JSON.parse(localStorage.getItem("bluebellAssistantFabPosition")) || null;
+          var position = JSON.parse(localStorage.getItem("gamebaseAssistantFabPosition")) || null;
           if (!position || typeof position.left !== "number" || typeof position.top !== "number") {
             return null;
           }
@@ -2387,15 +2548,52 @@
 
       function saveAssistantFabPosition() {
         if (!state.assistantFabPosition) {
-          localStorage.removeItem("bluebellAssistantFabPosition");
+          localStorage.removeItem("gamebaseAssistantFabPosition");
           return;
         }
-        localStorage.setItem("bluebellAssistantFabPosition", JSON.stringify(state.assistantFabPosition));
+        localStorage.setItem("gamebaseAssistantFabPosition", JSON.stringify(state.assistantFabPosition));
       }
 
       function setLogin(data) {
-        localStorage.setItem("loginResult", JSON.stringify(data));
-        state.auth = data;
+        var normalized = normalizeAuth(data);
+        localStorage.setItem("loginResult", JSON.stringify(normalized));
+        state.auth = normalized;
+        state.profileForm = createProfileForm(normalized);
+      }
+
+      function normalizeAuth(data) {
+        data = data || {};
+        return {
+          user_id: data.user_id || "",
+          user_name: data.user_name || data.username || "",
+          username: data.username || data.user_name || "",
+          token: data.token || (state.auth && state.auth.token) || "",
+          email: data.email || "",
+          gender: typeof data.gender === "number" ? data.gender : Number(data.gender || 0),
+          avatar_url: data.avatar_url || "",
+          bio: data.bio || "",
+          create_time: data.create_time || "",
+          update_time: data.update_time || ""
+        };
+      }
+
+      function createProfileForm(source) {
+        source = normalizeAuth(source || {});
+        return {
+          username: source.username || source.user_name || "",
+          email: source.email || "",
+          gender: typeof source.gender === "number" ? source.gender : Number(source.gender || 0),
+          avatar_url: source.avatar_url || "",
+          bio: source.bio || ""
+        };
+      }
+
+      function createPasswordForm() {
+        return {
+          old_password: "",
+          new_password: "",
+          re_password: ""
+        };
       }
 
       function clearAuthForm() {
@@ -2409,6 +2607,8 @@
       function logout() {
         localStorage.removeItem("loginResult");
         state.auth = null;
+        state.profileForm = createProfileForm();
+        state.passwordForm = createPasswordForm();
         toast("已退出登录");
         navigate("/");
       }
@@ -2730,7 +2930,7 @@
           '<input class="search-input" id="global-search" type="search" value="' + escapeHTML(state.query) + '" placeholder="搜索攻略、队友、阵容、题解">',
           '</div>',
           '<div class="topbar-actions">',
-          isAuth ? '<span class="user-pill"><span class="user-dot"></span>' + escapeHTML(state.auth.user_name || "玩家") + '</span>' : '',
+          isAuth ? '<button class="user-pill" data-action="profile" aria-label="打开我的资料"><span class="user-dot"></span>' + escapeHTML(state.auth.user_name || "玩家") + '</button>' : '',
           isAuth ? '<button class="btn btn-ghost" data-action="logout">退出</button>' : '<button class="btn btn-ghost" data-action="login">登录</button>',
           isAuth ? '<button class="btn btn-primary" data-action="publish">' + icon("plus") + '<span>发布</span></button>' : '<button class="btn btn-primary" data-action="signup">注册</button>',
           '</div>',
@@ -2787,6 +2987,20 @@
           '<div class="stat"><span class="stat-value">' + state.communities.length + '</span><span class="stat-label">频道</span></div>',
           '<div class="stat"><span class="stat-value">' + (state.order === "score" ? "热榜" : "新帖") + '</span><span class="stat-label">排序</span></div>',
           '</div>',
+          state.auth && state.auth.token ? [
+            '<div class="panel-divider"></div>',
+            '<div class="mini-profile">',
+            '<div class="mini-avatar">' + escapeHTML((state.auth.user_name || "玩家").slice(0, 1).toUpperCase()) + '</div>',
+            '<div>',
+            '<strong>' + escapeHTML(state.auth.user_name || "玩家") + '</strong>',
+            '<p>' + escapeHTML(state.auth.bio || "完善头像、简介、邮箱和密码，打造完整的个人主页。") + '</p>',
+            '</div>',
+            '</div>',
+            '<div class="mini-actions">',
+            '<button class="btn btn-ghost" data-action="profile">编辑资料</button>',
+            '<button class="btn btn-ghost" data-action="publish">发帖</button>',
+            '</div>'
+          ].join("") : '',
           '</section>'
         ].join("");
       }
@@ -2844,12 +3058,77 @@
         }).join("");
       }
 
+      function renderProfile() {
+        if (!(state.auth && state.auth.token)) {
+          setTimeout(function () { navigate("/login"); }, 0);
+          return '<div class="loading">请先登录...</div>';
+        }
+        var avatar = state.profileForm.avatar_url || state.auth.avatar_url || "";
+        var name = state.profileForm.username || state.auth.user_name || "";
+        var bio = state.profileForm.bio || "";
+        return [
+          '<section class="profile-page">',
+          '<div class="profile-hero">',
+          '<div class="profile-avatar-wrap">',
+          avatar ? '<img class="profile-avatar" src="' + escapeHTML(avatar) + '" alt="头像">' : '<div class="profile-avatar profile-avatar-fallback">' + escapeHTML((name || "玩家").slice(0, 1).toUpperCase()) + '</div>',
+          '</div>',
+          '<div class="profile-hero-copy">',
+          '<p class="section-kicker">Profile</p>',
+          '<h1 class="section-title">我的资料</h1>',
+          '<p class="section-desc">修改头像、用户名、邮箱、简介和密码。</p>',
+          '</div>',
+          '</div>',
+          '<div class="profile-grid">',
+          '<form class="panel profile-card" id="profile-form">',
+          '<div class="panel-head"><h2 class="panel-title">基础资料</h2><p class="panel-desc">头像建议使用正方形图片。</p></div>',
+          '<div class="profile-cover">',
+          avatar ? '<img src="' + escapeHTML(avatar) + '" alt="头像">' : '<span>' + escapeHTML((name || "玩家").slice(0, 1).toUpperCase()) + '</span>',
+          '</div>',
+          '<div class="form-grid">',
+          '<div class="field"><label for="profile-username">用户名</label><input id="profile-username" required maxlength="24" value="' + escapeHTML(state.profileForm.username || "") + '"></div>',
+          '<div class="field"><label for="profile-email">邮箱</label><input id="profile-email" type="email" maxlength="64" value="' + escapeHTML(state.profileForm.email || "") + '"></div>',
+          '<div class="field"><label for="profile-gender">性别</label><select id="profile-gender"><option value="0"' + (Number(state.profileForm.gender) === 0 ? ' selected' : '') + '>保密</option><option value="1"' + (Number(state.profileForm.gender) === 1 ? ' selected' : '') + '>男</option><option value="2"' + (Number(state.profileForm.gender) === 2 ? ' selected' : '') + '>女</option></select></div>',
+          '<div class="field"><label for="profile-avatar">头像地址</label><input id="profile-avatar" maxlength="255" value="' + escapeHTML(state.profileForm.avatar_url || "") + '" placeholder="上传后会自动填入链接"></div>',
+          '<div class="field field-full"><label for="profile-bio">简介</label><textarea id="profile-bio" maxlength="200" placeholder="写一句个人介绍">' + escapeHTML(bio) + '</textarea></div>',
+          '</div>',
+          '<div class="form-actions">',
+          '<button class="btn" type="button" data-action="upload-avatar"' + (state.profileAvatarUploading ? ' disabled' : '') + '>上传头像</button>',
+          '<button class="btn btn-primary" type="submit"' + (state.profileSaving ? ' disabled' : '') + '>保存资料</button>',
+          '</div>',
+          '</form>',
+          '<section class="panel profile-card is-secondary">',
+          '<div class="panel-head"><h2 class="panel-title">账户安全</h2><p class="panel-desc">密码表单默认折叠，按需再展开。</p></div>',
+          '<div class="profile-security-actions">',
+          '<button class="btn" type="button" data-action="' + (state.passwordEditorOpen ? 'close-password-editor' : 'open-password-editor') + '">' + (state.passwordEditorOpen ? '收起密码表单' : '修改密码') + '</button>',
+          '</div>',
+          state.passwordEditorOpen ? [
+            '<form id="password-form" class="password-editor">',
+            '<div class="form-grid">',
+            '<div class="field"><label for="password-old">当前密码</label><input id="password-old" type="password" required></div>',
+            '<div class="field"><label for="password-new">新密码</label><input id="password-new" type="password" required></div>',
+            '<div class="field"><label for="password-re">确认新密码</label><input id="password-re" type="password" required></div>',
+            '</div>',
+            '<div class="form-actions">',
+            '<button class="btn" type="button" data-action="close-password-editor">取消</button>',
+            '<button class="btn btn-primary" type="submit"' + (state.passwordSaving ? ' disabled' : '') + '>更新密码</button>',
+            '</div>',
+            '</form>'
+          ].join("") : '',
+          '</section>',
+          '</div>',
+          '</section>'
+        ].join("");
+      }
+
       function renderMain() {
         if (state.route.name === "detail") {
           return renderDetail();
         }
         if (state.route.name === "publish") {
           return renderPublish();
+        }
+        if (state.route.name === "profile") {
+          return renderProfile();
         }
         if (state.route.name === "login") {
           return renderAuth("login");
@@ -3261,7 +3540,16 @@
         if (signupForm) {
           signupForm.addEventListener("submit", submitSignup);
         }
+        var profileForm = document.getElementById("profile-form");
+        if (profileForm) {
+          profileForm.addEventListener("submit", submitProfile);
+        }
+        var passwordForm = document.getElementById("password-form");
+        if (passwordForm) {
+          passwordForm.addEventListener("submit", submitPassword);
+        }
         bindAuthInputs();
+        bindProfileInputs();
         var imageInput = document.getElementById("publish-image");
         if (imageInput) {
           imageInput.addEventListener("change", uploadPublishImage);
@@ -3303,6 +3591,15 @@
           navigate("/login");
         } else if (action === "signup") {
           navigate("/signup");
+        } else if (action === "profile") {
+          navigate("/me");
+        } else if (action === "open-password-editor") {
+          state.passwordEditorOpen = true;
+          render();
+        } else if (action === "close-password-editor") {
+          state.passwordEditorOpen = false;
+          state.passwordForm = createPasswordForm();
+          render();
         } else if (action === "logout") {
           logout();
         } else if (action === "comment") {
@@ -3320,6 +3617,8 @@
           if (imageInput) {
             imageInput.click();
           }
+        } else if (action === "upload-avatar") {
+          uploadProfileAvatar();
         }
       }
 
@@ -3340,6 +3639,39 @@
         if (rePassword) {
           rePassword.addEventListener("input", function () {
             state.authForm.rePassword = rePassword.value;
+          });
+        }
+      }
+
+      function bindProfileInputs() {
+        var username = document.getElementById("profile-username");
+        var email = document.getElementById("profile-email");
+        var gender = document.getElementById("profile-gender");
+        var avatar = document.getElementById("profile-avatar");
+        var bio = document.getElementById("profile-bio");
+        if (username) {
+          username.addEventListener("input", function () {
+            state.profileForm.username = username.value;
+          });
+        }
+        if (email) {
+          email.addEventListener("input", function () {
+            state.profileForm.email = email.value;
+          });
+        }
+        if (gender) {
+          gender.addEventListener("change", function () {
+            state.profileForm.gender = Number(gender.value);
+          });
+        }
+        if (avatar) {
+          avatar.addEventListener("input", function () {
+            state.profileForm.avatar_url = avatar.value;
+          });
+        }
+        if (bio) {
+          bio.addEventListener("input", function () {
+            state.profileForm.bio = bio.value;
           });
         }
       }
@@ -3575,7 +3907,24 @@
           loadPosts();
         } else if (state.route.name === "detail") {
           loadDetail(state.route.id);
+        } else if (state.route.name === "profile") {
+          loadCurrentUser();
         }
+      }
+
+      function loadCurrentUser() {
+        if (!(state.auth && state.auth.token)) {
+          return Promise.resolve();
+        }
+        return requestJSON("/me")
+          .then(function (data) {
+            var merged = normalizeAuth(Object.assign({}, state.auth || {}, data || {}));
+            setLogin(merged);
+            render();
+          })
+          .catch(function (err) {
+            toast(err.message || "加载用户资料失败");
+          });
       }
 
       function vote(postID, direction) {
@@ -3655,6 +4004,50 @@
           .finally(function () {
             input.value = "";
           });
+      }
+
+      function uploadProfileAvatar() {
+        if (state.profileAvatarUploading) {
+          return;
+        }
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/jpeg,image/png,image/webp,image/gif";
+        input.addEventListener("change", function () {
+          var file = input.files && input.files[0];
+          if (!file) {
+            return;
+          }
+          if (!/^image\/(jpeg|png|webp|gif)$/.test(file.type)) {
+            toast("仅支持 jpg、png、webp、gif 图片");
+            return;
+          }
+          var form = new FormData();
+          form.append("image", file);
+          state.profileAvatarUploading = true;
+          toast("正在上传头像...");
+          fetch(API + "/upload/image", {
+            method: "POST",
+            headers: authTokenHeader(),
+            body: form
+          })
+            .then(function (resp) { return resp.json(); })
+            .then(function (payload) {
+              if (!payload || payload.code !== 1000) {
+                throw new Error(payload && payload.msg ? formatMsg(payload.msg) : "上传失败");
+              }
+              state.profileForm.avatar_url = payload.data && payload.data.url || "";
+              render();
+              toast("头像已上传");
+            })
+            .catch(function (err) {
+              toast(err.message || "头像上传失败");
+            })
+            .finally(function () {
+              state.profileAvatarUploading = false;
+            });
+        });
+        input.click();
       }
 
       function authTokenHeader() {
@@ -3768,6 +4161,68 @@
           navigate("/login");
         }).catch(function (err) {
           showAuthError(err.message || "注册失败");
+        });
+      }
+
+      function submitProfile(event) {
+        event.preventDefault();
+        if (state.profileSaving) {
+          return;
+        }
+        state.profileSaving = true;
+        requestJSON("/me/profile", {
+          method: "PATCH",
+          body: JSON.stringify({
+            username: String(state.profileForm.username || "").trim(),
+            email: String(state.profileForm.email || "").trim(),
+            gender: Number(state.profileForm.gender || 0),
+            avatar_url: String(state.profileForm.avatar_url || "").trim(),
+            bio: String(state.profileForm.bio || "").trim()
+          })
+        }).then(function (data) {
+          var merged = normalizeAuth(Object.assign({}, state.auth || {}, data || {}));
+          setLogin(merged);
+          toast("资料已更新");
+          render();
+        }).catch(function (err) {
+          toast(err.message || "资料更新失败");
+        }).finally(function () {
+          state.profileSaving = false;
+        });
+      }
+
+      function submitPassword(event) {
+        event.preventDefault();
+        if (state.passwordSaving) {
+          return;
+        }
+        var oldPassword = document.getElementById("password-old");
+        var newPassword = document.getElementById("password-new");
+        var rePassword = document.getElementById("password-re");
+        state.passwordSaving = true;
+        requestJSON("/me/password", {
+          method: "PATCH",
+          body: JSON.stringify({
+            old_password: oldPassword ? oldPassword.value : "",
+            new_password: newPassword ? newPassword.value : "",
+            re_password: rePassword ? rePassword.value : ""
+          })
+        }).then(function () {
+          state.passwordForm = createPasswordForm();
+          if (oldPassword) {
+            oldPassword.value = "";
+          }
+          if (newPassword) {
+            newPassword.value = "";
+          }
+          if (rePassword) {
+            rePassword.value = "";
+          }
+          toast("密码已更新");
+        }).catch(function (err) {
+          toast(err.message || "密码更新失败");
+        }).finally(function () {
+          state.passwordSaving = false;
         });
       }
 

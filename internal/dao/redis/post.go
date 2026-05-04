@@ -1,7 +1,7 @@
 package redis
 
 import (
-	"bluebell/internal/models"
+	"gamebase/internal/models"
 	"strconv"
 	"time"
 

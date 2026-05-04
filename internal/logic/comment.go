@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"bluebell/internal/dao/mysql"
-	"bluebell/internal/dao/redis"
-	"bluebell/internal/models"
-	"bluebell/pkg/snowflake"
+	"gamebase/internal/dao/mysql"
+	"gamebase/internal/dao/redis"
+	"gamebase/internal/models"
+	"gamebase/pkg/snowflake"
 )
 
 // CreateComment 创建一条评论并完成关联更新。

@@ -1,8 +1,8 @@
 package mysql
 
 import (
-	"bluebell/internal/models"
-	"bluebell/internal/setting"
+	"gamebase/internal/models"
+	"gamebase/internal/setting"
 	"os"
 	"path/filepath"
 	"testing"
@@ -42,7 +42,7 @@ func TestCreatePost(t *testing.T) {
 }
 
 func findConfigPath() string {
-	if path := os.Getenv("BLUEBELL_CONFIG"); path != "" {
+	if path := os.Getenv("GAMEBASE_CONFIG"); path != "" {
 		return path
 	}
 

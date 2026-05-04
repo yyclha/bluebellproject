@@ -1,7 +1,7 @@
 package mysql
 
 import (
-	"bluebell/internal/models"
+	"gamebase/internal/models"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
