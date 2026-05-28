@@ -1,11 +1,11 @@
 package logic
 
 import (
+	"context"
 	"gamebase/internal/dao/mysql"
 	"gamebase/internal/dao/redis"
 	"gamebase/internal/models"
 	"gamebase/pkg/postscore"
-	"context"
 	"math"
 	"time"
 
@@ -58,8 +58,9 @@ func applyAISeedScore(ctx context.Context, p *models.Post) error {
 	}
 
 	if err := redis.AddPostScore(p.ID, delta); err != nil {
-		return err
+		zap.L().Warn("redis.AddPostScore failed", zap.Int64("post_id", p.ID), zap.Error(err))
 	}
+
 	if err := mysql.UpsertPostAIScore(&models.PostAIScore{
 		PostID:       p.ID,
 		Model:        result.Model,

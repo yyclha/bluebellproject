@@ -43,6 +43,10 @@ func main() {
 		fmt.Printf("init post ai score table failed, err:%v\n", err)
 		return
 	}
+	if err := mysql.InitPostRAGChunkTable(); err != nil {
+		fmt.Printf("init post rag chunk table failed, err:%v\n", err)
+		return
+	}
 	if err := mysql.InitDefaultCommunities(); err != nil {
 		fmt.Printf("init default communities failed, err:%v\n", err)
 		return
@@ -72,7 +76,7 @@ func main() {
 		fmt.Printf("init post score failed, err:%v\n", err)
 		return
 	}
-	if err := ragchat.Init(setting.Conf.RAGChatConfig, ragchat.WrapSearchFunc(logic.SearchPostByRAG)); err != nil {
+	if err := ragchat.Init(setting.Conf.RAGChatConfig, logic.NewPostHybridRetriever(setting.Conf.RAGChatConfig.TopK)); err != nil {
 		fmt.Printf("init rag chat failed, err:%v\n", err)
 		return
 	}

@@ -262,6 +262,9 @@ func DeletePostByID(pid, userID int64) error {
 	if err := mysql.DeletePostByID(pid); err != nil {
 		return err
 	}
+	if err := mysql.DeletePostRAGChunks(pid); err != nil {
+		return err
+	}
 	if err := redis.DeletePost(pid, post.CommunityID); err != nil {
 		zap.L().Warn("redis.DeletePost failed", zap.Int64("post_id", pid), zap.Error(err))
 	}

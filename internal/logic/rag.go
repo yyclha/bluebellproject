@@ -1,6 +1,9 @@
 package logic
 
 import (
+	"context"
+	"errors"
+	"fmt"
 	"gamebase/internal/dao/milvus"
 	"gamebase/internal/dao/mysql"
 	"gamebase/internal/dao/redis"
@@ -8,9 +11,7 @@ import (
 	"gamebase/internal/setting"
 	"gamebase/pkg/embedder"
 	"gamebase/pkg/ragchat"
-	"context"
-	"errors"
-	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -25,28 +26,30 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 		return nil, fmt.Errorf("embedding stage failed: %w", err)
 	}
 
-	hits, err := milvus.SearchByVector(ctx, vector, p.TopK)
+	denseHits, err := milvus.SearchByVector(ctx, vector, maxInt(p.TopK*3, 12))
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, fmt.Errorf("milvus search stage timed out: %w", err)
 		}
 		return nil, fmt.Errorf("milvus search stage failed: %w", err)
 	}
-	if len(hits) == 0 {
+
+	lexicalHits, err := searchPostByBM25(p.Query, maxInt(p.TopK*3, 12))
+	if err != nil {
+		return nil, fmt.Errorf("bm25 stage failed: %w", err)
+	}
+
+	postIDs := mergeRRFPostIDs(denseHits, lexicalHits, p.TopK)
+	if len(postIDs) == 0 {
 		return &models.RAGSearchResult{Query: p.Query, Hits: []models.RAGHit{}}, nil
 	}
 
-	postIDs := make([]string, 0, len(hits))
-	seenPostID := make(map[int64]struct{}, len(hits))
-	for _, hit := range hits {
-		if _, ok := seenPostID[hit.PostID]; ok {
-			continue
-		}
-		seenPostID[hit.PostID] = struct{}{}
-		postIDs = append(postIDs, strconv.FormatInt(hit.PostID, 10))
+	postIDStrings := make([]string, 0, len(postIDs))
+	for _, postID := range postIDs {
+		postIDStrings = append(postIDStrings, strconv.FormatInt(postID, 10))
 	}
 
-	postList, err := mysql.GetPostListByIDs(postIDs)
+	postList, err := mysql.GetPostListByIDs(postIDStrings)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, fmt.Errorf("mysql post hydration stage timed out: %w", err)
@@ -59,35 +62,165 @@ func SearchPostByRAG(ctx context.Context, p *models.ParamRAGSearch) (*models.RAG
 		postMap[post.ID] = post
 	}
 
-	postHits := make([]models.RAGHit, 0, len(postIDs))
-	added := make(map[int64]struct{}, len(postIDs))
-	for _, hit := range hits {
-		if _, ok := added[hit.PostID]; ok {
+	denseByPost := make(map[int64]milvus.SearchHit, len(denseHits))
+	for _, hit := range denseHits {
+		if _, ok := denseByPost[hit.PostID]; ok {
 			continue
 		}
+		denseByPost[hit.PostID] = hit
+	}
 
-		post, ok := postMap[hit.PostID]
+	lexicalByPost := make(map[int64]models.RAGHit, len(lexicalHits))
+	for _, hit := range lexicalHits {
+		if _, ok := lexicalByPost[hit.PostID]; ok {
+			continue
+		}
+		lexicalByPost[hit.PostID] = hit
+	}
+
+	postHits := make([]models.RAGHit, 0, len(postIDs))
+	for _, postID := range postIDs {
+		post, ok := postMap[postID]
 		if !ok {
 			continue
 		}
 
+		denseHit, hasDense := denseByPost[postID]
+		lexicalHit, hasLexical := lexicalByPost[postID]
+		score := float32(0)
+		chunkIndex := int64(0)
+		chunkText := ""
+		if hasDense {
+			score = denseHit.Score
+			chunkIndex = denseHit.ChunkIndex
+			chunkText = denseHit.ChunkText
+		}
+		if !hasDense && hasLexical {
+			score = lexicalHit.Score
+			chunkIndex = lexicalHit.ChunkIndex
+			chunkText = lexicalHit.ChunkText
+		}
+
 		postHits = append(postHits, models.RAGHit{
 			PostID:      post.ID,
-			Score:       hit.Score,
+			Score:       score,
 			Title:       post.Title,
 			Content:     post.Content,
-			ChunkIndex:  hit.ChunkIndex,
-			ChunkText:   hit.ChunkText,
+			ChunkIndex:  chunkIndex,
+			ChunkText:   chunkText,
 			CommunityID: post.CommunityID,
 			AuthorID:    post.AuthorID,
 		})
-		added[hit.PostID] = struct{}{}
 	}
 
 	return &models.RAGSearchResult{
 		Query: p.Query,
 		Hits:  postHits,
 	}, nil
+}
+
+func searchPostByBM25(query string, limit int) ([]models.RAGHit, error) {
+	posts, err := mysql.GetPostListForRAG(5000)
+	if err != nil {
+		return nil, err
+	}
+	if len(posts) == 0 {
+		return []models.RAGHit{}, nil
+	}
+
+	postMap := make(map[int64]*models.Post, len(posts))
+	postIDs := make([]string, 0, len(posts))
+	for _, post := range posts {
+		postMap[post.ID] = post
+		postIDs = append(postIDs, strconv.FormatInt(post.ID, 10))
+	}
+
+	chunks, err := mysql.GetPostRAGChunksByPostIDs(postIDs)
+	if err != nil {
+		return nil, err
+	}
+	if len(chunks) == 0 {
+		return []models.RAGHit{}, nil
+	}
+
+	corpus := make([]string, 0, len(chunks))
+	for _, chunk := range chunks {
+		corpus = append(corpus, chunk.ChunkText)
+	}
+	globalBM25.Rebuild(corpus)
+
+	bestScores := make(map[int64]float64)
+	bestChunks := make(map[int64]*models.PostRAGChunk)
+	for _, chunk := range chunks {
+		score := globalBM25.Score(query, chunk.ChunkText)
+		if score <= 0 {
+			continue
+		}
+		if prev, ok := bestScores[chunk.PostID]; ok && prev >= score {
+			continue
+		}
+		bestScores[chunk.PostID] = score
+		bestChunks[chunk.PostID] = chunk
+	}
+
+	postOrder := rankByScore(bestScores, limit)
+	hits := make([]models.RAGHit, 0, len(postOrder))
+	for _, postID := range postOrder {
+		post := postMap[postID]
+		chunk := bestChunks[postID]
+		if post == nil || chunk == nil {
+			continue
+		}
+		hits = append(hits, models.RAGHit{
+			PostID:      post.ID,
+			Score:       float32(bestScores[postID]),
+			Title:       post.Title,
+			Content:     post.Content,
+			ChunkIndex:  chunk.ChunkIndex,
+			ChunkText:   chunk.ChunkText,
+			CommunityID: post.CommunityID,
+			AuthorID:    post.AuthorID,
+		})
+	}
+	return hits, nil
+}
+
+func mergeRRFPostIDs(denseHits []milvus.SearchHit, lexicalHits []models.RAGHit, topK int) []int64 {
+	if topK <= 0 {
+		topK = 5
+	}
+	type rankItem struct {
+		postID int64
+		score  float64
+	}
+
+	scores := make(map[int64]float64)
+	for i, hit := range denseHits {
+		scores[hit.PostID] += 1.0 / float64(i+61)
+	}
+	for i, hit := range lexicalHits {
+		scores[hit.PostID] += 1.0 / float64(i+61)
+	}
+
+	items := make([]rankItem, 0, len(scores))
+	for postID, score := range scores {
+		items = append(items, rankItem{postID: postID, score: score})
+	}
+	sort.Slice(items, func(i, j int) bool {
+		if items[i].score == items[j].score {
+			return items[i].postID < items[j].postID
+		}
+		return items[i].score > items[j].score
+	})
+	if len(items) > topK {
+		items = items[:topK]
+	}
+
+	result := make([]int64, 0, len(items))
+	for _, item := range items {
+		result = append(result, item.postID)
+	}
+	return result
 }
 
 // StreamRAGAssistant 执行流式 RAG 问答并返回答案结果。
@@ -109,21 +242,15 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 		topK = ragchat.TopK()
 	}
 
-	searchResult, err := SearchPostByRAG(ctx, &models.ParamRAGSearch{
-		Query: buildContextualQuery(p.Question, history),
-		TopK:  topK,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("rag retrieval failed: %w", err)
-	}
-
-	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, history, searchResult.Hits, onChunk)
+	answer, err := ragchat.StreamAnswerQuestion(ctx, p.Question, history, topK, onChunk)
 	if err != nil {
 		if errors.Is(err, context.DeadlineExceeded) {
 			return nil, fmt.Errorf("llm answer stage timed out: %w", err)
 		}
 		return nil, fmt.Errorf("llm answer stage failed: %w", err)
 	}
+
+	hits := ragchat.RetrievedHitsFromSession(ctx)
 
 	if err := persistRAGChatHistory(p.SessionID, history, p.Question, answer); err != nil {
 		return nil, fmt.Errorf("persist rag chat history failed: %w", err)
@@ -133,7 +260,7 @@ func StreamRAGAssistant(ctx context.Context, p *models.ParamRAGChat, onChunk fun
 		Question: p.Question,
 		Answer:   answer,
 		Model:    ragchat.ModelName(),
-		Hits:     searchResult.Hits,
+		Hits:     hits,
 	}, nil
 }
 
@@ -238,13 +365,25 @@ func truncateRunes(value string, limit int) string {
 
 // IndexPostToRAG 将单篇帖子切块、向量化并写入 RAG 索引。
 func IndexPostToRAG(ctx context.Context, p *models.Post) error {
-	if !milvus.Enabled() || !embedder.Enabled() {
-		return nil
-	}
-
 	fullText := BuildPostRAGText(p.Title, p.Content)
 	chunks := SplitTextToChunks(fullText, chunkSize(), chunkOverlap())
 	if len(chunks) == 0 {
+		return mysql.ReplacePostRAGChunks(p.ID, nil)
+	}
+
+	persistedChunks := make([]models.PostRAGChunk, 0, len(chunks))
+	for _, chunk := range chunks {
+		persistedChunks = append(persistedChunks, models.PostRAGChunk{
+			PostID:     p.ID,
+			ChunkIndex: int64(chunk.Index),
+			ChunkText:  chunk.Text,
+		})
+	}
+	if err := mysql.ReplacePostRAGChunks(p.ID, persistedChunks); err != nil {
+		return err
+	}
+
+	if !milvus.Enabled() || !embedder.Enabled() {
 		return nil
 	}
 
@@ -297,4 +436,11 @@ func chunkOverlap() int {
 		return setting.Conf.MilvusConfig.ChunkOverlap
 	}
 	return defaultChunkOverlap
+}
+
+func maxInt(a int, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }

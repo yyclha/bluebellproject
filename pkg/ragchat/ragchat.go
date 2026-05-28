@@ -13,12 +13,13 @@ import (
 	"gamebase/internal/models"
 	"gamebase/internal/setting"
 
+	"github.com/cloudwego/eino-ext/components/model/qwen"
 	"github.com/cloudwego/eino/adk"
 	"github.com/cloudwego/eino/components/model"
+	einoretriever "github.com/cloudwego/eino/components/retriever"
 	"github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/schema"
-	"github.com/cloudwego/eino-ext/components/model/qwen"
 )
 
 var (
@@ -31,6 +32,7 @@ var (
 	sessionKeyH  = "conversation_history"
 	sessionKeyTK = "top_k"
 	sessionKeyA  = "agent_answer"
+	sessionKeyRH = "retrieved_hits"
 )
 
 type retrievePostsArgs struct {
@@ -39,14 +41,12 @@ type retrievePostsArgs struct {
 }
 
 type retrievePostsResult struct {
-	Query string           `json:"query"`
-	Hits  []models.RAGHit  `json:"hits"`
+	Query string          `json:"query"`
+	Hits  []models.RAGHit `json:"hits"`
 }
 
-type searchPostsFunc func(ctx context.Context, query string, topK int) (*models.RAGSearchResult, error)
-
 type retrievePostsTool struct {
-	search searchPostsFunc
+	retriever einoretriever.Retriever
 }
 
 func (t *retrievePostsTool) Info(context.Context) (*schema.ToolInfo, error) {
@@ -69,7 +69,7 @@ func (t *retrievePostsTool) Info(context.Context) (*schema.ToolInfo, error) {
 }
 
 func (t *retrievePostsTool) InvokableRun(ctx context.Context, argumentsInJSON string, _ ...tool.Option) (string, error) {
-	if t == nil || t.search == nil {
+	if t == nil || t.retriever == nil {
 		return "", errors.New("retrieve_posts tool is not initialized")
 	}
 
@@ -100,14 +100,37 @@ func (t *retrievePostsTool) InvokableRun(ctx context.Context, argumentsInJSON st
 		topK = TopK()
 	}
 
-	result, err := t.search(ctx, query, topK)
+	docs, err := t.retriever.Retrieve(ctx, query, einoretriever.WithTopK(topK))
 	if err != nil {
 		return "", err
 	}
 
+	hits := make([]models.RAGHit, 0, len(docs))
+	for _, doc := range docs {
+		if doc == nil {
+			continue
+		}
+		meta := doc.MetaData
+		hit := models.RAGHit{
+			PostID:      int64FromMeta(meta["post_id"]),
+			Score:       float32(doc.Score()),
+			Title:       stringFromMeta(meta["title"]),
+			Content:     stringFromMeta(meta["content"]),
+			ChunkIndex:  int64FromMeta(meta["chunk_index"]),
+			ChunkText:   stringFromMeta(meta["chunk_text"]),
+			CommunityID: int64FromMeta(meta["community_id"]),
+			AuthorID:    int64FromMeta(meta["author_id"]),
+		}
+		hits = append(hits, hit)
+	}
+
+	adk.AddSessionValues(ctx, map[string]interface{}{
+		sessionKeyRH: hits,
+	})
+
 	payload := &retrievePostsResult{
 		Query: query,
-		Hits:  result.Hits,
+		Hits:  hits,
 	}
 	raw, err := json.Marshal(payload)
 	if err != nil {
@@ -116,7 +139,7 @@ func (t *retrievePostsTool) InvokableRun(ctx context.Context, argumentsInJSON st
 	return string(raw), nil
 }
 
-func Init(c *setting.RAGChatConfig, search searchPostsFunc) error {
+func Init(c *setting.RAGChatConfig, retriever einoretriever.Retriever) error {
 	cfg = c
 	chatModel = nil
 	chatAgent = nil
@@ -126,8 +149,8 @@ func Init(c *setting.RAGChatConfig, search searchPostsFunc) error {
 	if cfg.BaseURL == "" || cfg.Model == "" {
 		return errors.New("rag_chat base_url/model is empty")
 	}
-	if search == nil {
-		return errors.New("rag_chat search func is nil")
+	if retriever == nil {
+		return errors.New("rag_chat retriever is nil")
 	}
 
 	timeout := time.Duration(cfg.TimeoutSeconds) * time.Second
@@ -155,11 +178,11 @@ func Init(c *setting.RAGChatConfig, search searchPostsFunc) error {
 		ToolsConfig: adk.ToolsConfig{
 			ToolsNodeConfig: compose.ToolsNodeConfig{
 				Tools: []tool.BaseTool{
-					&retrievePostsTool{search: search},
+					&retrievePostsTool{retriever: retriever},
 				},
 			},
 		},
-		OutputKey:      sessionKeyA,
+		OutputKey:     sessionKeyA,
 		MaxIterations: 4,
 	})
 	if err != nil {
@@ -169,12 +192,6 @@ func Init(c *setting.RAGChatConfig, search searchPostsFunc) error {
 	chatModel = m
 	chatAgent = agent
 	return nil
-}
-
-func WrapSearchFunc(fn func(ctx context.Context, p *models.ParamRAGSearch) (*models.RAGSearchResult, error)) searchPostsFunc {
-	return func(ctx context.Context, query string, topK int) (*models.RAGSearchResult, error) {
-		return fn(ctx, &models.ParamRAGSearch{Query: query, TopK: topK})
-	}
 }
 
 func Enabled() bool {
@@ -202,7 +219,7 @@ func MaxContextChars() int {
 	return cfg.MaxContextChars
 }
 
-func StreamAnswerQuestion(ctx context.Context, question string, history []models.RAGChatMessage, _ []models.RAGHit, onChunk func(string) error) (string, error) {
+func StreamAnswerQuestion(ctx context.Context, question string, history []models.RAGChatMessage, topK int, onChunk func(string) error) (string, error) {
 	if !Enabled() {
 		return "", errors.New("rag chat is disabled")
 	}
@@ -212,7 +229,7 @@ func StreamAnswerQuestion(ctx context.Context, question string, history []models
 
 	runner := adk.NewRunner(ctx, adk.RunnerConfig{Agent: chatAgent, EnableStreaming: true})
 
-	sessionValues, err := buildSessionValues(question, history)
+	sessionValues, err := buildSessionValues(question, history, topK)
 	if err != nil {
 		return "", err
 	}
@@ -284,6 +301,44 @@ func StreamAnswerQuestion(ctx context.Context, question string, history []models
 	return answer, nil
 }
 
+func RetrievedHitsFromSession(ctx context.Context) []models.RAGHit {
+	values := adk.GetSessionValues(ctx)
+	if values == nil {
+		return nil
+	}
+	raw, ok := values[sessionKeyRH]
+	if !ok {
+		return nil
+	}
+	hits, ok := raw.([]models.RAGHit)
+	if ok {
+		return hits
+	}
+	return nil
+}
+
+func stringFromMeta(value interface{}) string {
+	switch v := value.(type) {
+	case string:
+		return v
+	default:
+		return ""
+	}
+}
+
+func int64FromMeta(value interface{}) int64 {
+	switch v := value.(type) {
+	case int64:
+		return v
+	case int:
+		return int64(v)
+	case float64:
+		return int64(v)
+	default:
+		return 0
+	}
+}
+
 func buildAgentMessages(question string, history []models.RAGChatMessage) []*schema.Message {
 	messages := make([]*schema.Message, 0, len(history)+1)
 	start := len(history) - 8
@@ -307,12 +362,16 @@ func buildAgentMessages(question string, history []models.RAGChatMessage) []*sch
 	return messages
 }
 
-func buildSessionValues(question string, history []models.RAGChatMessage) (map[string]interface{}, error) {
+func buildSessionValues(question string, history []models.RAGChatMessage, topK int) (map[string]interface{}, error) {
 	historyText := buildHistoryText(history)
+	query := buildContextualQuery(question, history)
+	if topK <= 0 {
+		topK = TopK()
+	}
 	values := map[string]interface{}{
-		sessionKeyQ:  strings.TrimSpace(question),
+		sessionKeyQ:  query,
 		sessionKeyH:  historyText,
-		sessionKeyTK: TopK(),
+		sessionKeyTK: topK,
 	}
 	return values, nil
 }
@@ -341,6 +400,23 @@ func buildHistoryText(history []models.RAGChatMessage) string {
 		builder.WriteString("\n")
 	}
 	return strings.TrimSpace(builder.String())
+}
+
+func buildContextualQuery(question string, history []models.RAGChatMessage) string {
+	parts := make([]string, 0, 7)
+	start := len(history) - 6
+	if start < 0 {
+		start = 0
+	}
+	for _, item := range history[start:] {
+		content := strings.TrimSpace(item.Content)
+		if content == "" {
+			continue
+		}
+		parts = append(parts, truncateRunes(content, 260))
+	}
+	parts = append(parts, strings.TrimSpace(question))
+	return strings.TrimSpace(strings.Join(parts, "\n"))
 }
 
 func normalizeBaseURL(baseURL string) string {
