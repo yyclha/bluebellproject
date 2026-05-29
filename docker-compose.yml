@@ -40,7 +40,7 @@ services:
       - "9001:9000"
 
   milvus-standalone:
-    image: milvusdb/milvus:v2.4.5
+    image: milvusdb/milvus:v2.6.5
     command: ["milvus", "run", "standalone"]
     environment:
       ETCD_ENDPOINTS: etcd:2379

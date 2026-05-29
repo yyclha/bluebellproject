@@ -1,10 +1,10 @@
 package mysql
 
 import (
-	"gamebase/internal/models"
 	"crypto/md5"
 	"database/sql"
 	"encoding/hex"
+	"gamebase/internal/models"
 	"strings"
 )
 
@@ -67,7 +67,7 @@ func Login(user *models.User) error {
 
 func GetUserById(uid int64) (*models.User, error) {
 	user := new(models.User)
-	sqlStr := `select user_id, username, email, gender, ifnull(avatar_url, '') as avatar_url, ifnull(bio, '') as bio, create_time, update_time from user where user_id = ?`
+	sqlStr := `select user_id, username, ifnull(email, '') as email, gender, ifnull(avatar_url, '') as avatar_url, ifnull(bio, '') as bio, create_time, update_time from user where user_id = ?`
 	err := db.Get(user, sqlStr, uid)
 	return user, err
 }
@@ -118,6 +118,6 @@ func addColumnIfNotExists(tableName, columnName, columnDef string) error {
 	if count > 0 {
 		return nil
 	}
-	_, err := db.Exec(`alter table `+tableName+` add column `+columnName+` `+columnDef)
+	_, err := db.Exec(`alter table ` + tableName + ` add column ` + columnName + ` ` + columnDef)
 	return err
 }

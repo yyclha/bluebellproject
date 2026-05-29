@@ -31,7 +31,7 @@ redis:
 milvus:
   enabled: false
   address: "127.0.0.1:19530"
-  collection: "post_rag_chunk_1024"
+  collection: "post_rag_chunk_hybrid_1024"
   dimension: 1024
   chunk_size: 300
   chunk_overlap: 60

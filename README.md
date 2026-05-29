@@ -170,9 +170,9 @@ go run -buildvcs=false ./main.go ./conf/config.yaml
 - 健康检查：`http://127.0.0.1:8084/ping`
 - Swagger：`http://127.0.0.1:8084/swagger/index.html`
 
-## Docker Compose
+## Docker Compose（可选）
 
-项目提供了本地联调环境，包含：
+项目可以用 Docker Compose 做一体化联调，包含：
 
 - MySQL 8
 - Redis 5
@@ -181,7 +181,9 @@ go run -buildvcs=false ./main.go ./conf/config.yaml
 - Milvus
 - GameBase 应用服务
 
-启动：
+如果你是在 Windows 本机直接运行 Go 项目，并把 Milvus 放在虚拟机 Docker 中，这一节不是必需用法；只需要确保 Windows 能访问虚拟机的 `19530` 端口，并把 `milvus.address` 配成虚拟机 IP。
+
+启动一体化联调环境：
 
 ```bash
 docker compose up -d
@@ -245,7 +247,7 @@ redis:
 milvus:
   enabled: false
   address: "127.0.0.1:19530"
-  collection: "post_rag_chunk_1024"
+  collection: "post_rag_chunk_hybrid_1024"
 
 embedding:
   enabled: false
@@ -313,6 +315,39 @@ POST /api/v1/upload/image
 4. 将 `rag_chat.enabled` 设置为 `true`
 5. 配置对应的模型地址、API Key 和模型名
 
+如果 Milvus 跑在虚拟机 Docker 中，先在虚拟机里升级或启动 Milvus 2.6+，并暴露 `19530` 端口。Windows 项目配置示例：
+
+```yaml
+milvus:
+  enabled: true
+  address: "192.168.56.10:19530"
+  collection: "post_rag_chunk_hybrid_1024"
+```
+
+把 `192.168.56.10` 换成你的虚拟机 IP。可以在 Windows 上检查端口：
+
+```powershell
+Test-NetConnection 192.168.56.10 -Port 19530
+```
+
+虚拟机中如果只单独管理 Milvus 容器，需要保证镜像版本至少为 `milvusdb/milvus:v2.6.5`，并保留 etcd/minio 依赖和 `19530:19530` 端口映射。如果你在虚拟机里用自己的 compose 管 Milvus，只需要把 Milvus 服务镜像改成 `milvusdb/milvus:v2.6.5` 后重新拉起。
+
+当前 RAG 检索使用 Milvus 2.6+ 原生 hybrid search：
+
+- `embedding` 字段保存 dense embedding 向量
+- `chunk_text` 字段启用 analyzer
+- `sparse_embedding` 字段由 Milvus BM25 function 从 `chunk_text` 自动生成
+- 查询时同时执行 dense 向量检索和 BM25 稀疏检索，并由 Milvus RRF reranker 融合排序
+
+旧的 dense-only collection 不能原地复用。升级后建议使用新的 collection 名，例如 `post_rag_chunk_hybrid_1024`，然后重建索引：
+
+```bash
+curl -X POST "http://127.0.0.1:8084/api/v1/rag/reindex" \
+  -H "Authorization: Bearer <admin_token>" \
+  -H "Content-Type: application/json" \
+  -d '{"limit":5000}'
+```
+
 RAG 相关核心代码：
 
 - `internal/logic/rag.go`
@@ -325,28 +360,27 @@ AI 评分相关代码：
 - `cmd/post_score_probe/main.go`
 - `cmd/rebuild_post_score/main.go`
 
-## Eino ADK 助手流程
+## Eino Graph 助手流程
 
-当前 AI 助手已经改造成基于 Eino ADK 的单 Agent 架构，核心链路如下：
+当前 AI 助手已经改造成基于 Eino Graph 的 RAG 助手架构，核心链路如下：
 
 1. 前端为悬浮助手生成 `session_id`，请求 `/api/v1/rag/chat/stream` 时只传 `session_id`、`question` 和 `top_k`
 2. 后端根据 `session_id` 从 Redis 读取最近对话历史，作为本轮会话上下文
-3. `pkg/ragchat` 在启动时初始化 Eino `ChatModelAgent`
-4. Agent 挂载一个 `retrieve_posts` 工具，用于检索社区帖子知识库
-5. Runner 接收用户问题后，把最近对话和当前问题一并交给 Agent
-6. Agent 优先调用 `retrieve_posts`
-7. `retrieve_posts` 工具内部复用现有 RAG 检索链路：
+3. `internal/agent/ragchat` 在启动时初始化 Qwen ChatModel 和 Eino Graph
+4. Graph 按 `build_query -> retrieve_posts -> build_prompt -> generate_answer` 顺序执行
+5. `retrieve_posts` 节点内部复用现有 RAG 检索链路：
    - Embedding 向量化
-   - Milvus 相似度检索
+   - Milvus hybrid search
+   - Milvus BM25 sparse 检索
+   - Milvus RRF 融合排序
    - MySQL 补全帖子标题与正文
-8. 工具结果作为 ADK 的 tool message 回流给 Agent
-9. Agent 基于工具结果生成最终中文回答
-10. Runner 以流式事件输出回答，Gin 控制器继续通过 SSE 推送给前端
-11. 回答完成后，后端把本轮 user / assistant 对话写回 Redis，会话可持续追问
+6. `build_prompt` 节点把检索片段和最近会话组装成模型消息
+7. `generate_answer` 节点以流式方式生成最终中文回答，Gin 控制器继续通过 SSE 推送给前端
+8. 回答完成后，后端把本轮 user / assistant 对话写回 Redis，会话可持续追问
 
 相关代码入口：
 
-- `pkg/ragchat/ragchat.go`
+- `internal/agent/ragchat/ragchat.go`
 - `internal/logic/rag.go`
 - `internal/dao/redis/assistant_session.go`
 - `templates/index.html`

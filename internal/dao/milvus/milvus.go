@@ -1,23 +1,27 @@
 package milvus
 
 import (
-	"gamebase/internal/setting"
 	"context"
 	"errors"
 	"fmt"
+	"gamebase/internal/setting"
 	"strings"
 	"time"
 
-	"github.com/milvus-io/milvus-sdk-go/v2/client"
-	"github.com/milvus-io/milvus-sdk-go/v2/entity"
+	"github.com/milvus-io/milvus/client/v2/entity"
+	"github.com/milvus-io/milvus/client/v2/index"
+	"github.com/milvus-io/milvus/client/v2/milvusclient"
 )
 
 const (
-	fieldChunkID   = "chunk_id"
-	fieldPostID    = "post_id"
-	fieldChunkIdx  = "chunk_index"
-	fieldChunkText = "chunk_text"
-	fieldEmbedding = "embedding"
+	fieldChunkID         = "chunk_id"
+	fieldPostID          = "post_id"
+	fieldChunkIdx        = "chunk_index"
+	fieldChunkText       = "chunk_text"
+	fieldEmbedding       = "embedding"
+	fieldSparseEmbedding = "sparse_embedding"
+
+	bm25FunctionName = "chunk_text_bm25"
 )
 
 // ChunkDocument 表示一条需要写入 Milvus 的 chunk 文档记录。
@@ -38,7 +42,7 @@ type SearchHit struct {
 }
 
 var (
-	cli    client.Client
+	cli    *milvusclient.Client
 	cfg    *setting.MilvusConfig
 	loaded bool
 )
@@ -55,14 +59,14 @@ func Init(c *setting.MilvusConfig) error {
 
 	var lastErr error
 	for i := 0; i < 3; i++ {
-		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		var err error
-		cli, err = client.NewGrpcClient(ctx, cfg.Address)
+		cli, err = milvusclient.New(ctx, &milvusclient.ClientConfig{Address: cfg.Address})
 		if err == nil {
 			err = ensureCollection(ctx)
 		}
 		if err == nil {
-			err = cli.LoadCollection(ctx, cfg.Collection, false)
+			err = loadCollection(ctx)
 		}
 		cancel()
 		if err == nil {
@@ -70,6 +74,10 @@ func Init(c *setting.MilvusConfig) error {
 			return nil
 		}
 		lastErr = err
+		if cli != nil {
+			_ = cli.Close(context.Background())
+			cli = nil
+		}
 		time.Sleep(3 * time.Second)
 	}
 	return lastErr
@@ -78,7 +86,7 @@ func Init(c *setting.MilvusConfig) error {
 // Close 关闭 Milvus 客户端连接。
 func Close() {
 	if cli != nil {
-		_ = cli.Close()
+		_ = cli.Close(context.Background())
 	}
 }
 
@@ -118,15 +126,12 @@ func ReplacePostChunks(ctx context.Context, postID int64, docs []ChunkDocument) 
 		vectors = append(vectors, doc.Vector)
 	}
 
-	_, err := cli.Upsert(
-		ctx,
-		cfg.Collection,
-		"",
-		entity.NewColumnVarChar(fieldChunkID, chunkIDs),
-		entity.NewColumnInt64(fieldPostID, postIDs),
-		entity.NewColumnInt64(fieldChunkIdx, chunkIndexes),
-		entity.NewColumnVarChar(fieldChunkText, chunkTexts),
-		entity.NewColumnFloatVector(fieldEmbedding, cfg.Dimension, vectors),
+	_, err := cli.Upsert(ctx, milvusclient.NewColumnBasedInsertOption(cfg.Collection).
+		WithVarcharColumn(fieldChunkID, chunkIDs).
+		WithInt64Column(fieldPostID, postIDs).
+		WithInt64Column(fieldChunkIdx, chunkIndexes).
+		WithVarcharColumn(fieldChunkText, chunkTexts).
+		WithFloatVectorColumn(fieldEmbedding, cfg.Dimension, vectors),
 	)
 	return err
 }
@@ -151,13 +156,13 @@ func RebuildCollection(ctx context.Context) error {
 
 	loaded = false
 
-	has, err := cli.HasCollection(ctx, cfg.Collection)
+	has, err := cli.HasCollection(ctx, milvusclient.NewHasCollectionOption(cfg.Collection))
 	if err != nil {
 		return err
 	}
 	if has {
-		_ = cli.ReleaseCollection(ctx, cfg.Collection)
-		if err := cli.DropCollection(ctx, cfg.Collection); err != nil {
+		_ = cli.ReleaseCollection(ctx, milvusclient.NewReleaseCollectionOption(cfg.Collection))
+		if err := cli.DropCollection(ctx, milvusclient.NewDropCollectionOption(cfg.Collection)); err != nil {
 			return err
 		}
 	}
@@ -165,7 +170,7 @@ func RebuildCollection(ctx context.Context) error {
 	if err := ensureCollection(ctx); err != nil {
 		return err
 	}
-	if err := cli.LoadCollection(ctx, cfg.Collection, false); err != nil {
+	if err := loadCollection(ctx); err != nil {
 		return err
 	}
 
@@ -173,10 +178,13 @@ func RebuildCollection(ctx context.Context) error {
 	return nil
 }
 
-// SearchByVector 在 Milvus 中召回 chunk 级结果，并把结果字段一起带回业务层。
-func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHit, error) {
+// SearchByHybrid 在 Milvus 中执行 dense embedding + BM25 sparse hybrid search。
+func SearchByHybrid(ctx context.Context, query string, vector []float32, topK int) ([]SearchHit, error) {
 	if !Enabled() {
 		return nil, errors.New("milvus is disabled")
+	}
+	if strings.TrimSpace(query) == "" {
+		return nil, errors.New("query is empty")
 	}
 	if len(vector) != cfg.Dimension {
 		return nil, fmt.Errorf("invalid vector dim=%d, expected=%d", len(vector), cfg.Dimension)
@@ -193,22 +201,18 @@ func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHi
 		searchLimit = 10
 	}
 
-	searchParam, err := buildSearchParam()
-	if err != nil {
-		return nil, err
-	}
+	denseReq := milvusclient.NewAnnRequest(fieldEmbedding, searchLimit, entity.FloatVector(vector)).
+		WithAnnParam(buildSearchParam())
+	sparseReq := milvusclient.NewAnnRequest(fieldSparseEmbedding, searchLimit, entity.Text(strings.TrimSpace(query))).
+		WithAnnParam(index.NewSparseAnnParam())
 
-	results, err := cli.Search(
-		ctx,
+	results, err := cli.HybridSearch(ctx, milvusclient.NewHybridSearchOption(
 		cfg.Collection,
-		nil,
-		"",
-		[]string{fieldPostID, fieldChunkIdx, fieldChunkText},
-		[]entity.Vector{entity.FloatVector(vector)},
-		fieldEmbedding,
-		parseMetricType(cfg.MetricType),
 		searchLimit,
-		searchParam,
+		denseReq,
+		sparseReq,
+	).WithReranker(milvusclient.NewRRFReranker()).
+		WithOutputFields(fieldPostID, fieldChunkIdx, fieldChunkText),
 	)
 	if err != nil {
 		return nil, err
@@ -217,19 +221,155 @@ func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHi
 		return nil, nil
 	}
 
-	postIDColumn := results[0].Fields.GetColumn(fieldPostID)
-	chunkIndexColumn := results[0].Fields.GetColumn(fieldChunkIdx)
-	chunkTextColumn := results[0].Fields.GetColumn(fieldChunkText)
-	if postIDColumn == nil || chunkIndexColumn == nil || chunkTextColumn == nil {
-		return nil, errors.New("milvus search result missing required fields")
+	hits, err := parseHitsFromResultSet(results[0])
+	if err != nil {
+		return nil, err
 	}
 
-	hits := make([]SearchHit, 0, results[0].ResultCount)
-	for i := 0; i < results[0].ResultCount; i++ {
-		chunkID, err := results[0].IDs.GetAsString(i)
+	return deduplicateHitsByPost(hits, topK), nil
+}
+
+// SearchByVector 保留兼容入口，内部使用同一向量同时执行 dense-only 检索。
+func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHit, error) {
+	if !Enabled() {
+		return nil, errors.New("milvus is disabled")
+	}
+	if len(vector) != cfg.Dimension {
+		return nil, fmt.Errorf("invalid vector dim=%d, expected=%d", len(vector), cfg.Dimension)
+	}
+	if topK <= 0 {
+		topK = cfg.TopK
+	}
+	if topK <= 0 {
+		topK = 5
+	}
+
+	searchLimit := topK * 4
+	if searchLimit < 10 {
+		searchLimit = 10
+	}
+
+	results, err := cli.Search(ctx, milvusclient.NewSearchOption(
+		cfg.Collection,
+		searchLimit,
+		[]entity.Vector{entity.FloatVector(vector)},
+	).WithANNSField(fieldEmbedding).
+		WithAnnParam(buildSearchParam()).
+		WithOutputFields(fieldPostID, fieldChunkIdx, fieldChunkText),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if len(results) == 0 || results[0].ResultCount == 0 {
+		return nil, nil
+	}
+
+	hits, err := parseHitsFromResultSet(results[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return deduplicateHitsByPost(hits, topK), nil
+}
+
+// ensureCollection 确保 collection 存在；hybrid schema 不能复用旧 dense-only collection。
+// SearchBySparseText runs BM25 sparse search only. It is used by diagnostics
+// to separate sparse retrieval problems from dense/hybrid retrieval problems.
+func SearchBySparseText(ctx context.Context, query string, topK int) ([]SearchHit, error) {
+	if !Enabled() {
+		return nil, errors.New("milvus is disabled")
+	}
+	if strings.TrimSpace(query) == "" {
+		return nil, errors.New("query is empty")
+	}
+	if topK <= 0 {
+		topK = cfg.TopK
+	}
+	if topK <= 0 {
+		topK = 5
+	}
+
+	results, err := cli.Search(ctx, milvusclient.NewSearchOption(
+		cfg.Collection,
+		topK,
+		[]entity.Vector{entity.Text(strings.TrimSpace(query))},
+	).WithANNSField(fieldSparseEmbedding).
+		WithAnnParam(index.NewSparseAnnParam()).
+		WithOutputFields(fieldPostID, fieldChunkIdx, fieldChunkText),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if len(results) == 0 || results[0].ResultCount == 0 {
+		return nil, nil
+	}
+
+	hits, err := parseHitsFromResultSet(results[0])
+	if err != nil {
+		return nil, err
+	}
+
+	return deduplicateHitsByPost(hits, topK), nil
+}
+
+// CollectionStats returns Milvus collection stats for diagnostics.
+func CollectionStats(ctx context.Context) (map[string]string, error) {
+	if !Enabled() {
+		return nil, errors.New("milvus is disabled")
+	}
+	return cli.GetCollectionStats(ctx, milvusclient.NewGetCollectionStatsOption(cfg.Collection))
+}
+
+// SampleChunks returns a few arbitrary chunks from the collection for diagnostics.
+func SampleChunks(ctx context.Context, limit int) ([]SearchHit, error) {
+	if !Enabled() {
+		return nil, errors.New("milvus is disabled")
+	}
+	if limit <= 0 {
+		limit = 3
+	}
+
+	result, err := cli.Query(ctx, milvusclient.NewQueryOption(cfg.Collection).
+		WithFilter(fieldPostID+" >= 0").
+		WithLimit(limit).
+		WithOutputFields(fieldChunkID, fieldPostID, fieldChunkIdx, fieldChunkText),
+	)
+	if err != nil {
+		return nil, err
+	}
+	if result.ResultCount == 0 {
+		return nil, nil
+	}
+
+	return parseHitsFromResultSet(result)
+}
+
+func parseHitsFromResultSet(result milvusclient.ResultSet) ([]SearchHit, error) {
+	if result.ResultCount == 0 {
+		return nil, nil
+	}
+
+	postIDColumn := result.GetColumn(fieldPostID)
+	chunkIndexColumn := result.GetColumn(fieldChunkIdx)
+	chunkTextColumn := result.GetColumn(fieldChunkText)
+	if postIDColumn == nil || chunkIndexColumn == nil || chunkTextColumn == nil {
+		return nil, errors.New("milvus result missing required fields")
+	}
+
+	chunkIDColumn := result.GetColumn(fieldChunkID)
+	hits := make([]SearchHit, 0, result.ResultCount)
+	for i := 0; i < result.ResultCount; i++ {
+		chunkID := ""
+		var err error
+		if chunkIDColumn != nil {
+			chunkID, err = chunkIDColumn.GetAsString(i)
+		} else if result.IDs != nil {
+			chunkID, err = result.IDs.GetAsString(i)
+		}
 		if err != nil {
 			return nil, err
 		}
+
 		postID, err := postIDColumn.GetAsInt64(i)
 		if err != nil {
 			return nil, err
@@ -243,21 +383,22 @@ func SearchByVector(ctx context.Context, vector []float32, topK int) ([]SearchHi
 			return nil, err
 		}
 
-		hits = append(hits, SearchHit{
+		hit := SearchHit{
 			ChunkID:    chunkID,
 			PostID:     postID,
 			ChunkIndex: chunkIndex,
 			ChunkText:  chunkText,
-			Score:      results[0].Scores[i],
-		})
+		}
+		if i < len(result.Scores) {
+			hit.Score = result.Scores[i]
+		}
+		hits = append(hits, hit)
 	}
-
-	return deduplicateHitsByPost(hits, topK), nil
+	return hits, nil
 }
 
-// ensureCollection 确保 collection 存在；chunk 化后如果沿用旧集合名，会直接报 schema 不匹配，因此建议换新集合名。
 func ensureCollection(ctx context.Context) error {
-	has, err := cli.HasCollection(ctx, cfg.Collection)
+	has, err := cli.HasCollection(ctx, milvusclient.NewHasCollectionOption(cfg.Collection))
 	if err != nil {
 		return err
 	}
@@ -267,36 +408,42 @@ func ensureCollection(ctx context.Context) error {
 
 	schema := entity.NewSchema().
 		WithName(cfg.Collection).
-		WithDescription("gamebase rag chunks").
+		WithDescription("gamebase rag chunks with dense and bm25 sparse retrieval").
 		WithAutoID(false).
 		WithField(entity.NewField().WithName(fieldChunkID).WithDataType(entity.FieldTypeVarChar).WithMaxLength(128).WithIsPrimaryKey(true).WithIsAutoID(false)).
 		WithField(entity.NewField().WithName(fieldPostID).WithDataType(entity.FieldTypeInt64)).
 		WithField(entity.NewField().WithName(fieldChunkIdx).WithDataType(entity.FieldTypeInt64)).
-		WithField(entity.NewField().WithName(fieldChunkText).WithDataType(entity.FieldTypeVarChar).WithMaxLength(65535)).
-		WithField(entity.NewField().WithName(fieldEmbedding).WithDataType(entity.FieldTypeFloatVector).WithDim(int64(cfg.Dimension)))
+		WithField(entity.NewField().WithName(fieldChunkText).WithDataType(entity.FieldTypeVarChar).WithMaxLength(65535).WithEnableAnalyzer(true)).
+		WithField(entity.NewField().WithName(fieldEmbedding).WithDataType(entity.FieldTypeFloatVector).WithDim(int64(cfg.Dimension))).
+		WithField(entity.NewField().WithName(fieldSparseEmbedding).WithDataType(entity.FieldTypeSparseVector)).
+		WithFunction(entity.NewFunction().
+			WithName(bm25FunctionName).
+			WithType(entity.FunctionTypeBM25).
+			WithInputFields(fieldChunkText).
+			WithOutputFields(fieldSparseEmbedding),
+		)
 
-	if err := cli.CreateCollection(ctx, schema, entity.DefaultShardNumber); err != nil {
-		return err
+	indexOptions := []milvusclient.CreateIndexOption{
+		milvusclient.NewCreateIndexOption(cfg.Collection, fieldEmbedding, buildDenseIndex()).WithIndexName(fieldEmbedding),
+		milvusclient.NewCreateIndexOption(cfg.Collection, fieldSparseEmbedding, index.NewSparseInvertedIndex(entity.BM25, 0)).WithIndexName(fieldSparseEmbedding),
 	}
 
-	var idx entity.Index
-	switch strings.ToUpper(cfg.IndexType) {
-	case "IVF_FLAT":
-		idx, err = entity.NewIndexIvfFlat(parseMetricType(cfg.MetricType), 1024)
-	default:
-		idx, err = entity.NewIndexHNSW(parseMetricType(cfg.MetricType), defaultHNSWM(), defaultHNSWEFConstruction())
-	}
+	return cli.CreateCollection(ctx, milvusclient.NewCreateCollectionOption(cfg.Collection, schema).WithIndexOptions(indexOptions...))
+}
+
+func loadCollection(ctx context.Context) error {
+	task, err := cli.LoadCollection(ctx, milvusclient.NewLoadCollectionOption(cfg.Collection))
 	if err != nil {
 		return err
 	}
-
-	return cli.CreateIndex(ctx, cfg.Collection, fieldEmbedding, idx, false)
+	return task.Await(ctx)
 }
 
 // deletePostChunks 在 Milvus 中删除指定帖子的分块记录。
 func deletePostChunks(ctx context.Context, postID int64) error {
 	expr := fmt.Sprintf("%s == %d", fieldPostID, postID)
-	return cli.Delete(ctx, cfg.Collection, "", expr)
+	_, err := cli.Delete(ctx, milvusclient.NewDeleteOption(cfg.Collection).WithExpr(expr))
+	return err
 }
 
 // deduplicateHitsByPost 按帖子维度对检索结果去重。
@@ -320,9 +467,9 @@ func deduplicateHitsByPost(hits []SearchHit, topK int) []SearchHit {
 	return result
 }
 
-// validateCollectionSchema 校验 Milvus 集合结构是否符合预期。
+// validateCollectionSchema 校验 Milvus 集合结构是否符合 hybrid BM25 schema。
 func validateCollectionSchema(ctx context.Context) error {
-	coll, err := cli.DescribeCollection(ctx, cfg.Collection)
+	coll, err := cli.DescribeCollection(ctx, milvusclient.NewDescribeCollectionOption(cfg.Collection))
 	if err != nil {
 		return err
 	}
@@ -330,27 +477,47 @@ func validateCollectionSchema(ctx context.Context) error {
 		return errors.New("milvus collection schema is empty")
 	}
 
-	fieldSet := make(map[string]struct{}, len(coll.Schema.Fields))
+	fieldSet := make(map[string]entity.FieldType, len(coll.Schema.Fields))
 	for _, field := range coll.Schema.Fields {
-		fieldSet[field.Name] = struct{}{}
+		fieldSet[field.Name] = field.DataType
 	}
 
-	required := []string{fieldChunkID, fieldPostID, fieldChunkIdx, fieldChunkText, fieldEmbedding}
-	for _, name := range required {
-		if _, ok := fieldSet[name]; !ok {
-			return fmt.Errorf("milvus collection %s schema is incompatible with chunk mode, missing field %s", cfg.Collection, name)
+	required := map[string]entity.FieldType{
+		fieldChunkID:         entity.FieldTypeVarChar,
+		fieldPostID:          entity.FieldTypeInt64,
+		fieldChunkIdx:        entity.FieldTypeInt64,
+		fieldChunkText:       entity.FieldTypeVarChar,
+		fieldEmbedding:       entity.FieldTypeFloatVector,
+		fieldSparseEmbedding: entity.FieldTypeSparseVector,
+	}
+	for name, wantType := range required {
+		gotType, ok := fieldSet[name]
+		if !ok {
+			return fmt.Errorf("milvus collection %s schema is incompatible with hybrid RAG mode, missing field %s; use a new collection name or rebuild collection", cfg.Collection, name)
+		}
+		if gotType != wantType {
+			return fmt.Errorf("milvus collection %s field %s type=%s, expected=%s", cfg.Collection, name, gotType.Name(), wantType.Name())
 		}
 	}
 	return nil
 }
 
-// buildSearchParam 构建 Milvus 检索参数。
-func buildSearchParam() (entity.SearchParam, error) {
+func buildDenseIndex() index.Index {
 	switch strings.ToUpper(cfg.IndexType) {
 	case "IVF_FLAT":
-		return entity.NewIndexIvfFlatSearchParam(1024)
+		return index.NewIvfFlatIndex(parseMetricType(cfg.MetricType), 1024)
 	default:
-		return entity.NewIndexHNSWSearchParam(defaultSearchEF())
+		return index.NewHNSWIndex(parseMetricType(cfg.MetricType), defaultHNSWM(), defaultHNSWEFConstruction())
+	}
+}
+
+// buildSearchParam 构建 Milvus dense 检索参数。
+func buildSearchParam() index.AnnParam {
+	switch strings.ToUpper(cfg.IndexType) {
+	case "IVF_FLAT":
+		return index.NewIvfAnnParam(1024)
+	default:
+		return index.NewHNSWAnnParam(defaultSearchEF())
 	}
 }
 

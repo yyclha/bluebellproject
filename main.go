@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"gamebase/internal/agent/ragchat"
 	"gamebase/internal/controller"
 	"gamebase/internal/dao/milvus"
 	"gamebase/internal/dao/mysql"
@@ -11,9 +13,7 @@ import (
 	"gamebase/internal/setting"
 	"gamebase/pkg/embedder"
 	"gamebase/pkg/postscore"
-	"gamebase/pkg/ragchat"
 	"gamebase/pkg/snowflake"
-	"fmt"
 	"os"
 )
 
